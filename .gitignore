@@ -1,0 +1,5 @@
+indicators.log
+funcs.py
+extra.py
+*.pyc
+.vscode
