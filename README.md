@@ -32,11 +32,10 @@ Allows users to backtest strategies, with previous stored data. Can also plot tr
 ## Pre requisites
 
 In order to get crypto-algotrading fully working is necessary to install some packages and Python libs, as IPython, Pandas, Matplotlib, Numpy, Python-Influxdb and Python-tk. 
-On Ubuntu machines these packages can be installed doing:
+On Linux machines these packages could be installed with:
 
 ```bash
-sudo apt install ipython python-tk
-sudo pip install pandas matplotlib numpy influxdb
+pip install -r requirements.txt
 ```
 
 ## Collecting data
