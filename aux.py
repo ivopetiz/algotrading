@@ -47,6 +47,28 @@ def get_markets_list(base='BTC'):
     return [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
 
 
+def get_markets_on_files(interval, base='BTC'):
+    '''
+    Gets all coins from a certain market.
+
+    Args:
+    - interval: data interval.
+    - base: if you want just one market. Ex: BTC.
+        Empty for all markets.
+
+    Returns:
+    - list of markets.
+    '''
+    markets_list=[]
+
+    for file_ in os.listdir('hist-' + interval):
+        if file_.startswith(base):
+            markets_list.append(file_.split('.')[0])
+
+    print markets_list
+    return markets_list
+
+
 def get_last_data(market, date=[0, 0], interval='30m'):
     '''
     Gets last data from DB.
@@ -188,7 +210,8 @@ def plot_data(data,
               show_smas=False,
               show_emas=False,
               show_bbands=False):
-    '''Plots selected data.
+    '''
+    Plots selected data.
     entry_points is a tuple of lists: (entry_points_x,entry_points_y)
     '''
     #plt.clf()
@@ -266,7 +289,8 @@ def plot_data(data,
 
 
 def get_histdata_to_file(markets=[], interval=var.default_interval, base_market='BTC'):
-    '''Gets data from DB to file.
+    '''
+    Gets data from DB to file.
     Prevents excess of DB accesses.
     Saves files to 'hist-<interval>.csv'
 
@@ -293,7 +317,8 @@ def get_histdata_to_file(markets=[], interval=var.default_interval, base_market=
 
 
 def get_data_from_file(market, interval=var.default_interval):
-    '''Gets data from file.
+    '''
+    Gets data from file.
 
     Args:
     - market: str with market.
@@ -320,7 +345,8 @@ def beep(duration=0.5):
 
 
 def check_market_name(market):
-    '''Avoids abbreviations and lowercases failures.
+    '''
+    Avoids abbreviations and lowercases failures.
     '''
     market = market.upper()
 
@@ -330,9 +356,11 @@ def check_market_name(market):
 
 
 def time_to_index(data, _datetime):
-    '''Converts input time to DB time.
     '''
-    #TODO aprimorar a parte de poder omitir data ou hora
+    Converts input time to DB time.
+    '''
+    #TODO 
+    # Improve date presentation
 
     #2017-09-09T06:25:00Z
     #d[(d.time>'2017-09-09T06:25:00Z') & (d.time<'2017-09-09T07:25:00Z')]
@@ -389,3 +417,18 @@ def get_time_right(date_n_time):
         t_day + 'T' +\
         t_hour + ':' +\
         t_minute + ':00Z'
+
+
+def timeit(method):
+    '''
+    Decorator to measure functions duration.
+    '''
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+
+        print '%2.2f sec' % (te-ts)
+        return result
+
+    return timed

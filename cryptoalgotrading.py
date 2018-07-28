@@ -9,7 +9,6 @@
 #   fix log presentation.
 #   implement binance.
 #   use multiprocessing.
-#   decrease amount of used data.
 
 import os
 import var
@@ -214,10 +213,6 @@ def is_time_to_exit(data,
     Detects when is time to exit trade.
     '''
 
-    ### VER ISTO
-    #if entry_point > data.Ask.iloc[-1]:
-    #    return True
-
     if not real_aux:
         data = data.rename(index=str, columns={
                             "OpenBuyOrders": "OpenBuy",
@@ -248,18 +243,6 @@ def is_time_to_buy(data,
                            "OpenBuyOrders": "OpenBuy", 
                            "OpenSellOrders": "OpenSell"})
 
-    ### OLD VERSION
-    #n_funcs = len(funcs)
-    #n_funcs_entry = 0
-
-    #for func in funcs:
-    #    if func(data, smas=smas, emas=emas):
-    #       n_funcs_entry += 1
-    
-    #if n_funcs == n_funcs_entry:
-    #    return True
-    #return False
-
     if type(funcs) is not list:
         funcs = [funcs]
 
@@ -269,7 +252,7 @@ def is_time_to_buy(data,
 
     return False
 
-
+@timeit
 def backtest(markets,
              entry_funcs,
              exit_funcs=[],
@@ -294,9 +277,12 @@ def backtest(markets,
     date = [0,0]
 
     if not len(markets):
-        y = raw_input("Want to run all markets? ")
+        y = 'y'#raw_input("Want to run all markets? ")
         if y == 'y':
-            markets = get_markets_list(base=base_market)
+            if from_file:
+                markets = get_markets_on_files(interval, base=base_market)
+            else:
+                markets = get_markets_list(base=base_market)
         else:
             return False
 
