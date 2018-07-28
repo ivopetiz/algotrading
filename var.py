@@ -22,7 +22,7 @@ try:
     db_name = os.environ['DB_NAME']
 
 except:
-    db_user = "random"
+    db_user = "user"
     db_password = ""
     db_name = "db"
 
@@ -39,7 +39,10 @@ default_volume_emas = [3,6]
 default_mom = 4
 
 validade = 50
-refresh_interval = 60
+refresh_interval = 60 # interval in seconds.
+
+# pairs first market.
+main_coins=["BTC","USDT"]
 
 exchange = 'bittrex'
 

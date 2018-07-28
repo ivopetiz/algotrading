@@ -73,11 +73,17 @@ def get_last_data(market, date=[0, 0], interval='30m'):
     market = check_market_name(market)
 
     #TODO fazer a verificacao da existencia da market no markets list.
-    command = "SELECT last(Last) AS Last, last(BaseVolume) AS BaseVolume, " + \
-              "last(High) AS High, last(Low) AS Low, last(Ask) AS Ask, last(Bid) AS Bid " + \
+    command = "SELECT last(Last) AS Last," + \
+              " last(BaseVolume) AS BaseVolume," + \
+              " last(High) AS High," + \
+              " last(Low) AS Low," + \
+              " last(Ask) AS Ask," + \
+              " last(Bid) AS Bid " + \
+              " last(OpenBuyOrders) AS OpenBuy," +\
+              " last(OpenSellOrders) AS OpenSell " + \
               "FROM bittrex WHERE time > " + end_date + " - " + start_date + \
               " AND MarketName='" + market + \
-        "' GROUP BY time(" + interval + ")"
+              "' GROUP BY time(" + interval + ")"
 
     res = db_client.query(command)
 

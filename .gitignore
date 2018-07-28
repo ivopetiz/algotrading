@@ -4,3 +4,11 @@ extra.py
 *.pyc
 .vscodesetup.py
 setup.py
+figs/*
+!figs/fig2_xrp.png
+hist-5s/*
+hist-10s/*
+hist-10m/*
+!hist-10s/BTC-XRP.csv
+scripts/*
+data/*

@@ -4,6 +4,16 @@
 
 Crypto AlgoTrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or csv files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
+* [Operating modes](#operating-modes)
+* [How to start](#how-to-start)
+* [Entry functions](#entry-functions)
+* [Exit functions](#exit-functions)
+* [Plot data](#plot-data)
+* [Logs](#logs)
+* [Examples](#examples)
+* [Additional info](#additional-info)
+
+___
 ## Operating modes
 
 Framework has 3 operating modes:
@@ -14,22 +24,22 @@ Framework has 3 operating modes:
 
 * Backtest -- Backtesting strategies and presenting the results.
 
-## Realtime
+### Realtime
 
 In realtime, Trading Bot operates in real time, with live data from exchanges APIs. It doesn't need pre stored data or DB to work.
 In this mode, bot can trade real money, simulate or alert user when is time to buy or sell, based on entry and exit strategies defined by user. Can also simulate user's strategies and present the results in real time.
 
-## Tick-by-tick
+### Tick-by-tick
 
 Tick-by-tick mode allows users to check strategies in a visible timeframe, to better check entries and exit points or to detect strategies faults or new entry and exit points. Uses data from csv files or DB.
 
-## Backtest
+### Backtest
 
 Allows users to backtest strategies, with previous stored data. Can also plot trading data showing entry and exit points for implemented strategies.
 
-# How to start
+## How to start
 
-## Pre requisites
+### Pre requisites
 
 In order to get crypto-algotrading fully working is necessary to install some packages and Python libs, as IPython, Pandas, Matplotlib, Numpy, Python-Influxdb and Python-tk. 
 On Linux machines these packages could be installed with:
@@ -38,7 +48,7 @@ On Linux machines these packages could be installed with:
 pip install -r requirements.txt
 ```
 
-## Collecting data
+### Collecting data
 
 First step is to collect data. To get markets data is necessary to run a DB, to get and manage all data or save the data to CSV files.
 There are 2 options:
@@ -47,14 +57,14 @@ There are 2 options:
 
 * Run a script to collect data and save it to CSV files.
 
-### Database
+#### Database
 
 Trading Bot is ready to operate with InfluxDB, but can work with other databases, with some small changes.
 
 To install, configure and use a InfluxDB database, you can clone this repository:
 https://github.com/ivopetiz/crypto-database
 
-### Script
+#### Script
 
 If you don't want to install and manage any databases and simply want to get data to CSV files you can use the script in this Gist:
 https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a

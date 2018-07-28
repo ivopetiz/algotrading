@@ -3,6 +3,13 @@
 
     Need to import this file in order to use this framework. 
 """
+########
+### TODO
+########
+#   fix log presentation.
+#   implement binance.
+#   use multiprocessing.
+#   decrease amount of used data.
 
 import os
 import var
@@ -94,7 +101,8 @@ def realtime(entry_funcs,
              smas=var.default_smas,
              emas=var.default_volume_emas,
              refresh_interval=10,
-             simulation=True):
+             simulation=True,
+             main_coins=["BTC","USDT"]):
     '''
     Bot using realtime data, doesn't need DB or csv files to work. 
     '''
@@ -107,6 +115,8 @@ def realtime(entry_funcs,
     
     bt = lib_bittrex.Bittrex('', '')
 
+    logging.info("Starting Bot...\n")
+
     while True:
 
         start_time = time.time()
@@ -115,77 +125,77 @@ def realtime(entry_funcs,
 
         for market in markets:
 
-            if str(market['MarketName']) in coins:
-                
-                if coins[str(market['MarketName'])] == validate: 
+            if market['MarketName'].split('-')[0] in main_coins:
+                if str(market['MarketName']) in coins:
                     
-                    locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],[market]).tail(validate)
-                    
+                    if coins[str(market['MarketName'])] == validate: 
+                        
+                        locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],[market]).tail(validate)
+                        
+                    else:
+                        
+                        locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],[market])
+                        coins[str(market['MarketName'])] += 1
+                        continue
+
                 else:
                     
-                    locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],[market])
-                    coins[str(market['MarketName'])] += 1
+                    locals()[str(market['MarketName'])]=pd.DataFrame([market])
+                    coins[str(market['MarketName'])] = 1
                     continue
-
-            else:
                 
-                locals()[str(market['MarketName'])]=pd.DataFrame([market])
-                coins[str(market['MarketName'])] = 1
-                continue
+                data=locals()[str(market['MarketName'])]
 
-            
-            data=locals()[str(market['MarketName'])]
+                if str(market['MarketName']) in buy_list.keys():
+                    if is_time_to_exit(data, exit_funcs, buy_list[str(market['MarketName'])], real_aux=0):
+                        if not simulation:
+                        #    buy(market)
+                            print '> https://bittrex.com/Market/Index?MarketName=' + \
+                                str(market['MarketName'])
 
-            if str(market['MarketName']) in buy_list.keys():
-                if is_time_to_exit(data, exit_funcs, buy_list[str(market['MarketName'])]):
-                    if not simulation:
-                    #    buy(market)
-                        print '> https://bittrex.com/Market/Index?MarketName=' + \
-                              str(market['MarketName'])
+                        logging.info('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
+                                    ' > ' + str(market['MarketName']))
+                        
+                        logging.info('[P&L] ' + str(market['MarketName']) + '> ' +\
+                                    str(round(((data.Bid.iloc[-1]-\
+                                                buy_list[str(market['MarketName'])])/\
+                                                buy_list[str(market['MarketName'])])*100,2)) +\
+                                    '%.')
+                        
+                        print '[SELL]@ ' + str(data.Bid.iloc[-1]) +\
+                            ' > ' + str(market['MarketName'])
+                        
+                        print '[P&L] ' + str(market['MarketName']) + '> ' +\
+                            str(round(((data.Bid.iloc[-1]-\
+                                        buy_list[str(market['MarketName'])])/\
+                                        buy_list[str(market['MarketName'])])*100,2)) +\
+                                    '%.'
+                        
+                        del buy_list[str(market['MarketName'])]
+                        del buy_present[str(market['MarketName'])]
+                
+                else:
+                    if is_time_to_buy(data, entry_funcs, real_aux=0):
 
-                    logging.info('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
-                                 ' > ' + str(market['MarketName']))
-                    
-                    logging.info('[P&L] ' + str(market['MarketName']) + '> ' +\
-                                 str(round(((data.Bid.iloc[-1]-\
-                                            buy_list[str(market['MarketName'])])/\
-                                            buy_list[str(market['MarketName'])])*100,2)) +\
-                                 '%.')
-                    
-                    print '[SELL]@ ' + str(data.Bid.iloc[-1]) +\
-                          ' > ' + str(market['MarketName'])
-                    
-                    print '[P&L] ' + str(market['MarketName']) + '> ' +\
-                          str(round(((data.Bid.iloc[-1]-\
-                                      buy_list[str(market['MarketName'])])/\
-                                      buy_list[str(market['MarketName'])])*100,2)) +\
-                                 '%.'
-                    
-                    del buy_list[str(market['MarketName'])]
-                    del buy_present[str(market['MarketName'])]
-            
-            else:
-                if is_time_to_buy(data, entry_funcs):
+                        if not simulation:
+                        #    sell(market)
+                            print '> https://bittrex.com/Market/Index?MarketName=' + \
+                                str(market['MarketName'])
+                        #else:
+                        #    print '-'
 
-                    if not simulation:
-                    #    sell(market)
-                        print '> https://bittrex.com/Market/Index?MarketName=' + \
-                              str(market['MarketName'])
-                    #else:
-                    #    print '-'
+                        buy_list[str(market['MarketName'])] = data.Ask.iloc[-1]
+                        buy_present[str(market['MarketName'])] = 11
+                        logging.info('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
+                        #             ' > ' + funcs.func_name +\
+                                    ' > ' + str(market['MarketName']))
 
-                    buy_list[str(market['MarketName'])] = data.Ask.iloc[-1]
-                    buy_present[str(market['MarketName'])] = 11
-                    logging.info('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
-                    #             ' > ' + funcs.func_name +\
-                                 ' > ' + str(market['MarketName']))
-
-                    print '[BUY]@ ' + str(data.Ask.iloc[-1]) + \
-                          ' > ' + str(market['MarketName'])
-                    #             ' > ' + funcs.func_name +\
-                    
-            if str(market['MarketName']) in buy_present.keys():
-                buy_present[str(market['MarketName'])] = buy_present[str(market['MarketName'])] -1
+                        print '[BUY]@ ' + str(data.Ask.iloc[-1]) + \
+                            ' > ' + str(market['MarketName'])
+                        #             ' > ' + funcs.func_name +\
+                        
+                if str(market['MarketName']) in buy_present.keys():
+                    buy_present[str(market['MarketName'])] = buy_present[str(market['MarketName'])] -1
 
         # In case of processing time is bigger than *refresh_interval*
         if refresh_interval - (time.time() - start_time) > 0:
@@ -198,13 +208,23 @@ def is_time_to_exit(data,
                     limit_vol=5,
                     limit_drop=0,
                     smas=var.default_smas,
-                    emas=var.default_emas):
+                    emas=var.default_emas,
+                    real_aux=1):
     '''
     Detects when is time to exit trade.
     '''
 
-    if entry_point > data.Ask.iloc[-1]:
-        return True
+    ### VER ISTO
+    #if entry_point > data.Ask.iloc[-1]:
+    #    return True
+
+    if not real_aux:
+        data = data.rename(index=str, columns={
+                            "OpenBuyOrders": "OpenBuy",
+                            "OpenSellOrders": "OpenSell"})
+
+    if type(funcs) is not list:
+        funcs = [funcs]
 
     for func in funcs:
         if func(data, smas=smas, emas=emas):
@@ -212,26 +232,42 @@ def is_time_to_exit(data,
     
     return False 
 
+
 def is_time_to_buy(data, 
                    funcs, 
                    limit=5,
                    smas=var.default_smas,
-                   emas=var.default_emas):
+                   emas=var.default_emas,
+                   real_aux=1):
     '''
     Detects when is time to enter trade.
     '''
 
-    n_funcs = len(funcs)
-    n_funcs_entry = 0
+    if not real_aux:
+        data = data.rename(index=str, columns={
+                           "OpenBuyOrders": "OpenBuy", 
+                           "OpenSellOrders": "OpenSell"})
+
+    ### OLD VERSION
+    #n_funcs = len(funcs)
+    #n_funcs_entry = 0
+
+    #for func in funcs:
+    #    if func(data, smas=smas, emas=emas):
+    #       n_funcs_entry += 1
+    
+    #if n_funcs == n_funcs_entry:
+    #    return True
+    #return False
+
+    if type(funcs) is not list:
+        funcs = [funcs]
 
     for func in funcs:
         if func(data, smas=smas, emas=emas):
-           n_funcs_entry += 1
-    
-    if n_funcs == n_funcs_entry:
-        return True
+            return True
 
-    return False 
+    return False
 
 
 def backtest(markets,
