@@ -8,13 +8,24 @@
 ########
 #   fix log presentation.
 #   implement binance.
-#   use multiprocessing.
+# X use multiprocessing.
+#   improve multiprocessing usage.
+#   define processor usage.
+#   implement MPI.
+# > improve folders definition.
+   
 
 import os
 import var
 import time
 import logging
 import pandas as pd
+
+########
+import extra
+########
+from functools import partial
+from multiprocessing import Pool
 
 from aux import *
 
@@ -293,98 +304,102 @@ def backtest(markets,
         entry_funcs=[entry_funcs]
     if type(exit_funcs) is not list:
         exit_funcs=[exit_funcs]
+    
+    pool = Pool(4) # Create a multiprocessing Pool
+    #pool.map(partial(backtest_market, entry_funcs, exit_funcs, interval), markets)
+    total = pool.map(partial(backtest_market, entry_funcs, exit_funcs, interval), markets)
 
-    total_markets = 0
+    pool.close()
+    pool.join()
 
-    for market in markets:
-
-        total = 0
-        market = check_market_name(market)
-
-        entry_points_x=[]
-        entry_points_y=[]
-
-        exit_points_x=[]
-        exit_points_y=[]
-
-        if from_file:
-            try:
-                data = get_data_from_file(market, interval=interval)
-            except:
-                print 'Can\'t find',market, 'in files.'
-                continue
-
-            data_init = data
-
-            if type(_date[0]) is str:
-                date[0], date[1] = time_to_index(data,_date)
-
-            if date[1] == 0:
-                data = data[date[0]:]
-            else:
-                data = data[date[0]:date[1]]
-
-        else:
-            try:
-                data = get_historical_data(market, interval=interval, init_date=_date[0], end_date=_date[1])
-                date[0], date[1] = 0, len(data)
-                data_init = data
-            except:
-                print 'Can\'t find', market, 'in files.'
-                continue
-
-        aux_buy = False
-        aux_price = 0
-        #Tests several functions.
-        for i in range(len(data)-50):
-            if not aux_buy:
-                if is_time_to_buy(data[i:i+50],entry_funcs, smas=smas, emas=emas):
-                    aux_price=data_init.Ask.iloc[i+49+date[0]]
-                    entry_points_x.append(i+49)
-                    entry_points_y.append(data_init.Ask.iloc[i+49+date[0]])
-                    if exit_funcs:
-                        aux_buy = True
-                    if log_level>0:
-                        logging.info('[BUY]@ ' + str(data_init.Ask.iloc[i+49+date[0]]) +\
-                        #             ' > ' + funcs.func_name +\
-                                     ' > ' + market)
-
-            else:
-                if is_time_to_exit(data[i:i+50],exit_funcs,data_init.Ask.iloc[i+49+date[0]],smas=smas, emas=emas):
-                    exit_points_x.append(i+49)
-                    exit_points_y.append(data_init.Bid.iloc[i+49+date[0]])
-                    aux_buy = False
-                    total += round(((data_init.Bid.iloc[i+49+date[0]]-\
-                                            aux_price)/\
-                                            aux_price)*100,2)
-                    if log_level>0:
-                        logging.info('[SELL]@ ' + str(data_init.Bid.iloc[i+49+date[0]]) +\
-                                     ' > ' + market)
-                        
-                        logging.info('[P&L] ' + market + '> ' +\
-                                     str(total) + '%.')
-
-
-        if plot:
-
-            aux_plot = plot_data(data,
-                            name=market,
-                            date=[0,0],
-                            smas=smas,
-                            emas=[],
-                            entry_points=(entry_points_x,entry_points_y),
-                            exit_points=(exit_points_x,exit_points_y),
-                            show_smas=True,
-                            show_emas=False,
-                            show_bbands=True,
-                            to_file=to_file)
-
-        if log_level>0:
-            if log_level>1 and len(exit_points_x):
-                print market + ' > ' + str(total)
-            logging.info('[TOTAL] > ' + str(total))
-        total_markets += total
-
-    print '+ Total > ' + str(total_markets)
+    print '+ Total > ' + str(sum(total))
 
     return True
+
+
+def backtest_market(entry_funcs, exit_funcs, interval, market):
+
+    smas = [2,4]
+    emas = [2,4]
+    #interval='10s'
+    #entry_funcs = extra._keep_rising
+    #exit_funcs = extra._exit_keep_rising
+    date = [0, 0]
+    log_level = 2
+    total = 0
+    market = check_market_name(market)
+
+    entry_points_x = []
+    entry_points_y = []
+
+    exit_points_x = []
+    exit_points_y = []
+
+    if True:
+        try:
+            data = get_data_from_file(market, interval=interval)
+        except Exception as e:
+            print e
+            print 'Can\'t find', market, 'in files.'
+            return 1
+            #continue
+
+        data_init = data
+
+        #if type(_date[0]) is str:
+        #    date[0], date[1] = time_to_index(data, _date)
+
+        if date[1] == 0:
+            data = data[date[0]:]
+        else:
+            data = data[date[0]:date[1]]
+
+    else:
+        try:
+            data = get_historical_data(
+                market, interval=interval, init_date=_date[0], end_date=_date[1])
+            date[0], date[1] = 0, len(data)
+            data_init = data
+        except:
+            print 'Can\'t find', market, 'in files.'
+            return 1
+            #continue
+
+    aux_buy = False
+    aux_price = 0
+    #Tests several functions.
+    for i in range(len(data)-50):
+        if not aux_buy:
+            if is_time_to_buy(data[i:i+50], entry_funcs, smas=smas, emas=emas):
+                aux_price = data_init.Ask.iloc[i+49+date[0]]
+                entry_points_x.append(i+49)
+                entry_points_y.append(data_init.Ask.iloc[i+49+date[0]])
+                if exit_funcs:
+                    aux_buy = True
+                if log_level > 0:
+                    logging.info('[BUY]@ ' + str(data_init.Ask.iloc[i+49+date[0]]) +\
+                                 #             ' > ' + funcs.func_name +\
+                                 ' > ' + market)
+
+        else:
+            if is_time_to_exit(data[i:i+50], exit_funcs, data_init.Ask.iloc[i+49+date[0]], smas=smas, emas=emas):
+                exit_points_x.append(i+49)
+                exit_points_y.append(data_init.Bid.iloc[i+49+date[0]])
+                aux_buy = False
+                total += round(((data_init.Bid.iloc[i+49+date[0]] -
+                                 aux_price) /
+                                aux_price)*100, 2)
+                if log_level > 0:
+                    logging.info('[SELL]@ ' + str(data_init.Bid.iloc[i+49+date[0]]) +
+                                 ' > ' + market)
+
+                    logging.info('[P&L] ' + market + '> ' +
+                                 str(total) + '%.')
+
+    if log_level > 0:
+        if log_level > 1 and len(exit_points_x):
+            print market + ' > ' + str(total)
+        logging.info('[TOTAL] > ' + str(total))
+    
+    return total
+    #total_markets += total

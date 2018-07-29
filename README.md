@@ -124,7 +124,7 @@ Based on market data available for BTC_XRP pair, code above can present an outpu
 
 ![testing strategy on BTC-XRP pair data.](figs/fig2_xrp.png)
 
-Figure has 3 charts. The chart on top presents on top BTC-XRP data from a certain period of time, with its Bollinguer bands and 3 SMA lines. Green points represent the entry points for the defined strategy. In the middle is a chart representing volume data and at the bottom is represented the number of selling orders along time. All these fields and charts are configurable on *plot* function.
+Figure has 3 charts. The chart on top presents on top BTC-XRP data from a certain period, with its Bollinguer bands and 3 SMA lines. Green points represent the entry points for the defined strategy. In the middle is a chart representing volume data and at the bottom is represented the number of selling orders among time. All these fields and charts are configurable on *plot* function.
 
 Can also add exit points by adding an exit function or functions to backtest function.
 It is possible to enter multiple entry and exit functions to backtest, in order to define different entry and exit positions.

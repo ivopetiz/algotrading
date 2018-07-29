@@ -1,10 +1,13 @@
 #changelog
 
 [2018-07]
+
 * Added timeit decorator to control backtests execution time.
 * Backtest() runs based on market files.
+* Implemented backtest() with multiprocessing.
 
 [2018-07-28]
+
 * Added setup.py.
 * Added OpenSellOrders and OpenBuyOrders to get_last_data().
 * Added menu to README.md.

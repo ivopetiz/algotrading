@@ -4,7 +4,7 @@
     Framework predefined variables.
 
     It is important to define some environment variables before use this 
-    framework if user wants to use DB and Exchanges' credintials.
+    framework if user wants to use DB and Exchanges' credentials.
 """
 
 import os
@@ -20,11 +20,16 @@ try:
     db_user = os.environ['DB_USER']
     db_password = os.environ['DB_PASSWD']
     db_name = os.environ['DB_NAME']
-
+    data_dir = os.environ['DATA_DIR']
+    logs_dir = os.environ['LOGS_DIR']
+    LOG_FILENAME = logs_dir + '/indicators.log'
 except:
     db_user = "user"
     db_password = ""
     db_name = "db"
+    data_dir = "."
+    logs_dir = "."
+    LOG_FILENAME = logs_dir + '/indicators.log'
 
 db_host = 'localhost'
 db_port = 8086
@@ -45,8 +50,6 @@ refresh_interval = 60 # interval in seconds.
 main_coins=["BTC","USDT"]
 
 exchange = 'bittrex'
-
-LOG_FILENAME = 'indicators.log'
 
 # Add API Key and API Secret as variables if needed.
 try:

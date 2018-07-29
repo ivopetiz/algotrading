@@ -61,7 +61,7 @@ def get_markets_on_files(interval, base='BTC'):
     '''
     markets_list=[]
 
-    for file_ in os.listdir('hist-' + interval):
+    for file_ in os.listdir(var.data_dir + '/hist-' + interval):
         if file_.startswith(base):
             markets_list.append(file_.split('.')[0])
 
@@ -310,7 +310,7 @@ def get_histdata_to_file(markets=[], interval=var.default_interval, base_market=
         market = check_market_name(market)
         get_historical_data(market,
                             interval=interval).to_csv(
-            'hist-' + interval +
+            var.data_dir + '/hist-' + interval +
             '/' + market + '.csv')
 
     return True
@@ -330,7 +330,7 @@ def get_data_from_file(market, interval=var.default_interval):
     '''
     market = check_market_name(market)
 
-    return pd.read_csv('hist-' + interval + '/' + market + '.csv', index_col=0)
+    return pd.read_csv(var.data_dir + '/hist-' + interval + '/' + market + '.csv', index_col=0)
 
 
 def beep(duration=0.5):
