@@ -7,13 +7,19 @@
 ### TODO
 ########
 #   fix log presentation.
-#   implement binance.
+#   implement Binance.
 # X use multiprocessing.
 #   improve multiprocessing usage.
 #   define processor usage.
 #   implement MPI.
 # > improve folders definition.
-   
+#   implement real buy() and sell().
+#   log in every try/except.
+# X plot in MP.
+#   improve DB connection.
+#   improve multiprocessing display information.
+#   log multiple accesses.
+
 
 import os
 import var
@@ -21,14 +27,10 @@ import time
 import logging
 import pandas as pd
 
-########
-import extra
-########
 from functools import partial
 from multiprocessing import Pool
 
 from aux import *
-
 
 logging.basicConfig(filename=var.LOG_FILENAME,
                     format='%(asctime)s - %(message)s',
@@ -37,13 +39,13 @@ logging.basicConfig(filename=var.LOG_FILENAME,
 
 
 def tick_by_tick(entry_funcs,
-             exit_funcs,
-             markets=[],
-             interval='10m',
-             smas=var.default_smas,
-             emas=var.default_volume_emas,
-             refresh_interval=60,
-             simulation=True):
+                 exit_funcs,
+                 markets=[],
+                 interval='10m',
+                 smas=var.default_smas,
+                 emas=var.default_volume_emas,
+                 refresh_interval=60,
+                 simulation=True):
     '''
     Simulates a working bot in realtime, using data from DB,
      to test a autonomous bot.
@@ -123,7 +125,10 @@ def realtime(entry_funcs,
     buy_present = {}
     coins = {}
     
-    bt = lib_bittrex.Bittrex('', '')
+    if simulation:
+        bt = lib_bittrex.Bittrex('', '')
+    #else:
+    #    bt = lib_bittrex.Bittrex(os.environ['API_KEY'], os.environ['API_SECRET'])
 
     logging.info("Starting Bot...\n")
 
@@ -272,10 +277,11 @@ def backtest(markets,
              emas=var.default_emas,
              interval=var.default_interval,
              plot=False,
-             to_file = False,
+             to_file = True,
              from_file=False,
              base_market='BTC',
-             log_level=2):
+             log_level=2,
+             mp_level="medium"):
     '''
     Tests strategies.
     '''
@@ -284,8 +290,6 @@ def backtest(markets,
     #   1 - Writes logs to file.
     #   2 - Writes logs to file and prints on screen.
     #   Default is 2.
-
-    date = [0,0]
 
     if not len(markets):
         y = 'y'#raw_input("Want to run all markets? ")
@@ -305,9 +309,21 @@ def backtest(markets,
     if type(exit_funcs) is not list:
         exit_funcs=[exit_funcs]
     
-    pool = Pool(4) # Create a multiprocessing Pool
-    #pool.map(partial(backtest_market, entry_funcs, exit_funcs, interval), markets)
-    total = pool.map(partial(backtest_market, entry_funcs, exit_funcs, interval), markets)
+    pool = Pool(num_processors(mp_level))  # Create a multiprocessing Pool
+    
+    # Display information about pool.
+
+    total = pool.map(partial(backtest_market,
+                             entry_funcs,
+                             exit_funcs,
+                             interval,
+                             _date,
+                             smas,
+                             emas,
+                             from_file,
+                             to_file,
+                             plot), 
+                    markets)
 
     pool.close()
     pool.join()
@@ -317,14 +333,19 @@ def backtest(markets,
     return True
 
 
-def backtest_market(entry_funcs, exit_funcs, interval, market):
+def backtest_market(entry_funcs, 
+                    exit_funcs, 
+                    interval, 
+                    _date, 
+                    smas, 
+                    emas, 
+                    from_file,
+                    to_file,
+                    plot, 
+                    market):
 
-    smas = [2,4]
-    emas = [2,4]
-    #interval='10s'
-    #entry_funcs = extra._keep_rising
-    #exit_funcs = extra._exit_keep_rising
-    date = [0, 0]
+    date = [0,0]
+
     log_level = 2
     total = 0
     market = check_market_name(market)
@@ -335,7 +356,7 @@ def backtest_market(entry_funcs, exit_funcs, interval, market):
     exit_points_x = []
     exit_points_y = []
 
-    if True:
+    if from_file:
         try:
             data = get_data_from_file(market, interval=interval)
         except Exception as e:
@@ -346,8 +367,8 @@ def backtest_market(entry_funcs, exit_funcs, interval, market):
 
         data_init = data
 
-        #if type(_date[0]) is str:
-        #    date[0], date[1] = time_to_index(data, _date)
+        if type(_date[0]) is str:
+            date[0], date[1] = time_to_index(data, _date)
 
         if date[1] == 0:
             data = data[date[0]:]
@@ -357,11 +378,15 @@ def backtest_market(entry_funcs, exit_funcs, interval, market):
     else:
         try:
             data = get_historical_data(
-                market, interval=interval, init_date=_date[0], end_date=_date[1])
+                                       market, 
+                                       interval=interval, 
+                                       init_date=_date[0], 
+                                       end_date=_date[1])
             date[0], date[1] = 0, len(data)
             data_init = data
-        except:
-            print 'Can\'t find', market, 'in files.'
+        except Exception as e:
+            print e
+            print 'Can\'t find', market, 'in BD.'
             return 1
             #continue
 
@@ -370,7 +395,7 @@ def backtest_market(entry_funcs, exit_funcs, interval, market):
     #Tests several functions.
     for i in range(len(data)-50):
         if not aux_buy:
-            if is_time_to_buy(data[i:i+50], entry_funcs, smas=smas, emas=emas):
+            if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
                 aux_price = data_init.Ask.iloc[i+49+date[0]]
                 entry_points_x.append(i+49)
                 entry_points_y.append(data_init.Ask.iloc[i+49+date[0]])
@@ -382,7 +407,7 @@ def backtest_market(entry_funcs, exit_funcs, interval, market):
                                  ' > ' + market)
 
         else:
-            if is_time_to_exit(data[i:i+50], exit_funcs, data_init.Ask.iloc[i+49+date[0]], smas=smas, emas=emas):
+            if is_time_to_exit(data[i:i+50], exit_funcs, data_init.Ask.iloc[i+49+date[0]], smas, emas):
                 exit_points_x.append(i+49)
                 exit_points_y.append(data_init.Bid.iloc[i+49+date[0]])
                 aux_buy = False
@@ -395,6 +420,22 @@ def backtest_market(entry_funcs, exit_funcs, interval, market):
 
                     logging.info('[P&L] ' + market + '> ' +
                                  str(total) + '%.')
+
+    # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
+    # computer can start run realy slow.
+    if plot:
+        aux_plot = plot_data(data,
+                            name=market,
+                            date=[0,0],
+                            smas=smas,
+                            emas=[],
+                            entry_points=(entry_points_x,entry_points_y),
+                            exit_points=(exit_points_x,exit_points_y),
+                            show_smas=True,
+                            show_emas=False,
+                            show_bbands=True,
+                            to_file=to_file)
+
 
     if log_level > 0:
         if log_level > 1 and len(exit_points_x):

@@ -14,6 +14,7 @@ import matplotlib.pylab as plt
 
 from finance import bollinger_bands
 from influxdb import InfluxDBClient
+from multiprocessing import cpu_count
 
 plt.ion()
 plt.style.use('ggplot')
@@ -432,3 +433,29 @@ def timeit(method):
         return result
 
     return timed
+
+
+def num_processors(level):
+    '''
+    Decides how many cores will use.
+    
+    level options:
+        low             = 1 core
+        medium          = half of available cores.
+        high            = uses all available cores.
+        <cores number>  = uses the number of cores specified.
+    '''
+
+    mp = cpu_count()
+
+    if level == 'low':
+        return 1
+    elif level == 'medium':
+        return mp/2
+    elif level == 'high':
+        return mp
+    elif type(level) == int and 1<level<=mp:
+        return level
+    else:
+        return mp/2
+      

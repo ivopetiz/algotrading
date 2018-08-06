@@ -97,7 +97,7 @@ Here are some examples of how to use this framework.
 To get an alert when a market doubles its volume:
 
 ```python
-from cryptoalgotrading import realtime
+import cryptoalgotrading
 
 def alert_volume_x2(data):
     if pd.vol.iloc[-1] > pd.vol.iloc[-2]*2:
@@ -114,7 +114,7 @@ realtime([], alert_volume_x2, interval='10m')
 To backtest a cross simple moving average strategy in a specific market and plot the entry points:
 
 ```python
-from cryptoalgotrading import backtest
+import cryptoalgotrading
 import entry
 
 backtest(["BTC-XRP"], entry.cross_smas, smas=[15,40], interval='10m', from_file=True, plot=True)
