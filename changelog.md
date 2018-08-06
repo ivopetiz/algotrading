@@ -1,6 +1,6 @@
 #changelog
 
-[2018-07]
+[2018-08-06]
 
 * Added timeit decorator to control backtests execution time.
 * Backtest() runs based on market files.
