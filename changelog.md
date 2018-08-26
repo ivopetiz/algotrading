@@ -1,5 +1,11 @@
 #changelog
 
+[2018-08-26]
+
+* Added Trailing Stop Loss function.
+* Added Stop Loss function.
+* Started introducing framework to work with Binance Exchange.
+
 [2018-08-06]
 
 * Added timeit decorator to control backtests execution time.

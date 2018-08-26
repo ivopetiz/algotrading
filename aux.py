@@ -4,9 +4,11 @@
     Aux functions needed to do some data manipulation, plot data, etc.
 """
 
+
 import os
 import var
 import time
+import datetime
 import lib_bittrex
 import numpy as np
 import pandas as pd
@@ -32,7 +34,7 @@ def connect_db():
                           var.db_name)
 
 
-def get_markets_list(base='BTC'):
+def get_markets_list(base='BTC', exchange='bittrex'):
     '''
     Gets all coins from a certain market.
 
@@ -43,14 +45,20 @@ def get_markets_list(base='BTC'):
     Returns:
     - list of markets.
     '''
-    bt = lib_bittrex.Bittrex('', '')
+    if exchange=='bittrex':
+        bt = lib_bittrex.Bittrex('', '')
+        ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
 
-    return [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
+    #elif exchange=='binance':
+    #    bt = lib_bittrex.Bittrex('', '')
+    #    ret = 
+
+    return ret 
 
 
 def get_markets_on_files(interval, base='BTC'):
     '''
-    Gets all coins from a certain market.
+    Gets all coins from a certain market, available on files.
 
     Args:
     - interval: data interval.
@@ -67,59 +75,17 @@ def get_markets_on_files(interval, base='BTC'):
             markets_list.append(file_.split('.')[0])
 
     print markets_list
+
     return markets_list
-
-
-def get_last_data(market, date=[0, 0], interval='30m'):
-    '''
-    Gets last data from DB.
-
-    Args:
-    - market: str with market.
-    - date: list with start date and end date.
-        Empty for last 24 hours.
-    - interval: str with time between measures.
-        Empty for default_interval.
-
-    Returns:
-    - market data in pandas.DataFrame.
-    '''
-    if date[0] == 0:
-        start_date = '24h'
-    else:
-        start_date = date[0]
-    if date[1] == 0:
-        end_date = 'now()'
-    else:
-        end_date = date[1]
-
-    market = check_market_name(market)
-
-    #TODO fazer a verificacao da existencia da market no markets list.
-    command = "SELECT last(Last) AS Last," + \
-              " last(BaseVolume) AS BaseVolume," + \
-              " last(High) AS High," + \
-              " last(Low) AS Low," + \
-              " last(Ask) AS Ask," + \
-              " last(Bid) AS Bid " + \
-              " last(OpenBuyOrders) AS OpenBuy," +\
-              " last(OpenSellOrders) AS OpenSell " + \
-              "FROM bittrex WHERE time > " + end_date + " - " + start_date + \
-              " AND MarketName='" + market + \
-              "' GROUP BY time(" + interval + ")"
-
-    res = db_client.query(command)
-
-    # returning Pandas DataFrame.
-    return detect_init(pd.DataFrame(list(res.get_points(measurement=var.exchange))))
 
 
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
-                        end_date=0):
+                        end_date=0,
+                        exchange='bittrex'):
     '''
-    Gets all data from a market.
+    Gets all historical data stored on DB, from a certain market.
 
     Args:
     - market: str with market.
@@ -128,11 +94,18 @@ def get_historical_data(market,
     - init_date: str with initial datetime.
         Default is 2017-07-10 21:30:00.
     - end_date: str with end datetime.
+    - exchange: str with exchange name.
 
     Returns:
     - market data in pandas.DataFrame.
     '''
-    market = check_market_name(market)
+    verified_market = check_market_name(market, exchange='bittrex')
+
+    # Connects to DB.
+    try:
+        db_client = connect_db()
+    except Exception as e:
+        raise e
 
     if not init_date:
         init_date = '2018-02-02 00:00:00'
@@ -146,24 +119,72 @@ def get_historical_data(market,
         time += " AND time < \'" + end_date + "\'"
 
     #TODO fazer a verificacao da existencia da market no markets list.
-    command = "SELECT last(Last) AS Last," +\
-        " last(BaseVolume) AS BaseVolume," +\
-        " last(High) AS High," +\
-        " last(Low) AS Low," +\
-        " last(Ask) AS Ask," +\
-        " last(Bid) AS Bid," +\
-        " last(OpenBuyOrders) AS OpenBuy," +\
-        " last(OpenSellOrders) AS OpenSell " + \
-        "FROM bittrex WHERE " + time + \
-        " AND MarketName='" + market + \
-        "' GROUP BY time(" + interval + ")"
 
+    # Gets data from Bittex exchange.
+    if exchange is 'bittrex':
+        command = "SELECT last(Last) AS Last," +\
+            " last(BaseVolume) AS BaseVolume," +\
+            " last(High) AS High," +\
+            " last(Low) AS Low," +\
+            " last(Ask) AS Ask," +\
+            " last(Bid) AS Bid," +\
+            " last(OpenBuyOrders) AS OpenBuy," +\
+            " last(OpenSellOrders) AS OpenSell " + \
+            "FROM bittrex WHERE " + time + \
+            " AND MarketName='" + verified_market + \
+            "' GROUP BY time(" + interval + ")"
+    
+    # Gets data from Binance exchange.
+    elif exchange is 'binance':
+        command = "SELECT last(Last) AS Last," +\
+            " last(BaseVolume) AS BaseVolume," +\
+            " last(High) AS High," +\
+            " last(Low) AS Low," +\
+            " last(Ask) AS Ask," +\
+            " last(Bid) AS Bid," +\
+            "FROM bittrex WHERE " + time + \
+            " AND MarketName='" + verified_market + \
+            "' GROUP BY time(" + interval + ")"
+            #" last(OpenBuyOrders) AS OpenBuy," +\
+            #" last(OpenSellOrders) AS OpenSell " + \
     #print command
     res = db_client.query(command)
 
     # returning Pandas DataFrame.
     #return pd.DataFrame(list(res.get_points(measurement=exchange)))
     return detect_init(pd.DataFrame(list(res.get_points(measurement=var.exchange))))
+
+
+def get_last_data(market, 
+                  last='24',
+                  interval=var.default_interval,
+                  exchange='bittrex'):
+    '''
+    Gets last data from DB.
+
+    Args:
+    - market: str with market.
+    - last: int with number of hours from now to get.
+        Empty for 24 hours.
+    - interval: str with time between measures.
+        Empty for default_interval.
+
+    Returns:
+    - market data in pandas.DataFrame.
+    '''
+
+    end_date = 'now()'
+
+    # date and time format> 2018-02-02 00:00:00
+    start_date = format(datetime.datetime.now() -
+                        datetime.timedelta(hours=last), 
+                        '%Y-%m-%d %H:%M:%S')
+
+    return get_historical_data(market,
+                        interval=interval,
+                        init_date=start_date,
+                        end_date=end_date,
+                        exchange='bittrex')
 
 #TODO
 # def is_market(market):
@@ -172,12 +193,6 @@ def get_historical_data(market,
 #
 #     return True
 
-
-# Connects to DB.
-try:
-    db_client = connect_db()
-except Exception as e:
-    raise e
 
 
 #class Strategies:
@@ -192,6 +207,7 @@ def detect_init(data):
     Remove data without without info in case of market
     has started after the implementation of the BD.
     '''
+    
     #TODO try to implement this on DB query.
     for i in range(len(data)):
         #TODO remove numpy lib and use other method to detect NaN.
@@ -223,9 +239,9 @@ def plot_data(data,
             data = data[date[0]:date[1]]
 
     f, (ax1, ax2, ax3) = plt.subplots(3,
-                                      sharex=True,
-                                      figsize=(9, 4),
-                                      gridspec_kw={'height_ratios': [3, 1, 1]})
+                                sharex=True,
+                                figsize=(9, 4),
+                                gridspec_kw={'height_ratios': [3, 1, 1]})
 
     ax1.grid(True)
     ax2.grid(True)
@@ -289,7 +305,10 @@ def plot_data(data,
     return True
 
 
-def get_histdata_to_file(markets=[], interval=var.default_interval, base_market='BTC'):
+def get_histdata_to_file(markets=[], 
+                         interval=var.default_interval, 
+                         base_market='BTC', 
+                         exchange='bittrex'):
     '''
     Gets data from DB to file.
     Prevents excess of DB accesses.
@@ -308,16 +327,16 @@ def get_histdata_to_file(markets=[], interval=var.default_interval, base_market=
         markets = get_markets_list(base_market)
 
     for market in markets:
-        market = check_market_name(market)
-        get_historical_data(market,
-                            interval=interval).to_csv(
+        verified_market = check_market_name(market, exchange='bittrex')
+        get_historical_data(verified_market,
+                            interval=interval, exchange='bittrex').to_csv(
             var.data_dir + '/hist-' + interval +
-            '/' + market + '.csv')
+            '/' + verified_market + '.csv')
 
     return True
 
 
-def get_data_from_file(market, interval=var.default_interval):
+def get_data_from_file(market, interval=var.default_interval, exchange='bittrex'):
     '''
     Gets data from file.
 
@@ -329,23 +348,12 @@ def get_data_from_file(market, interval=var.default_interval):
     Returns:
     - pd.DataFrame
     '''
-    market = check_market_name(market)
+    verified_market = check_market_name(market, exchange='bittrex')
 
-    return pd.read_csv(var.data_dir + '/hist-' + interval + '/' + market + '.csv', index_col=0)
-
-
-def beep(duration=0.5):
-    ''' 
-    It beeps!
-    Used to alert for possible manual entry or exit.
-    '''
-
-    freq = 440  # Hz
-    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' %
-              (duration, freq))
+    return pd.read_csv(var.data_dir + '/hist-' + interval + '/' + verified_market + '.csv', index_col=0)
 
 
-def check_market_name(market):
+def check_market_name(market, exchange='bittrex'):
     '''
     Avoids abbreviations and lowercases failures.
     '''
@@ -420,6 +428,39 @@ def get_time_right(date_n_time):
         t_minute + ':00Z'
 
 
+def trailing_stop_loss(last, higher, percentage=10):
+    '''
+    Trailing stop loss function.
+    Receives structure with:
+        - Last price.
+        - Entry point x.
+        - Exit percentage [0.1-99.9]
+    
+    Returns true when trigged.
+    '''
+
+    if last <= higher * (1 - (percentage*0.01)):
+        return True
+
+    return False
+
+
+def stop_loss(last, entry_point_x, percentage=5):
+    '''
+    Stop loss function.
+        Receives structure with:
+        - Last price.
+        - Entry point x.
+    
+    Returns true when trigged.
+    '''
+
+    if last <= entry_point_x * (1 - (percentage*0.01)):
+        return True
+
+    return False
+
+
 def timeit(method):
     '''
     Decorator to measure functions duration.
@@ -448,14 +489,24 @@ def num_processors(level):
 
     mp = cpu_count()
 
-    if level == 'low':
+    if level == "low":
         return 1
-    elif level == 'medium':
+    elif level == "medium":
         return mp/2
-    elif level == 'high':
+    elif level == "high":
         return mp
     elif type(level) == int and 1<level<=mp:
         return level
     else:
         return mp/2
       
+
+def beep(duration=0.5):
+    ''' 
+    It beeps!
+    Used to alert for possible manual entry or exit.
+    '''
+
+    freq = 440  # Hz
+    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' %
+              (duration, freq))

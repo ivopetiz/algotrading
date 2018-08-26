@@ -7,29 +7,34 @@
     framework if user wants to use DB and Exchanges' credentials.
 """
 
-import os
+from os import environ
 import lib_bittrex
 
 log = True
-
 
 # DATABASE VARIABLES
 # Best option should be define vars on system 
 # and then get environment variables to here.
 try:
-    db_user = os.environ['DB_USER']
-    db_password = os.environ['DB_PASSWD']
-    db_name = os.environ['DB_NAME']
-    data_dir = os.environ['DATA_DIR']
-    logs_dir = os.environ['LOGS_DIR']
-    LOG_FILENAME = logs_dir + '/indicators.log'
+    db_user = environ['DB_USER']
+    db_password = environ['DB_PASSWD']
+    db_name = environ['DB_NAME']
 except:
     db_user = "user"
-    db_password = ""
-    db_name = "db"
+    db_password = "passwd"
+    db_name = "bd"
+
+if 'DATA_DIR' in environ:
+    data_dir = environ['DATA_DIR']
+else:
     data_dir = "."
+
+if 'LOGS_DIR' in environ:
+    logs_dir = environ['LOGS_DIR']
+else:
     logs_dir = "."
-    LOG_FILENAME = logs_dir + '/indicators.log'
+
+LOG_FILENAME = logs_dir + '/indicators.log'
 
 db_host = 'localhost'
 db_port = 8086
@@ -53,7 +58,6 @@ exchange = 'bittrex'
 
 # Add API Key and API Secret as variables if needed.
 try:
-    bt = lib_bittrex.Bittrex(os.environ['API_KEY'], os.environ['API_SECRET'])
-
+    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
 except:
     bt = lib_bittrex.Bittrex("","")

@@ -7,18 +7,17 @@
 ### TODO
 ########
 #   fix log presentation.
-#   implement Binance.
-# X use multiprocessing.
+# > implement Binance.
 #   improve multiprocessing usage.
 #   define processor usage.
 #   implement MPI.
-# > improve folders definition.
 #   implement real buy() and sell().
 #   log in every try/except.
-# X plot in MP.
 #   improve DB connection.
 #   improve multiprocessing display information.
 #   log multiple accesses.
+#   break big files into smaller ones.
+#   backtest based on pandas.Dataframe.
 
 
 import os
@@ -26,17 +25,21 @@ import var
 import time
 import logging
 import pandas as pd
+import warnings
 
 from functools import partial
 from multiprocessing import Pool
 
 from aux import *
 
+from sys import exit
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 logging.basicConfig(filename=var.LOG_FILENAME,
                     format='%(asctime)s - %(message)s',
                     datefmt='%d/%m/%Y %H:%M:%S',
                     level=logging.DEBUG)
-
 
 def tick_by_tick(entry_funcs,
                  exit_funcs,
@@ -65,7 +68,7 @@ def tick_by_tick(entry_funcs,
             data = get_last_data(market, interval=interval)
             #if limit != (0,0):
             if market in buy_list.keys():
-                if is_time_to_exit(data, exit_funcs,buy_list[market]):
+                if is_time_to_exit(data, exit_funcs,buy_list[market], ):
                     #if not simulation:
                     #    buy(market)
                     print '+'
@@ -127,8 +130,8 @@ def realtime(entry_funcs,
     
     if simulation:
         bt = lib_bittrex.Bittrex('', '')
-    #else:
-    #    bt = lib_bittrex.Bittrex(os.environ['API_KEY'], os.environ['API_SECRET'])
+    else:
+        bt = lib_bittrex.Bittrex(os.environ['API_KEY'], os.environ['API_SECRET'])
 
     logging.info("Starting Bot...\n")
 
@@ -145,11 +148,13 @@ def realtime(entry_funcs,
                     
                     if coins[str(market['MarketName'])] == validate: 
                         
-                        locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],[market]).tail(validate)
+                        locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],
+                                                                                             [market]).tail(validate)
                         
                     else:
                         
-                        locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],[market])
+                        locals()[str(market['MarketName'])]=pd.DataFrame.append(locals()[str(market['MarketName'])],
+                                                                                            [market])
                         coins[str(market['MarketName'])] += 1
                         continue
 
@@ -162,7 +167,12 @@ def realtime(entry_funcs,
                 data=locals()[str(market['MarketName'])]
 
                 if str(market['MarketName']) in buy_list.keys():
-                    if is_time_to_exit(data, exit_funcs, buy_list[str(market['MarketName'])], real_aux=0):
+                    if is_time_to_exit(data,
+                                       exit_funcs,
+                                       buy_list[str(market['MarketName'])],
+                                       real_aux=0,
+                                       bought_at=0):
+                                       
                         if not simulation:
                         #    buy(market)
                             print '> https://bittrex.com/Market/Index?MarketName=' + \
@@ -219,14 +229,19 @@ def realtime(entry_funcs,
 
 def is_time_to_exit(data,
                     funcs,
-                    entry_point,
-                    limit_vol=5,
-                    limit_drop=0,
                     smas=var.default_smas,
                     emas=var.default_emas,
-                    real_aux=1):
+                    stop=2,
+                    real_aux=1,
+                    bought_at=0,
+                    max_price=0):
     '''
     Detects when is time to exit trade.
+
+    stop variable:
+    0 -> no stop loss [DANGEROUS]
+    1 -> regular stop loss
+    2 -> trailing stop loss
     '''
 
     if not real_aux:
@@ -234,12 +249,19 @@ def is_time_to_exit(data,
                             "OpenBuyOrders": "OpenBuy",
                             "OpenSellOrders": "OpenSell"})
 
+    if stop == 1:
+        if stop_loss(data.Last.iloc[-1], bought_at):
+            return True
+    elif stop == 2:
+        if trailing_stop_loss(data.Last.iloc[-1], max_price):
+            return True
+
     if type(funcs) is not list:
         funcs = [funcs]
 
     for func in funcs:
         if func(data, smas=smas, emas=emas):
-           return True
+            return True
     
     return False 
 
@@ -268,6 +290,7 @@ def is_time_to_buy(data,
 
     return False
 
+
 @timeit
 def backtest(markets,
              entry_funcs,
@@ -277,7 +300,7 @@ def backtest(markets,
              emas=var.default_emas,
              interval=var.default_interval,
              plot=False,
-             to_file = True,
+             to_file=True,
              from_file=False,
              base_market='BTC',
              log_level=2,
@@ -323,7 +346,7 @@ def backtest(markets,
                              from_file,
                              to_file,
                              plot), 
-                    markets)
+                             markets)
 
     pool.close()
     pool.join()
@@ -384,6 +407,7 @@ def backtest_market(entry_funcs,
                                        end_date=_date[1])
             date[0], date[1] = 0, len(data)
             data_init = data
+            
         except Exception as e:
             print e
             print 'Can\'t find', market, 'in BD.'
@@ -391,31 +415,49 @@ def backtest_market(entry_funcs,
             #continue
 
     aux_buy = False
-    aux_price = 0
+    buy_price = 0
+    high_price = 0
     #Tests several functions.
     for i in range(len(data)-50):
         if not aux_buy:
             if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
-                aux_price = data_init.Ask.iloc[i+49+date[0]]
-                entry_points_x.append(i+49)
-                entry_points_y.append(data_init.Ask.iloc[i+49+date[0]])
+                
+                buy_price = data_init.Ask.iloc[i+49+date[0]]
+                high_price = buy_price
+                
+                entry_points_x.append(i + 49)
+                entry_points_y.append(data_init.Ask.iloc[i + 49 + date[0]])
+                
                 if exit_funcs:
                     aux_buy = True
                 if log_level > 0:
-                    logging.info('[BUY]@ ' + str(data_init.Ask.iloc[i+49+date[0]]) +\
-                                 #             ' > ' + funcs.func_name +\
+                    logging.info('> ' + str(data_init.time.iloc[i + 49 + date[0]]) + 
+                                 ' < [BUY]  @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) +\
+                                 #' > ' + funcs.func_name +\
                                  ' > ' + market)
 
         else:
-            if is_time_to_exit(data[i:i+50], exit_funcs, data_init.Ask.iloc[i+49+date[0]], smas, emas):
+            # Used for trailing stop loss.
+            if data_init.Last.iloc[i+49+date[0]] > high_price:
+                high_price = data_init.Last.iloc[i+49+date[0]]
+
+            if is_time_to_exit(data[i:i+50],
+                               exit_funcs,
+                               smas,
+                               emas,
+                               stop = 1,
+                               bought_at=buy_price,
+                               max_price=high_price):
+            
                 exit_points_x.append(i+49)
                 exit_points_y.append(data_init.Bid.iloc[i+49+date[0]])
                 aux_buy = False
                 total += round(((data_init.Bid.iloc[i+49+date[0]] -
-                                 aux_price) /
-                                aux_price)*100, 2)
+                                 buy_price) /
+                                buy_price)*100, 2)
                 if log_level > 0:
-                    logging.info('[SELL]@ ' + str(data_init.Bid.iloc[i+49+date[0]]) +
+                    logging.info('> ' + str(data_init.time.iloc[i + 49 + date[0]]) + 
+                                 ' < [SELL] @ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) +
                                  ' > ' + market)
 
                     logging.info('[P&L] ' + market + '> ' +
@@ -423,19 +465,21 @@ def backtest_market(entry_funcs,
 
     # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
     # computer can start run realy slow.
-    if plot:
-        aux_plot = plot_data(data,
-                            name=market,
-                            date=[0,0],
-                            smas=smas,
-                            emas=[],
-                            entry_points=(entry_points_x,entry_points_y),
-                            exit_points=(exit_points_x,exit_points_y),
-                            show_smas=True,
-                            show_emas=False,
-                            show_bbands=True,
-                            to_file=to_file)
-
+    try:
+        if plot:
+            aux_plot = plot_data(data,
+                                 name=market,
+                                 date=[0,0],
+                                 smas=smas,
+                                 emas=[],
+                                 entry_points=(entry_points_x, entry_points_y),
+                                 exit_points=(exit_points_x,exit_points_y),
+                                 show_smas=True,
+                                 show_emas=False,
+                                 show_bbands=True,
+                                 to_file=to_file)
+    except Exception as e:
+        logging.info("Error ploting data: " + str(e))
 
     if log_level > 0:
         if log_level > 1 and len(exit_points_x):
