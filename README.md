@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ivopetiz/crypto-algotrading.svg?branch=master)](https://travis-ci.com/ivopetiz/crypto-algotrading)
+
 # Crypto AlgoTrading Framework
 
 ### Algorithmic trading framework for cryptocurrencies in Python.
