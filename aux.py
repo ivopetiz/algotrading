@@ -50,8 +50,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
         ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
 
     #elif exchange=='binance':
-    #    bt = lib_bittrex.Bittrex('', '')
-    #    ret = 
+    #   TODO
 
     return ret 
 
@@ -73,8 +72,6 @@ def get_markets_on_files(interval, base='BTC'):
     for file_ in os.listdir(var.data_dir + '/hist-' + interval):
         if file_.startswith(base):
             markets_list.append(file_.split('.')[0])
-
-    print markets_list
 
     return markets_list
 
@@ -184,7 +181,7 @@ def get_last_data(market,
                         interval=interval,
                         init_date=start_date,
                         end_date=end_date,
-                        exchange='bittrex')
+                        exchange=exchange)
 
 #TODO
 # def is_market(market):
@@ -192,15 +189,6 @@ def get_last_data(market,
 #     Checks if market exists.
 #
 #     return True
-
-
-
-#class Strategies:
-#    '''
-#    A class with some strategies to use in Altcoins.
-#    All functions return a list of values represents the analysis.
-#    If analysis is positive, list should only have positive values.
-#    '''
 
 def detect_init(data):
     '''
@@ -327,9 +315,9 @@ def get_histdata_to_file(markets=[],
         markets = get_markets_list(base_market)
 
     for market in markets:
-        verified_market = check_market_name(market, exchange='bittrex')
+        verified_market = check_market_name(market, exchange=exchange)
         get_historical_data(verified_market,
-                            interval=interval, exchange='bittrex').to_csv(
+                            interval=interval, exchange=exchange).to_csv(
             var.data_dir + '/hist-' + interval +
             '/' + verified_market + '.csv')
 
@@ -348,7 +336,7 @@ def get_data_from_file(market, interval=var.default_interval, exchange='bittrex'
     Returns:
     - pd.DataFrame
     '''
-    verified_market = check_market_name(market, exchange='bittrex')
+    verified_market = check_market_name(market, exchange=exchange)
 
     return pd.read_csv(var.data_dir + '/hist-' + interval + '/' + verified_market + '.csv', index_col=0)
 
