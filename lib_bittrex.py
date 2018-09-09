@@ -27,7 +27,7 @@ BASE_URL = 'https://bittrex.com/api/v1.1/%s/'
 
 MARKET_SET = {'getopenorders', 'cancel', 'sellmarket', 'selllimit', 'buymarket', 'buylimit'}
 
-ACCOUNT_SET = {'getbalances', 'getbalance', 'getdepositaddress', 'withdraw', 'getorderhistory'}
+ACCOUNT_SET = {'getbalances', 'getbalance', 'getdepositaddress', 'withdraw', 'getorderhistory', 'getorder'}
 
 
 class Bittrex(object):
@@ -189,9 +189,6 @@ class Bittrex(object):
         :type market: str
         :param quantity: The amount to purchase
         :type quantity: float
-        :param rate: The rate at which to place the order.
-            This is not needed for market orders
-        :type rate: float
         :return:
         :rtype : dict
         """
@@ -208,7 +205,6 @@ class Bittrex(object):
         :param quantity: The amount to purchase
         :type quantity: float
         :param rate: The rate at which to place the order.
-            This is not needed for market orders
         :type rate: float
         :return:
         :rtype : dict
@@ -236,6 +232,9 @@ class Bittrex(object):
         :rtype : dict
         """
         return self.api_query('getopenorders', {'market': market})
+    
+    def get_order(self, uuid):
+        return self.api_query('getorder', {'uuid': uuid})
 
     def get_balances(self):
         """

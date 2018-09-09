@@ -8,7 +8,7 @@
 """
 
 from os import environ
-import lib_bittrex
+#import lib_bittrex
 
 log = True
 
@@ -20,9 +20,9 @@ try:
     db_password = environ['DB_PASSWD']
     db_name = environ['DB_NAME']
 except:
-    db_user = "user"
-    db_password = "passwd"
-    db_name = "bd"
+    db_user = "petiz"
+    db_password = "carolina vai a loja"
+    db_name = "altcoin"
 
 if 'DATA_DIR' in environ:
     data_dir = environ['DATA_DIR']
@@ -56,8 +56,15 @@ main_coins=["BTC","USDT"]
 
 exchange = 'bittrex'
 
-# Add API Key and API Secret as variables if needed.
 try:
-    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
+    ky = environ['API_KEY'] 
+    sct= environ['API_SECRET']
 except:
-    bt = lib_bittrex.Bittrex("","")
+    
+    pass
+
+# Add API Key and API Secret as variables if needed.
+#try:
+#    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
+#except:
+#    bt = lib_bittrex.Bittrex("","")

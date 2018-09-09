@@ -1,18 +1,27 @@
-#changelog
+# changelog
 
-[2018-08-26]
+## [2018-09-09]
+
+* Added real buy and sell functions.
+* Implemented basic Risk Management module.
+* Added get_order func to lib_bittrex.
+* Improved performance in realtime func.
+* Removed unused imported functions.
+
+## [2018-08-26]
 
 * Added Trailing Stop Loss function.
 * Added Stop Loss function.
 * Started introducing framework to work with Binance Exchange.
+* Added Travis CI file for building tests.
 
-[2018-08-06]
+## [2018-08-06]
 
 * Added timeit decorator to control backtests execution time.
 * Backtest() runs based on market files.
 * Implemented backtest() with multiprocessing.
 
-[2018-07-28]
+## [2018-07-28]
 
 * Added setup.py.
 * Added OpenSellOrders and OpenBuyOrders to get_last_data().
