@@ -17,9 +17,16 @@ from finance import bollinger_bands
 from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
 from multiprocessing import cpu_count
+from logging import basicConfig, info, DEBUG
 
 plt.ion()
 plt.style.use('ggplot')
+
+# Initiates log file.
+basicConfig(filename=var.LOG_FILENAME,
+                    format='%(asctime)s - %(message)s',
+                    datefmt='%d/%m/%Y %H:%M:%S',
+                    level=DEBUG)
 
 def connect_db():
     '''
@@ -500,6 +507,9 @@ def beep(duration=0.5):
               (duration, freq))
 
 
-def log(message, level):
-
+def log(message, level=2):
+    if level > 0:
+        info(message)  
+    if level == 2:
+        print message
     return 0
