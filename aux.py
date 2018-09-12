@@ -402,17 +402,26 @@ def time_to_index(data, _datetime):
 
 
 def get_time_right(date_n_time):
+
     if ' ' in date_n_time:
         t_date, t_time = date_n_time.split()
     else:
         t_date = date_n_time
         t_time = '00:00'
 
-    try:
-        t_day, t_month, t_year = t_date.split('-')
-    except:
-        t_day, t_month = t_date.split('-')
-        t_year = localtime(time())[0]
+    if '-' in date_n_time:
+        try:
+            t_day, t_month, t_year = t_date.split('-')
+        except:
+            t_day, t_month = t_date.split('-')
+            t_year = str(localtime()[0])
+
+    elif '/' in date_n_time:
+        try:
+            t_day, t_month, t_year = t_date.split('/')
+        except:
+            t_day, t_month = t_date.split('/')
+            t_year = str(localtime()[0])
 
     t_hour, t_minute = t_time.split(':')
 
@@ -471,7 +480,7 @@ def timeit(method):
     return timed
 
 
-def num_processors(level):
+def num_processors(level="medium"):
     '''
     Decides how many cores will use.
     
@@ -505,6 +514,8 @@ def beep(duration=0.5):
     freq = 440  # Hz
     system('play --no-show-progress --null --channels 1 synth %s sine %f' %
               (duration, freq))
+
+    return 0
 
 
 def log(message, level=2):

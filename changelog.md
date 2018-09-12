@@ -1,5 +1,11 @@
 # changelog
 
+## [2018-09-12]
+
+* Introduced unittests fr aux.py functions.
+* Added support for coveralls.io.
+* Corrected some bugs related to realtime mode.
+
 ## [2018-09-09]
 
 * Added real buy and sell functions.

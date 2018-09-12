@@ -20,9 +20,9 @@ try:
     db_password = environ['DB_PASSWD']
     db_name = environ['DB_NAME']
 except:
-    db_user = "petiz"
-    db_password = "carolina vai a loja"
-    db_name = "altcoin"
+    db_user = "user"
+    db_password = "passwd"
+    db_name = "bd"
 
 if 'DATA_DIR' in environ:
     data_dir = environ['DATA_DIR']

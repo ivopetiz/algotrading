@@ -2,13 +2,11 @@ indicators.log
 funcs.py
 extra.py
 *.pyc
-.vscodesetup.py
+.vscode*
 setup.py
 figs/*
 !figs/fig2_xrp.png
-hist-5s/*
-hist-10s/*
-hist-10m/*
+hist-*
 !hist-10s/BTC-XRP.csv
 scripts/*
 data/*

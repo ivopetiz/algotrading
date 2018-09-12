@@ -71,11 +71,11 @@ def tick_by_tick(entry_funcs,
             if market in buy_list.keys():
                 if is_time_to_exit(data, exit_funcs,buy_list[market], ):
 
-                    log('[SELL]@ ' + str(data.Last.iloc[-1]) +\
+                    log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
                                  ' > ' + market, log_level)
                     
                     log('[P&L] ' + market + '> ' +\
-                                 str(round(((data.Last.iloc[-1]-\
+                                 str(round(((data.Bid.iloc[-1]-\
                                             buy_list[market])/\
                                             buy_list[market])*100,2)) +\
                                  '%.', log_level)
@@ -84,13 +84,12 @@ def tick_by_tick(entry_funcs,
             
             else:
                 if is_time_to_buy(data, entry_funcs):
-                    #if not simulation:
-                    #   sell(market)    
-                    buy_list[market] = data.Last.iloc[-1]
 
-                    log('[BUY]@ ' + str(data.Last.iloc[-1]) +\
+                    buy_list[market] = data.Ask.iloc[-1]
+
+                    log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
                     #             ' > ' + funcs.func_name +\
-                                 ' > ' + market, log_level, log_level)
+                                 ' > ' + market, log_level)
 
         # In case of processing time is bigger than refresh interval avoid sleep.
         if refresh_interval - (time() - start_time) > 0:
@@ -131,9 +130,6 @@ def realtime(entry_funcs,
 
     buy_list = {}  # Owned coins list.
     coins = {}
-    
-#FAZER FUNC P LOG.
-
 
     if simulation:
         bt = Bittrex('', '')
@@ -198,18 +194,30 @@ def realtime(entry_funcs,
                             sell_res = bt.sell(market_name,
                                                buy_list[market_name]['quantity'],
                                                data.Bid.iloc[-1])
+                            
+                            # MUDAR
+                            sold_at = 10
+
+                            log('[SELL]@ ' + str(sold_at) +\
+                                    ' > ' + market_name, log_level)
+                            
+                            log('[P&L] ' + market_name + '> ' +\
+                                    str(round(((sold_at-\
+                                                buy_list[market_name]['bought_at'])/\
+                                                buy_list[market_name]['bought_at'])*100,2)) +\
+                                    '%.', log_level)
 
                         else:
                             print '> https://bittrex.com/Market/Index?MarketName=' + \
                                 market_name
 
-                        log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
-                                    ' > ' + market_name, log_level)
-                        log('[P&L] ' + market_name + '> ' +\
-                                    str(round(((data.Bid.iloc[-1]-\
-                                                buy_list[market_name])/\
-                                                buy_list[market_name])*100,2)) +\
-                                    '%.', log_level)
+                            log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
+                                        ' > ' + market_name, log_level)
+                            log('[P&L] ' + market_name + '> ' +\
+                                        str(round(((data.Bid.iloc[-1]-\
+                                                    buy_list[market_name]['bought_at'])/\
+                                                    buy_list[market_name]['bought_at'])*100,2)) +\
+                                        '%.', log_level)
                         
                         del buy_list[market_name]
                 
@@ -226,6 +234,11 @@ def realtime(entry_funcs,
                                 buy_list[market_name]['bought_at'] = msg[0]
                                 buy_list[market_name]['max_price'] = msg[1]
                                 buy_list[market_name]['quantity']  = msg[2]
+
+                                log('[BUY]@ ' + str(msg[0]) +\
+                                    #' > ' + funcs.func_name +\
+                                    ' > ' + market_name)
+
                             else:
                                 log("[XXXX] Could not buy @ " + data.Ask.iloc[-1] * 1.01 +
                                      "\n[MSG>] " + msg, log_level)
@@ -233,11 +246,9 @@ def realtime(entry_funcs,
                             print '> https://bittrex.com/Market/Index?MarketName=' + \
                                 market_name
 
-                        buy_list[market_name] = data.Ask.iloc[-1]
-
-                        log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
-                        #             ' > ' + funcs.func_name +\
-                                    ' > ' + market_name)
+                            log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
+                                #' > ' + funcs.func_name +\
+                                ' > ' + market_name)
    
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
