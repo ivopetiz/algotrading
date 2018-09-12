@@ -8,7 +8,7 @@
 """
 
 from os import environ
-import lib_bittrex
+#import lib_bittrex
 
 log = True
 
@@ -56,8 +56,15 @@ main_coins=["BTC","USDT"]
 
 exchange = 'bittrex'
 
-# Add API Key and API Secret as variables if needed.
 try:
-    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
+    ky = environ['API_KEY'] 
+    sct= environ['API_SECRET']
 except:
-    bt = lib_bittrex.Bittrex("","")
+    
+    pass
+
+# Add API Key and API Secret as variables if needed.
+#try:
+#    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
+#except:
+#    bt = lib_bittrex.Bittrex("","")

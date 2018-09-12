@@ -5,21 +5,28 @@
 """
 
 
-import os
 import var
-import time
-import datetime
-import lib_bittrex
-import numpy as np
-import pandas as pd
 import matplotlib.pylab as plt
 
+from os import system, listdir
+from numpy import isnan
+from pandas import read_csv, DataFrame
+from time import time, localtime
+from datetime import datetime, timedelta
 from finance import bollinger_bands
 from influxdb import InfluxDBClient
+from lib_bittrex import Bittrex
 from multiprocessing import cpu_count
+from logging import basicConfig, info, DEBUG
 
 plt.ion()
 plt.style.use('ggplot')
+
+# Initiates log file.
+basicConfig(filename=var.LOG_FILENAME,
+                    format='%(asctime)s - %(message)s',
+                    datefmt='%d/%m/%Y %H:%M:%S',
+                    level=DEBUG)
 
 def connect_db():
     '''
@@ -46,7 +53,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
     - list of markets.
     '''
     if exchange=='bittrex':
-        bt = lib_bittrex.Bittrex('', '')
+        bt = Bittrex('', '')
         ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
 
     #elif exchange=='binance':
@@ -69,7 +76,7 @@ def get_markets_on_files(interval, base='BTC'):
     '''
     markets_list=[]
 
-    for file_ in os.listdir(var.data_dir + '/hist-' + interval):
+    for file_ in listdir(var.data_dir + '/hist-' + interval):
         if file_.startswith(base):
             markets_list.append(file_.split('.')[0])
 
@@ -149,7 +156,7 @@ def get_historical_data(market,
 
     # returning Pandas DataFrame.
     #return pd.DataFrame(list(res.get_points(measurement=exchange)))
-    return detect_init(pd.DataFrame(list(res.get_points(measurement=var.exchange))))
+    return detect_init(DataFrame(list(res.get_points(measurement=var.exchange))))
 
 
 def get_last_data(market, 
@@ -173,8 +180,8 @@ def get_last_data(market,
     end_date = 'now()'
 
     # date and time format> 2018-02-02 00:00:00
-    start_date = format(datetime.datetime.now() -
-                        datetime.timedelta(hours=last), 
+    start_date = format(datetime.now() -
+                        timedelta(hours=last), 
                         '%Y-%m-%d %H:%M:%S')
 
     return get_historical_data(market,
@@ -199,7 +206,7 @@ def detect_init(data):
     #TODO try to implement this on DB query.
     for i in range(len(data)):
         #TODO remove numpy lib and use other method to detect NaN.
-        if not np.isnan(data.Last.iloc[i]):
+        if not isnan(data.Last.iloc[i]):
             return data[i:len(data)]
 
 
@@ -285,7 +292,7 @@ def plot_data(data,
     f.subplots_adjust(hspace=0)
     if to_file:
         if not name:
-            name = 'fig_test' + str(time.time())
+            name = 'fig_test' + str(time())
         f.savefig('figs/' + name + '.pdf', bbox_inches='tight')
         plt.close(f)
     #plt.show()
@@ -338,7 +345,7 @@ def get_data_from_file(market, interval=var.default_interval, exchange='bittrex'
     '''
     verified_market = check_market_name(market, exchange=exchange)
 
-    return pd.read_csv(var.data_dir + '/hist-' + interval + '/' + verified_market + '.csv', index_col=0)
+    return read_csv(var.data_dir + '/hist-' + interval + '/' + verified_market + '.csv', index_col=0)
 
 
 def check_market_name(market, exchange='bittrex'):
@@ -379,7 +386,7 @@ def time_to_index(data, _datetime):
             t_day, t_month, t_year = t_date.split('-')
         except:
             t_day, t_month = t_date.split('-')
-            t_year = time.localtime(time.time())[0]
+            t_year = localtime(time())[0]
 
         t_hour, t_minute = t_time.split(':')
 
@@ -395,17 +402,26 @@ def time_to_index(data, _datetime):
 
 
 def get_time_right(date_n_time):
+
     if ' ' in date_n_time:
         t_date, t_time = date_n_time.split()
     else:
         t_date = date_n_time
         t_time = '00:00'
 
-    try:
-        t_day, t_month, t_year = t_date.split('-')
-    except:
-        t_day, t_month = t_date.split('-')
-        t_year = time.localtime(time.time())[0]
+    if '-' in date_n_time:
+        try:
+            t_day, t_month, t_year = t_date.split('-')
+        except:
+            t_day, t_month = t_date.split('-')
+            t_year = str(localtime()[0])
+
+    elif '/' in date_n_time:
+        try:
+            t_day, t_month, t_year = t_date.split('/')
+        except:
+            t_day, t_month = t_date.split('/')
+            t_year = str(localtime()[0])
 
     t_hour, t_minute = t_time.split(':')
 
@@ -454,9 +470,9 @@ def timeit(method):
     Decorator to measure functions duration.
     '''
     def timed(*args, **kw):
-        ts = time.time()
+        ts = time()
         result = method(*args, **kw)
-        te = time.time()
+        te = time()
 
         print '%2.2f sec' % (te-ts)
         return result
@@ -464,7 +480,7 @@ def timeit(method):
     return timed
 
 
-def num_processors(level):
+def num_processors(level="medium"):
     '''
     Decides how many cores will use.
     
@@ -496,5 +512,15 @@ def beep(duration=0.5):
     '''
 
     freq = 440  # Hz
-    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' %
+    system('play --no-show-progress --null --channels 1 synth %s sine %f' %
               (duration, freq))
+
+    return 0
+
+
+def log(message, level=2):
+    if level > 0:
+        info(message)  
+    if level == 2:
+        print message
+    return 0
