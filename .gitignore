@@ -3,7 +3,6 @@ funcs.py
 extra.py
 *.pyc
 .vscode*
-setup.py
 figs/*
 !figs/fig2_xrp.png
 hist-*
