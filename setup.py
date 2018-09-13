@@ -44,7 +44,7 @@ __requires__ = [
 #    "scandir==1.8",
 #    "simplegeneric==0.8.1",
     "six==1.11.0",
-    "subprocess32==3.5.2",
+#    "subprocess32==3.5.2",
 #    "traitlets==4.3.2",
 #    "urllib3==1.23",
 #    "wcwidth==0.1.7"
