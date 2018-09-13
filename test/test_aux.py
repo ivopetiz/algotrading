@@ -1,5 +1,5 @@
 import unittest
-from aux import *
+from cryptoalgotrading.aux import *
 
 class TestAux(unittest.TestCase):
 
