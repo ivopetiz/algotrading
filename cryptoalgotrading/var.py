@@ -32,7 +32,7 @@ else:
 if 'LOGS_DIR' in environ:
     logs_dir = environ['LOGS_DIR']
 else:
-    logs_dir = "."
+    logs_dir = ".."
 
 LOG_FILENAME = logs_dir + '/indicators.log'
 

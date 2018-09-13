@@ -188,6 +188,7 @@ def realtime(entry_funcs,
                                        exit_funcs,
                                        bought_at = buy_list[market_name]['bought_at'],
                                        max_price = buy_list[market_name]['max_price'],
+                                       count     = buy_list[market_name]['count'],
                                        real_aux = 0):
 
                         if not simulation:
@@ -262,6 +263,7 @@ def is_time_to_exit(data,
                     stop=0,
                     bought_at=0,
                     max_price=0,
+                    count=-1,
                     real_aux=1):
     '''
     Detects when is time to exit trade.
@@ -277,11 +279,14 @@ def is_time_to_exit(data,
                             "OpenBuyOrders": "OpenBuy",
                             "OpenSellOrders": "OpenSell"})
 
+    if count == 0:
+        return True
+
     if stop == 1:
-        if stop_loss(data.Last.iloc[-1], bought_at):
+        if stop_loss(data.Last.iloc[-1], bought_at, percentage=10):
             return True
     elif stop == 2:
-        if trailing_stop_loss(data.Last.iloc[-1], max_price):
+        if trailing_stop_loss(data.Last.iloc[-1], max_price, percentage=10):
             return True
 
     if type(funcs) is not list:

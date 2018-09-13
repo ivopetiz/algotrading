@@ -11,5 +11,5 @@ scripts/*
 data/*
 cryptoalgotrading.egg-info/*
 .eggs/*
-.coverage.*
+.coverage
 .coveralls.yml
