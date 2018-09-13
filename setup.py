@@ -27,7 +27,7 @@ __requires__ = [
     "influxdb==5.2.0",
 #    "ipython==5.7.0",
 #    "ipython-genutils==0.2.0",
-#    "kiwisolver==1.0.1",
+    "kiwisolver==1.0.1",
     "matplotlib==2.2.0",
     "numpy==1.15.0",
     "pandas==0.23.4",
@@ -44,7 +44,7 @@ __requires__ = [
 #    "scandir==1.8",
 #    "simplegeneric==0.8.1",
     "six==1.11.0",
-#    "subprocess32==3.5.2",
+    "subprocess32==3.2.7",
 #    "traitlets==4.3.2",
 #    "urllib3==1.23",
 #    "wcwidth==0.1.7"
