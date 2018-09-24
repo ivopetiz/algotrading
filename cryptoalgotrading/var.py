@@ -11,15 +11,18 @@ from os import environ
 #import lib_bittrex
 
 log = True
+global_log_level = 2
 
 # DATABASE VARIABLES
 # Best option should be define vars on system 
-# and then get environment variables to here.
+# and then get environment variables.
 try:
     db_user = environ['DB_USER']
     db_password = environ['DB_PASSWD']
     db_name = environ['DB_NAME']
+
 except:
+    #log("Could not use environment user and password variables.", 0)
     db_user = "user"
     db_password = "passwd"
     db_name = "bd"
@@ -27,7 +30,7 @@ except:
 if 'DATA_DIR' in environ:
     data_dir = environ['DATA_DIR']
 else:
-    data_dir = "."
+    data_dir = ".."
 
 if 'LOGS_DIR' in environ:
     logs_dir = environ['LOGS_DIR']
@@ -60,7 +63,7 @@ try:
     ky = environ['API_KEY'] 
     sct= environ['API_SECRET']
 except:
-    
+    #log("Could not use environment variables for key and secret.", 0)
     pass
 
 # Add API Key and API Secret as variables if needed.

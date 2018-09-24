@@ -6,17 +6,14 @@
 ########
 ### TODO
 ########
-#   fix log presentation.
 # > implement Binance.
 #   improve multiprocessing usage.
-#   define processor usage.
 #   implement MPI.
-#   log in every try/except.
 #   improve DB connection.
 #   improve multiprocessing display information.
-#   log multiple accesses.
 #   break big files into smaller ones.
 #   backtest based on pandas.Dataframe.
+
 
 import var
 import pandas as pd
@@ -29,10 +26,12 @@ from riskmanagement import RiskManagement
 from functools import partial
 from multiprocessing import Pool
 
-from aux import *
+from aux import * 
+
 
 # Prevents FutureWarning from Pandas. 
 simplefilter(action='ignore', category=FutureWarning)
+
 
 def tick_by_tick(entry_funcs,
                  exit_funcs,
@@ -55,6 +54,7 @@ def tick_by_tick(entry_funcs,
         emas(list): list of EMA values to use.
         refresh_interval(int): Data refresh rate.
     '''
+    var.global_log_level = log_level
 
     if len(markets) < 1:
         markets = get_markets_list('BTC')
@@ -72,13 +72,13 @@ def tick_by_tick(entry_funcs,
                 if is_time_to_exit(data, exit_funcs,buy_list[market], ):
 
                     log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
-                                 ' > ' + market, log_level)
+                                 ' > ' + market, 1)
                     
                     log('[P&L] ' + market + '> ' +\
                                  str(round(((data.Bid.iloc[-1]-\
                                             buy_list[market])/\
                                             buy_list[market])*100,2)) +\
-                                 '%.', log_level)
+                                 '%.', 1)
                     
                     del buy_list[market]
             
@@ -89,7 +89,7 @@ def tick_by_tick(entry_funcs,
 
                     log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
                     #             ' > ' + funcs.func_name +\
-                                 ' > ' + market, log_level)
+                                 ' > ' + market, 1)
 
         # In case of processing time is bigger than refresh interval avoid sleep.
         if refresh_interval - (time() - start_time) > 0:
@@ -126,6 +126,8 @@ def realtime(entry_funcs,
     #   2 - Writes logs to file and prints on screen.
     #   Default is 2.
 
+    var.global_log_level = log_level
+
     validate = smas[-1] + 5
 
     buy_list = {}  # Owned coins list.
@@ -133,12 +135,12 @@ def realtime(entry_funcs,
 
     if simulation:
         bt = Bittrex('', '')
-        log("Starting Bot")
+        log("Starting Bot", 0)
     else:
         try:
             bt = RiskManagement(var.ky, var.sct)
         except:
-            log("Error connecting to Bittrex")
+            log("[Error] Couldn't connect to Bittrex", 0)
             exit()
 
     while True:
@@ -192,6 +194,7 @@ def realtime(entry_funcs,
                                        real_aux = 0):
 
                         if not simulation:
+                            #REAL
                             sell_res = bt.sell(market_name,
                                                buy_list[market_name]['quantity'],
                                                data.Bid.iloc[-1])
@@ -200,62 +203,79 @@ def realtime(entry_funcs,
                             sold_at = 10
 
                             log('[SELL]@ ' + str(sold_at) +\
-                                    ' > ' + market_name, log_level)
+                                    ' > ' + market_name, 1)
                             
                             log('[P&L] ' + market_name + '> ' +\
                                     str(round(((sold_at-\
                                                 buy_list[market_name]['bought_at'])/\
                                                 buy_list[market_name]['bought_at'])*100,2)) +\
-                                    '%.', log_level)
+                                    '%.', 1)
 
                         else:
-                            print '> https://bittrex.com/Market/Index?MarketName=' + \
-                                market_name
+                            #SIMULATION
+                            print '> https://bittrex.com/Market/Index?MarketName=' + market_name
 
                             log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
-                                        ' > ' + market_name, log_level)
+                                        ' > ' + market_name, 1)
+
                             log('[P&L] ' + market_name + '> ' +\
                                         str(round(((data.Bid.iloc[-1]-\
                                                     buy_list[market_name]['bought_at'])/\
                                                     buy_list[market_name]['bought_at'])*100,2)) +\
-                                        '%.', log_level)
+                                        '%.', 1)
                         
                         del buy_list[market_name]
+                    
+                    #if not time to exit increment count.
+                    else:
+                        buy_list[market_name]['count'] += 1                        
                 
+                # if has no coins from a certain market checks if is time to buy.
                 else:
                     if is_time_to_buy(data, 
                                       entry_funcs, 
                                       real_aux=0):
 
                         if not simulation:
+                            #REAL
                             sucs, msg = bt.buy(market, data.Ask.iloc[-1]*1.01)
                             
                             if sucs:
                                 buy_list[market_name] = {}
                                 buy_list[market_name]['bought_at'] = msg[0]
-                                buy_list[market_name]['max_price'] = msg[1]
-                                buy_list[market_name]['quantity']  = msg[2]
+                                buy_list[market_name]['max_price'] = msg[0]
+                                buy_list[market_name]['quantity']  = msg[1]
+                                buy_list[market_name]['count']  = 0
 
                                 log('[BUY]@ ' + str(msg[0]) +\
                                     #' > ' + funcs.func_name +\
-                                    ' > ' + market_name)
+                                    ' > ' + market_name, 1)
 
                             else:
                                 log("[XXXX] Could not buy @ " + data.Ask.iloc[-1] * 1.01 +
-                                     "\n[MSG>] " + msg, log_level)
+                                     "\n[MSG>] " + msg, 0)
+
                         else:
+                            #SIMULATION
+                            buy_list[market_name] = {}
+                            buy_list[market_name]['bought_at'] = data.Ask.iloc[-1]
+                            buy_list[market_name]['max_price'] = data.Ask.iloc[-1]
+                            buy_list[market_name]['quantity']  = 1
+                            buy_list[market_name]['count']  = 0
+
                             print '> https://bittrex.com/Market/Index?MarketName=' + \
                                 market_name
 
                             log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
                                 #' > ' + funcs.func_name +\
-                                ' > ' + market_name)
+                                ' > ' + market_name, 1)
    
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
             sleep(refresh_interval - (time()-start_time))
 
 
+@safe
 def is_time_to_exit(data,
                     funcs,
                     smas=var.default_smas,
@@ -273,14 +293,12 @@ def is_time_to_exit(data,
     1 -> regular stop loss
     2 -> trailing stop loss
     '''
-
     if not real_aux:
         data = data.rename(index=str, columns={
                             "OpenBuyOrders": "OpenBuy",
                             "OpenSellOrders": "OpenSell"})
 
-    if count == 0:
-        return True
+    if count == 0: return True
 
     if stop == 1:
         if stop_loss(data.Last.iloc[-1], bought_at, percentage=10):
@@ -289,8 +307,7 @@ def is_time_to_exit(data,
         if trailing_stop_loss(data.Last.iloc[-1], max_price, percentage=10):
             return True
 
-    if type(funcs) is not list:
-        funcs = [funcs]
+    if type(funcs) is not list: funcs = [funcs]
 
     for func in funcs:
         if func(data, smas=smas, emas=emas):
@@ -299,6 +316,7 @@ def is_time_to_exit(data,
     return False 
 
 
+@safe
 def is_time_to_buy(data, 
                    funcs, 
                    smas=var.default_smas,
@@ -365,6 +383,19 @@ def backtest(markets,
     #   2 - Writes logs to file and prints on screen.
     #   Default is 2.
 
+    var.global_log_level = log_level
+
+    if not from_file:
+    # Connects to DB.
+        try:
+            db_client = connect_db()
+        except Exception as e:
+            log(str(e),0)
+            raise e
+    else:
+        db_client = 0
+
+    # For all markets.
     if not len(markets):
         y = 'y'#raw_input("Want to run all markets? ")
         if y == 'y':
@@ -375,6 +406,15 @@ def backtest(markets,
         else:
             return False
 
+    # For selected markets.
+    else:
+        markets = manage_files(markets, interval=interval)
+    
+    #for m in markets:
+    #    print m
+
+    #return 0
+
     # Prevents errors from markets and funcs as str.
     if type(markets) is str:
         markets=[markets]
@@ -383,10 +423,13 @@ def backtest(markets,
     if type(exit_funcs) is not list:
         exit_funcs=[exit_funcs]
     
-    pool = Pool(num_processors(mp_level))  # Create a multiprocessing Pool
+    log(str(len(markets)) + " files/chunks to analyse...", 2)
+
+    # Create a multiprocessing Pool
+    pool = Pool(num_processors(mp_level))  
     
     # Display information about pool.
-
+    
     total = pool.map(partial(backtest_market,
                              entry_funcs,
                              exit_funcs,
@@ -396,13 +439,14 @@ def backtest(markets,
                              emas,
                              from_file,
                              to_file,
-                             plot), 
+                             plot,
+                             db_client), 
                              markets)
 
     pool.close()
     pool.join()
 
-    print '+ Total > ' + str(sum(total))
+    log(" Total > " + str(sum(total)), 2)
 
     return True
 
@@ -416,6 +460,7 @@ def backtest_market(entry_funcs,
                     from_file,
                     to_file,
                     plot, 
+                    db_client,
                     market):
     '''
     Backtests strategies for a specific market.
@@ -435,10 +480,9 @@ def backtest_market(entry_funcs,
     Returns:
         float: returns backtests profit & loss value for applied strategies.
     '''
-    
+    #try:
     date = [0,0]
 
-    log_level = 2
     total = 0
     market = check_market_name(market)
 
@@ -448,12 +492,14 @@ def backtest_market(entry_funcs,
     exit_points_x = []
     exit_points_y = []
 
+    full_log = '[Market analysis]: ' + market +'\n'
+
     if from_file:
         try:
             data = get_data_from_file(market, interval=interval)
         except Exception as e:
-            print e
-            print 'Can\'t find', market, 'in files.'
+            log(str(e), 1)
+            log('[ERROR] Can\'t find ' + market + ' in files.', 1)
             return 1
             #continue
 
@@ -470,28 +516,30 @@ def backtest_market(entry_funcs,
     else:
         try:
             data = get_historical_data(
-                                       market, 
-                                       interval=interval, 
-                                       init_date=_date[0], 
-                                       end_date=_date[1])
+                                    market, 
+                                    interval=interval, 
+                                    init_date=_date[0], 
+                                    end_date=_date[1],
+                                    db_client=db_client)
             date[0], date[1] = 0, len(data)
             data_init = data
             
         except Exception as e:
-            print e
-            print 'Can\'t find', market, 'in BD.'
+            log(str(e), 1)
+            log('[ERROR] Can\'t find ' + market + ' in BD.', 1)
             return 1
             #continue
 
     aux_buy = False
     buy_price = 0
     high_price = 0
+
     #Tests several functions.
     for i in range(len(data)-50):
         if not aux_buy:
             if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
                 
-                buy_price = data_init.Ask.iloc[i+49+date[0]]
+                buy_price = data_init.Ask.iloc[i + 49 + date[0]]
                 high_price = buy_price
                 
                 entry_points_x.append(i + 49)
@@ -500,60 +548,62 @@ def backtest_market(entry_funcs,
                 if exit_funcs:
                     aux_buy = True
                 
-                log('> ' + str(data_init.time.iloc[i + 49 + date[0]]) + \
-                     ' < [BUY]  @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + \
-                    #' > ' + funcs.func_name +\
-                     ' > ' + market, log_level)
+                full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
+                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + \
+                    ' > ' + market + '\n'
 
         else:
             # Used for trailing stop loss.
-            if data_init.Last.iloc[i+49+date[0]] > high_price:
-                high_price = data_init.Last.iloc[i+49+date[0]]
+            if data_init.Last.iloc[i + 49 + date[0]] > high_price:
+                high_price = data_init.Last.iloc[i + 49 + date[0]]
 
             if is_time_to_exit(data[i:i+50],
-                               exit_funcs,
-                               smas,
-                               emas,
-                               stop = 1,
-                               bought_at=buy_price,
-                               max_price=high_price):
+                            exit_funcs,
+                            smas,
+                            emas,
+                            stop = 1,
+                            bought_at=buy_price,
+                            max_price=high_price):
             
                 exit_points_x.append(i+49)
-                exit_points_y.append(data_init.Bid.iloc[i+49+date[0]])
+                exit_points_y.append(data_init.Bid.iloc[i + 49 + date[0]])
+                
                 aux_buy = False
-                total += round(((data_init.Bid.iloc[i+49+date[0]] -
-                                 buy_price) /
+                
+                total += round(((data_init.Bid.iloc[i + 49 + date[0]] -
+                                buy_price) /
                                 buy_price)*100, 2)
-                log('> ' + str(data_init.time.iloc[i + 49 + date[0]]) + \
-                    ' < [SELL] @ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) + \
-                    ' > ' + market,log_level)
 
-                log('[P&L] ' + market + '> ' + \
-                    str(total) + '%.', log_level)
+                full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
+                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) + \
+                    ' > ' + market + '\n'
 
+                full_log += '[P&L] > ' + str(total) + '%.' + '\n'
+    
     # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
-    # computer can start run realy slow.
+    # computer can start run really slow.
     try:
         if plot:
-            aux_plot = plot_data(data,
-                                 name=market,
-                                 date=[0,0],
-                                 smas=smas,
-                                 emas=[],
-                                 entry_points=(entry_points_x, entry_points_y),
-                                 exit_points=(exit_points_x,exit_points_y),
-                                 show_smas=True,
-                                 show_emas=False,
-                                 show_bbands=True,
-                                 to_file=to_file)
+            plot_data(data,
+                      name=market,
+                      date=[0,0],
+                      smas=smas,
+                      emas=[],
+                      entry_points=(entry_points_x, entry_points_y),
+                      exit_points=(exit_points_x,exit_points_y),
+                      show_smas=True,
+                      show_emas=False,
+                      show_bbands=True,
+                      to_file=to_file)
     except Exception as e:
-        log("[ERROR] ploting data: " + str(e), log_level)
+        log("[ERROR] Ploting data: " + str(e), 0)
 
 
-    if len(exit_points_x):
-        log(market + ' > ' + str(total), log_level)
+    #if len(exit_points_x):
+    #    log(market + ' > ' + str(total), log_level)
 
-    log('[TOTAL] > ' + str(total), log_level)
+    #full_log += '[TOTAL]> ' + str(total) + '\n'
+
+    log(full_log, 1)
     
     return total
-    #total_markets += total

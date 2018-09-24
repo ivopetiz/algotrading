@@ -1,5 +1,17 @@
 # changelog
 
+## [2018-09-24]
+
+* New file management system to improve multiprocessing analysis.
+* Added decorator to prevent fatal faults in data analysis.
+* Added new options to define system performance.
+* Fixed concurrent writing.
+* Improved log system and info.
+
+## [2018-09-13]
+
+* Fixed setup.py for Travis-CI builds.
+
 ## [2018-09-12]
 
 * Introduced unittests fr aux.py functions.

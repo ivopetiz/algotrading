@@ -6,9 +6,11 @@
 
 
 import var
+
 import matplotlib.pylab as plt
 
 from os import system, listdir
+from sys import exit
 from numpy import isnan
 from pandas import read_csv, DataFrame
 from time import time, localtime
@@ -34,11 +36,18 @@ def connect_db():
     '''
 
     # returning InfluxDBClient object.
-    return InfluxDBClient(var.db_host, 
-                          var.db_port, 
-                          var.db_user, 
-                          var.db_password, 
-                          var.db_name)
+    try:
+        conn = InfluxDBClient(var.db_host, 
+                              var.db_port, 
+                              var.db_user, 
+                              var.db_password, 
+                              var.db_name)
+
+    except Exception as err:
+        log("[ERROR] " + str(err))
+        exit(1)
+
+    return conn
 
 
 def get_markets_list(base='BTC', exchange='bittrex'):
@@ -87,7 +96,8 @@ def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
                         end_date=0,
-                        exchange='bittrex'):
+                        exchange='bittrex',
+                        db_client=0):
     '''
     Gets all historical data stored on DB, from a certain market.
 
@@ -104,12 +114,6 @@ def get_historical_data(market,
     - market data in pandas.DataFrame.
     '''
     verified_market = check_market_name(market, exchange='bittrex')
-
-    # Connects to DB.
-    try:
-        db_client = connect_db()
-    except Exception as e:
-        raise e
 
     if not init_date:
         init_date = '2018-02-02 00:00:00'
@@ -162,7 +166,8 @@ def get_historical_data(market,
 def get_last_data(market, 
                   last='24',
                   interval=var.default_interval,
-                  exchange='bittrex'):
+                  exchange='bittrex',
+                  db_client=0):
     '''
     Gets last data from DB.
 
@@ -188,7 +193,8 @@ def get_last_data(market,
                         interval=interval,
                         init_date=start_date,
                         end_date=end_date,
-                        exchange=exchange)
+                        exchange=exchange,
+                        db_client=db_client)
 
 #TODO
 # def is_market(market):
@@ -356,6 +362,7 @@ def check_market_name(market, exchange='bittrex'):
 
     if '-' in market:  # and len(market) > 5:
         return market
+
     return 'BTC-' + market
 
 
@@ -435,6 +442,7 @@ def get_time_right(date_n_time):
 def trailing_stop_loss(last, higher, percentage=10):
     '''
     Trailing stop loss function.
+    
     Receives structure with:
         - Last price.
         - Entry point x.
@@ -452,7 +460,8 @@ def trailing_stop_loss(last, higher, percentage=10):
 def stop_loss(last, entry_point_x, percentage=5):
     '''
     Stop loss function.
-        Receives structure with:
+        
+    Receives structure with:
         - Last price.
         - Entry point x.
     
@@ -465,6 +474,8 @@ def stop_loss(last, entry_point_x, percentage=5):
     return False
 
 
+#####################################################################
+## Decorators
 def timeit(method):
     '''
     Decorator to measure functions duration.
@@ -474,11 +485,28 @@ def timeit(method):
         result = method(*args, **kw)
         te = time()
 
-        print '%2.2f sec' % (te-ts)
+        log('%2.2f sec' % (te-ts), 1)
         return result
 
     return timed
 
+
+def safe(method):
+    '''
+    Decorator to return safe in case of error.
+    '''
+    def ret(*args, **kw):
+        try:
+            result = method(*args, **kw)
+
+        except:
+            # Should report error
+            result = False
+
+        return result
+
+    return ret
+#####################################################################
 
 def num_processors(level="medium"):
     '''
@@ -487,30 +515,36 @@ def num_processors(level="medium"):
     level options:
         low             = 1 core
         medium          = half of available cores.
-        high            = uses all available cores.
+        high            = left 1 free core.
+        max|extreme     = uses all available cores.
         <cores number>  = uses the number of cores specified.
     '''
-
     mp = cpu_count()
+    n_threads = 0
 
     if level == "low":
-        return 1
+        n_threads = 1
     elif level == "medium":
-        return mp/2
+        n_threads = mp/2
     elif level == "high":
-        return mp
-    elif type(level) == int and 1<level<=mp:
-        return level
+        n_threads = mp-1
+    elif level == "extreme" or level == "max":
+         n_threads = mp
+    elif type(level) == int and 0<level<=mp:
+        n_threads = level
     else:
-        return mp/2
-      
+        n_threads = mp/2
+
+    log("[INFO] Using " + str(n_threads) + " threads.", 1)
+
+    return n_threads      
+
 
 def beep(duration=0.5):
     ''' 
     It beeps!
     Used to alert for possible manual entry or exit.
     '''
-
     freq = 440  # Hz
     system('play --no-show-progress --null --channels 1 synth %s sine %f' %
               (duration, freq))
@@ -519,8 +553,42 @@ def beep(duration=0.5):
 
 
 def log(message, level=2):
+    '''
+    Log function to select the type of log will be done.
+    
+    Receives:
+        - message: str
+        - level: int (default=2)
+
+    Returns 0
+    '''
+    
+    if level > var.global_log_level:
+        return 1
+
     if level > 0:
-        info(message)  
-    if level == 2:
+        info(message)
+    if level > 1:
         print message
     return 0
+
+
+def manage_files(markets, interval='1m'):
+    '''
+    Manage market files in order to improve framework performance.
+    '''
+    all_files = []
+    markets_name = []
+
+    if type(markets) is str: markets=[markets]
+
+    for market in markets:
+        markets_name.append(check_market_name(market))
+
+    for f in listdir(var.data_dir + "/hist-" + interval):
+        for market in markets_name:
+            if f.startswith(market): 
+                all_files.append(f.split('.')[0])
+                continue
+
+    return all_files

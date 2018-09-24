@@ -13,3 +13,5 @@ cryptoalgotrading.egg-info/*
 .eggs/*
 .coverage
 .coveralls.yml
+parallel.py
+test/test_cryptoalgotrading

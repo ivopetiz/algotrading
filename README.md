@@ -107,7 +107,7 @@ def alert_volume_x2(data):
         return True
     return False
 
-realtime([], alert_volume_x2, interval='10m')
+cryptoalgotrading.realtime([], alert_volume_x2, interval='10m')
 ```
 
 *alert_volume_x2* checks the value of actual market volume and compare it with the last time frame volume value, alerting user when actual market volume is bigger than last time frame volume value multiplied by 2. Can add functions live on IPython for example of add them to entry and exit python files.
@@ -120,7 +120,7 @@ To backtest a cross simple moving average strategy in a specific market and plot
 import cryptoalgotrading
 import entry
 
-backtest(["BTC-XRP"], entry.cross_smas, smas=[15,40], interval='10m', from_file=True, plot=True)
+cryptoalgotrading.backtest(["BTC-XRP"], entry.cross_smas, smas=[15,40], interval='10m', from_file=True, plot=True)
 ```
 
 Based on market data available for BTC_XRP pair, code above can present an output like this:
