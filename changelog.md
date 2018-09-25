@@ -1,5 +1,9 @@
 # changelog
 
+## [2018-09-25]
+
+* Added new unittests for backtest, backtest_market, etc.
+
 ## [2018-09-24]
 
 * New file management system to improve multiprocessing analysis.

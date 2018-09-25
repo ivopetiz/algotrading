@@ -30,12 +30,12 @@ except:
 if 'DATA_DIR' in environ:
     data_dir = environ['DATA_DIR']
 else:
-    data_dir = ".."
+    data_dir = "."
 
 if 'LOGS_DIR' in environ:
     logs_dir = environ['LOGS_DIR']
 else:
-    logs_dir = ".."
+    logs_dir = "."
 
 LOG_FILENAME = logs_dir + '/indicators.log'
 

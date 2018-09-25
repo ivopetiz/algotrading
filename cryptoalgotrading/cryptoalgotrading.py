@@ -448,7 +448,7 @@ def backtest(markets,
 
     log(" Total > " + str(sum(total)), 2)
 
-    return True
+    return sum(total)
 
 
 def backtest_market(entry_funcs, 

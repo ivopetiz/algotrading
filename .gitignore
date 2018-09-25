@@ -14,4 +14,3 @@ cryptoalgotrading.egg-info/*
 .coverage
 .coveralls.yml
 parallel.py
-test/test_cryptoalgotrading

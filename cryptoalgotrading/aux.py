@@ -126,8 +126,6 @@ def get_historical_data(market,
         end_date = get_time_right(end_date)
         time += " AND time < \'" + end_date + "\'"
 
-    #TODO fazer a verificacao da existencia da market no markets list.
-
     # Gets data from Bittex exchange.
     if exchange is 'bittrex':
         command = "SELECT last(Last) AS Last," +\
