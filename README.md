@@ -76,12 +76,58 @@ https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a
 
 ## Entry functions
 
-Entry functions aggregate all strategies to enter a specific market. Once data fill all the requisites to enter a specific market, an action is taken. For example, if one of your entry strategies is an increasing of 10% on EMA, once this condition is filled, bot will enter market.
+Entry functions aggregate all strategies to enter in a specific market. Once data fill all the requisites to enter a specific market, an action is taken.
+Users can use one or several functions in the same call, in order to fill the requesites and enter market/markets.
+Functions should return *True*, if the available data represent an exit point for user. If not the return need to be *False*.
+<entry.py> should aggregate all users' entry functions.
 
-## Exit functionss
+### Example
 
-Exit functions has all functions corresponding to exit strategies. When user is in the market and data meet an exit criteria, bot will exit market.
-For example, if user define a new 24H high as exit func, once last price is equal to 24H high, bot will exit market.
+#### cross SMA
+
+Function <cross_smas> will return *True* if first SMA cross the second one. If not will return *False*.
+
+```python
+def cross_smas(data, smas=[5, 10]):
+    '''
+    Checks if it's an entry point based on crossed smas.
+    '''
+    if data.Last.rolling(smas[0]).mean().iloc[-1] > \
+       data.Last.rolling(smas[1]).mean().iloc[-1] and \
+       data.Last.rolling(smas[0]).mean().iloc[-2] < \
+       data.Last.rolling(smas[1]).mean().iloc[-2]:
+        return True
+
+    return False
+```
+
+## Exit functions
+
+Exit functions has all functions responsible for exit strategies. When user is in the market and data met an exit criteria, bot will exit market.
+Exit functions can be used with other exit functions, to cover more situations, as used in entry functions.
+Stop loss and trailing stop loss are also implemented, in order to exit markets in case of unexpected price drop.
+Functions should return *True*, if the available data represent an exit point for user. If not the return need to be *False*.
+<exit.py> should aggregate all users' exit functions.
+
+### Example
+
+#### cross SMA
+
+Function <cross_smas> will return *True* if first SMA cross the second one. If not will return *False*.
+
+```python
+def cross_smas(data, smas=[10, 20]):
+    '''
+    Checks if it's an exit point based on crossed smas.
+    '''
+    if data.Last.rolling(smas[0]).mean().iloc[-1] < \
+       data.Last.rolling(smas[1]).mean().iloc[-1] and \
+       data.Last.rolling(smas[0]).mean().iloc[-2] > \
+       data.Last.rolling(smas[1]).mean().iloc[-2]:
+        return True
+
+    return False
+```
 
 ## Plot data
 
