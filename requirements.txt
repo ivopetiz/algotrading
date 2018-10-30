@@ -22,7 +22,7 @@ Pygments==2.2.0
 pyparsing==2.2.0
 python-dateutil==2.7.3
 pytz==2018.5
-requests==2.19.1
+requests==2.20.0
 scandir==1.7
 simplegeneric==0.8.1
 six==1.11.0
