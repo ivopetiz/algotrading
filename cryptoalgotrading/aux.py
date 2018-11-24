@@ -602,13 +602,21 @@ def manage_files(markets, interval='1m'):
     return all_files
 
 
-def _file_lines(filename):
+def file_lines(filename):
     '''
     Counts the number of lines in a file
     '''
 
-    f = open(filename, 'rb')
-    bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024) for _ in repeat(None)))
-    return sum(buf.count(b'\n') for buf in bufgen)
+    f = open(filename)                  
+    lines = 0
+    buf_size = 1024 * 1024
+    read_f = f.read # loop optimization
+
+    buf = read_f(buf_size)
+    while buf:
+        lines += buf.count('\n')
+        buf = read_f(buf_size)
+
+    return lines
 
 

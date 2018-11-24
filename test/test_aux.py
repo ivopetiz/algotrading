@@ -82,8 +82,8 @@ class TestAux(unittest.TestCase):
     #def test_timeit(self):
     #    self.assertEqual(timeit(),)
 
-    def test__file_lines(self):
-        self.assertEqual(_file_lines("../hist-5m/USDT-BTC"), 63851)
+    def test_file_lines(self):
+        self.assertEqual(file_lines("../hist-5m/USDT-BTC"), 63851)
 
 
 if __name__ == '__main__':
