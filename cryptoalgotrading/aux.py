@@ -6,7 +6,6 @@
 
 
 import var
-
 import matplotlib.pylab as plt
 
 from os import system, listdir
@@ -19,9 +18,11 @@ from finance import bollinger_bands
 from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
 from multiprocessing import cpu_count
-from logging import basicConfig, info, DEBUG
+from logging import basicConfig, info, debug, DEBUG
+from itertools import takewhile, repeat
 
 plt.ion()
+
 plt.style.use('ggplot')
 
 # Initiates log file.
@@ -29,6 +30,40 @@ basicConfig(filename=var.LOG_FILENAME,
                     format='%(asctime)s - %(message)s',
                     datefmt='%d/%m/%Y %H:%M:%S',
                     level=DEBUG)
+
+
+#####################################################################
+## Decorators
+def timeit(method):
+    '''
+    Decorator to measure functions duration.
+    '''
+    def timed(*args, **kw):
+        ts = time()
+        result = method(*args, **kw)
+        te = time()
+
+        log('Duration: %2.2f sec' % (te-ts), 1)
+        return result
+
+    return timed
+
+
+def safe(method):
+    '''
+    Decorator to return safe in case of error.
+    '''
+    def ret(*args, **kw):
+        try:
+            return method(*args, **kw)
+
+        except Exception as e:
+            log(str(e), 2)
+
+        #return result
+    return ret
+#####################################################################
+
 
 def connect_db():
     '''
@@ -96,8 +131,7 @@ def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
                         end_date=0,
-                        exchange='bittrex',
-                        db_client=0):
+                        exchange='bittrex'):
     '''
     Gets all historical data stored on DB, from a certain market.
 
@@ -153,7 +187,10 @@ def get_historical_data(market,
             "' GROUP BY time(" + interval + ")"
             #" last(OpenBuyOrders) AS OpenBuy," +\
             #" last(OpenSellOrders) AS OpenSell " + \
+
     #print command
+    db_client = connect_db()
+
     res = db_client.query(command)
 
     # returning Pandas DataFrame.
@@ -260,6 +297,7 @@ def plot_data(data,
         bb_upper, bb_lower, bb_sma = bollinger_bands(data.Last, 10, 2)
         #ax1.plot(x, bb_upper, color='red', linestyle='none', linewidth=1)
         #ax1.plot(x, bb_lower, color='green', linestyle='none', linewidth=1)
+
         ax1.fill_between(x, bb_sma, bb_upper, color='green', alpha=0.3)
         ax1.fill_between(x, bb_lower, bb_sma, color='red', alpha=0.3)
 
@@ -297,7 +335,7 @@ def plot_data(data,
     if to_file:
         if not name:
             name = 'fig_test' + str(time())
-        f.savefig('figs/' + name + '.pdf', bbox_inches='tight')
+        f.savefig(var.fig_dir + name + '.pdf', bbox_inches='tight')
         plt.close(f)
     #plt.show()
 
@@ -322,13 +360,16 @@ def get_histdata_to_file(markets=[],
     - 'True'
     '''
 
-    if not markets:
-        markets = get_markets_list(base_market)
+    if type(markets) is str: markets = [markets]
+
+    if not markets: markets = get_markets_list(base_market)
 
     for market in markets:
         verified_market = check_market_name(market, exchange=exchange)
+        print verified_market
         get_historical_data(verified_market,
-                            interval=interval, exchange=exchange).to_csv(
+                            interval=interval, 
+                            exchange=exchange).to_csv(
             var.data_dir + '/hist-' + interval +
             '/' + verified_market + '.csv')
 
@@ -349,7 +390,10 @@ def get_data_from_file(market, interval=var.default_interval, exchange='bittrex'
     '''
     verified_market = check_market_name(market, exchange=exchange)
 
-    return read_csv(var.data_dir + '/hist-' + interval + '/' + verified_market + '.csv', index_col=0)
+    return read_csv(var.data_dir + '/hist-' + interval 
+                    + '/' + verified_market + '.csv',
+                    sep=',', engine='c',            # Optimized for a faster
+                    index_col=0, low_memory=True)   # csv reading.
 
 
 def check_market_name(market, exchange='bittrex'):
@@ -472,40 +516,6 @@ def stop_loss(last, entry_point_x, percentage=5):
     return False
 
 
-#####################################################################
-## Decorators
-def timeit(method):
-    '''
-    Decorator to measure functions duration.
-    '''
-    def timed(*args, **kw):
-        ts = time()
-        result = method(*args, **kw)
-        te = time()
-
-        log('%2.2f sec' % (te-ts), 1)
-        return result
-
-    return timed
-
-
-def safe(method):
-    '''
-    Decorator to return safe in case of error.
-    '''
-    def ret(*args, **kw):
-        try:
-            result = method(*args, **kw)
-
-        except:
-            # Should report error
-            result = False
-
-        return result
-
-    return ret
-#####################################################################
-
 def num_processors(level="medium"):
     '''
     Decides how many cores will use.
@@ -561,13 +571,11 @@ def log(message, level=2):
     Returns 0
     '''
     
-    if level > var.global_log_level:
-        return 1
+    if level > var.global_log_level: return 1
 
-    if level > 0:
-        info(message)
-    if level > 1:
-        print message
+    if level > 0: debug(message)
+    if level > 1: print message
+    
     return 0
 
 
@@ -578,7 +586,9 @@ def manage_files(markets, interval='1m'):
     all_files = []
     markets_name = []
 
-    if type(markets) is str: markets=[markets]
+    if type(markets) is str: 
+        markets=[markets]
+
 
     for market in markets:
         markets_name.append(check_market_name(market))
@@ -590,3 +600,15 @@ def manage_files(markets, interval='1m'):
                 continue
 
     return all_files
+
+
+def _file_lines(filename):
+    '''
+    Counts the number of lines in a file
+    '''
+
+    f = open(filename, 'rb')
+    bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024) for _ in repeat(None)))
+    return sum(buf.count(b'\n') for buf in bufgen)
+
+

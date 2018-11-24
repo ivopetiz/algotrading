@@ -1,5 +1,12 @@
 # changelog
 
+## [2018-11-24]
+
+* Improved performance on csv reading method.
+* Added count_lines func and its test func.
+* Minor changes in log system.
+* Decorators replaced to run inside lib.
+
 ## [2018-09-25]
 
 * Added new unittests for backtest, backtest_market, etc.
