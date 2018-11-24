@@ -83,7 +83,7 @@ class TestAux(unittest.TestCase):
     #    self.assertEqual(timeit(),)
 
     def test_file_lines(self):
-        self.assertEqual(file_lines("../hist-10m/USDT-BTC.csv"), 31926)
+        self.assertEqual(file_lines("../hist-10s/BTC-DGB.csv"), 5088)
 
 
 if __name__ == '__main__':
