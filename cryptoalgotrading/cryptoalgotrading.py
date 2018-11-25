@@ -16,7 +16,6 @@
 
 
 import var
-#import dask.dataframe as dd
 import pandas as pd
 from sys import exit
 from time import time, sleep
@@ -541,28 +540,28 @@ def backtest_market(entry_funcs,
     high_price = 0
 
     #Tests several functions.
-    for i in xrange(len(data)-10):
+    for i in xrange(len(data)-50):
         if not aux_buy:
-            if is_time_to_buy(data[i:i+10], entry_funcs, smas, emas):
+            if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
                 
-                buy_price = data_init.Ask.iloc[i + 9 + date[0]]
+                buy_price = data_init.Ask.iloc[i + 49 + date[0]]
                 high_price = buy_price
                 
-                entry_points_x.append(i + 9)
-                entry_points_y.append(data_init.Ask.iloc[i + 9 + date[0]])
+                entry_points_x.append(i + 49)
+                entry_points_y.append(data_init.Ask.iloc[i + 49 + date[0]])
                 
                 if exit_funcs:
                     aux_buy = True
                 
-                full_log += str(data_init.time.iloc[i + 9 + date[0]]) + \
-                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 9 + date[0]]) + '\n'
+                full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
+                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + '\n'
 
         else:
             # Used for trailing stop loss.
-            if data_init.Last.iloc[i + 9 + date[0]] > high_price:
-                high_price = data_init.Last.iloc[i + 9 + date[0]]
+            if data_init.Last.iloc[i + 49 + date[0]] > high_price:
+                high_price = data_init.Last.iloc[i + 49 + date[0]]
 
-            if is_time_to_exit(data[i:i+10],
+            if is_time_to_exit(data[i:i+50],
                             exit_funcs,
                             smas,
                             emas,
@@ -570,17 +569,17 @@ def backtest_market(entry_funcs,
                             bought_at=buy_price,
                             max_price=high_price):
             
-                exit_points_x.append(i+9)
-                exit_points_y.append(data_init.Bid.iloc[i + 9 + date[0]])
+                exit_points_x.append(i+49)
+                exit_points_y.append(data_init.Bid.iloc[i + 49 + date[0]])
                 
                 aux_buy = False
                 
-                total += round(((data_init.Bid.iloc[i + 9 + date[0]] -
+                total += round(((data_init.Bid.iloc[i + 49 + date[0]] -
                                 buy_price) /
                                 buy_price)*100, 2)
 
-                full_log += str(data_init.time.iloc[i + 9 + date[0]]) + \
-                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 9 + date[0]]) + '\n'
+                full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
+                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) + '\n'
 
                 full_log += '[P&L] > ' + str(total) + '%.' + '\n'
 

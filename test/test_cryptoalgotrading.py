@@ -50,6 +50,7 @@ class TestCryptoalgotrading(unittest.TestCase):
                                                False,
                                                False,
                                                0,
+					       1,
                                                "BTC-XRP"),
                                             2), 
                         -37.13)
