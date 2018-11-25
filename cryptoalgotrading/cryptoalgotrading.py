@@ -1,5 +1,5 @@
 """
-    indicators.py
+    cryptoalgotrading.py
 
     Need to import this file in order to use this framework. 
 """
@@ -16,6 +16,7 @@
 
 
 import var
+#import dask.dataframe as dd
 import pandas as pd
 from sys import exit
 from time import time, sleep
@@ -26,8 +27,19 @@ from riskmanagement import RiskManagement
 from functools import partial
 from multiprocessing import Pool
 
-from aux import * 
+from aux import get_markets_list, get_last_data, \
+                log, Bittrex, stop_loss, trailing_stop_loss, \
+                timeit, safe, connect_db, get_markets_on_files, \
+                manage_files, num_processors, plot_data, \
+                check_market_name, get_data_from_file, \
+                time_to_index, get_historical_data
 
+import signal
+import sys
+
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    sys.exit(0)
 
 # Prevents FutureWarning from Pandas. 
 simplefilter(action='ignore', category=FutureWarning)
@@ -71,13 +83,13 @@ def tick_by_tick(entry_funcs,
             if market in buy_list.keys():
                 if is_time_to_exit(data, exit_funcs,buy_list[market], ):
 
-                    log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
+                    log('[SELL]@ ' + str(data.Bid.iloc[-1]) + \
                                  ' > ' + market, 1)
                     
-                    log('[P&L] ' + market + '> ' +\
-                                 str(round(((data.Bid.iloc[-1]-\
-                                            buy_list[market])/\
-                                            buy_list[market])*100,2)) +\
+                    log('[P&L] ' + market + '> ' + \
+                                 str(round(((data.Bid.iloc[-1]- \
+                                            buy_list[market])/ \
+                                            buy_list[market])*100,2)) + \
                                  '%.', 1)
                     
                     del buy_list[market]
@@ -87,7 +99,7 @@ def tick_by_tick(entry_funcs,
 
                     buy_list[market] = data.Ask.iloc[-1]
 
-                    log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
+                    log('[BUY]@ ' + str(data.Ask.iloc[-1]) + \
                     #             ' > ' + funcs.func_name +\
                                  ' > ' + market, 1)
 
@@ -128,6 +140,8 @@ def realtime(entry_funcs,
 
     var.global_log_level = log_level
 
+    signal.signal(signal.SIGINT, signal_handler)
+
     validate = smas[-1] + 5
 
     buy_list = {}  # Owned coins list.
@@ -136,6 +150,7 @@ def realtime(entry_funcs,
     if simulation:
         bt = Bittrex('', '')
         log("Starting Bot", 0)
+        #print 'starting...'
     else:
         try:
             bt = RiskManagement(var.ky, var.sct)
@@ -200,7 +215,7 @@ def realtime(entry_funcs,
                                                data.Bid.iloc[-1])
                             
                             # MUDAR
-                            sold_at = 10
+                            sold_at = sell_res
 
                             log('[SELL]@ ' + str(sold_at) +\
                                     ' > ' + market_name, 1)
@@ -213,7 +228,7 @@ def realtime(entry_funcs,
 
                         else:
                             #SIMULATION
-                            print '> https://bittrex.com/Market/Index?MarketName=' + market_name
+                            #print '> https://bittrex.com/Market/Index?MarketName=' + market_name
 
                             log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
                                         ' > ' + market_name, 1)
@@ -263,8 +278,7 @@ def realtime(entry_funcs,
                             buy_list[market_name]['quantity']  = 1
                             buy_list[market_name]['count']  = 0
 
-                            print '> https://bittrex.com/Market/Index?MarketName=' + \
-                                market_name
+                            #print '> https://bittrex.com/Market/Index?MarketName='+market_name
 
                             log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
                                 #' > ' + funcs.func_name +\
@@ -293,6 +307,7 @@ def is_time_to_exit(data,
     1 -> regular stop loss
     2 -> trailing stop loss
     '''
+
     if not real_aux:
         data = data.rename(index=str, columns={
                             "OpenBuyOrders": "OpenBuy",
@@ -328,8 +343,8 @@ def is_time_to_buy(data,
 
     if not real_aux:
         data = data.rename(index=str, columns={
-                           "OpenBuyOrders": "OpenBuy", 
-                           "OpenSellOrders": "OpenSell"})
+                        "OpenBuyOrders": "OpenBuy", 
+                        "OpenSellOrders": "OpenSell"})
 
     if type(funcs) is not list:
         funcs = [funcs]
@@ -363,6 +378,7 @@ def backtest(markets,
         entry_funcs(list): list of entry functions to test.
         exit_funcs(list): list of entry functions to test.
         _date(list): init and end point to backtest.
+            Ex: '1-1-2017 11:10'
         smas(list): list of SMA values to use.
         emas(list): list of EMA values to use.
         interval(string): time between measures.
@@ -375,15 +391,13 @@ def backtest(markets,
 
     Returns:
         bool: returns True in case of success.
+
+    log_level:
+       0 - Only presents total.
+       1 - Writes logs to file.
+       2 - Writes logs to file and prints on screen.
+       Default is 2.
     '''
-
-    #log_level:
-    #   0 - Only presents total.
-    #   1 - Writes logs to file.
-    #   2 - Writes logs to file and prints on screen.
-    #   Default is 2.
-
-    var.global_log_level = log_level
 
     if not from_file:
     # Connects to DB.
@@ -404,24 +418,16 @@ def backtest(markets,
             else:
                 markets = get_markets_list(base=base_market)
         else:
-            return False
+            log("Without files to analyse.",2)
 
     # For selected markets.
     else:
         markets = manage_files(markets, interval=interval)
-    
-    #for m in markets:
-    #    print m
-
-    #return 0
 
     # Prevents errors from markets and funcs as str.
-    if type(markets) is str:
-        markets=[markets]
-    if type(entry_funcs) is not list:
-        entry_funcs=[entry_funcs]
-    if type(exit_funcs) is not list:
-        exit_funcs=[exit_funcs]
+    if type(markets) is str: markets=[markets]
+    if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
+    if type(exit_funcs) is not list: exit_funcs=[exit_funcs]
     
     log(str(len(markets)) + " files/chunks to analyse...", 2)
 
@@ -429,7 +435,6 @@ def backtest(markets,
     pool = Pool(num_processors(mp_level))  
     
     # Display information about pool.
-    
     total = pool.map(partial(backtest_market,
                              entry_funcs,
                              exit_funcs,
@@ -440,7 +445,8 @@ def backtest(markets,
                              from_file,
                              to_file,
                              plot,
-                             db_client), 
+                             db_client,
+                             log_level), 
                              markets)
 
     pool.close()
@@ -461,6 +467,7 @@ def backtest_market(entry_funcs,
                     to_file,
                     plot, 
                     db_client,
+                    log_level,
                     market):
     '''
     Backtests strategies for a specific market.
@@ -480,11 +487,11 @@ def backtest_market(entry_funcs,
     Returns:
         float: returns backtests profit & loss value for applied strategies.
     '''
-    #try:
     date = [0,0]
 
     total = 0
-    market = check_market_name(market)
+
+    #market = check_market_name(market)
 
     entry_points_x = []
     entry_points_y = []
@@ -492,7 +499,7 @@ def backtest_market(entry_funcs,
     exit_points_x = []
     exit_points_y = []
 
-    full_log = '[Market analysis]: ' + market +'\n'
+    full_log = '[Market analysis]: ' + market + '\n'
 
     if from_file:
         try:
@@ -500,8 +507,7 @@ def backtest_market(entry_funcs,
         except Exception as e:
             log(str(e), 1)
             log('[ERROR] Can\'t find ' + market + ' in files.', 1)
-            return 1
-            #continue
+            return 0
 
         data_init = data
 
@@ -510,6 +516,7 @@ def backtest_market(entry_funcs,
 
         if date[1] == 0:
             data = data[date[0]:]
+
         else:
             data = data[date[0]:date[1]]
 
@@ -519,15 +526,14 @@ def backtest_market(entry_funcs,
                                     market, 
                                     interval=interval, 
                                     init_date=_date[0], 
-                                    end_date=_date[1],
-                                    db_client=db_client)
+                                    end_date=_date[1])
             date[0], date[1] = 0, len(data)
             data_init = data
             
         except Exception as e:
             log(str(e), 1)
             log('[ERROR] Can\'t find ' + market + ' in BD.', 1)
-            return 1
+            return 0
             #continue
 
     aux_buy = False
@@ -535,29 +541,28 @@ def backtest_market(entry_funcs,
     high_price = 0
 
     #Tests several functions.
-    for i in range(len(data)-50):
+    for i in xrange(len(data)-10):
         if not aux_buy:
-            if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
+            if is_time_to_buy(data[i:i+10], entry_funcs, smas, emas):
                 
-                buy_price = data_init.Ask.iloc[i + 49 + date[0]]
+                buy_price = data_init.Ask.iloc[i + 9 + date[0]]
                 high_price = buy_price
                 
-                entry_points_x.append(i + 49)
-                entry_points_y.append(data_init.Ask.iloc[i + 49 + date[0]])
+                entry_points_x.append(i + 9)
+                entry_points_y.append(data_init.Ask.iloc[i + 9 + date[0]])
                 
                 if exit_funcs:
                     aux_buy = True
                 
-                full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
-                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + \
-                    ' > ' + market + '\n'
+                full_log += str(data_init.time.iloc[i + 9 + date[0]]) + \
+                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 9 + date[0]]) + '\n'
 
         else:
             # Used for trailing stop loss.
-            if data_init.Last.iloc[i + 49 + date[0]] > high_price:
-                high_price = data_init.Last.iloc[i + 49 + date[0]]
+            if data_init.Last.iloc[i + 9 + date[0]] > high_price:
+                high_price = data_init.Last.iloc[i + 9 + date[0]]
 
-            if is_time_to_exit(data[i:i+50],
+            if is_time_to_exit(data[i:i+10],
                             exit_funcs,
                             smas,
                             emas,
@@ -565,38 +570,39 @@ def backtest_market(entry_funcs,
                             bought_at=buy_price,
                             max_price=high_price):
             
-                exit_points_x.append(i+49)
-                exit_points_y.append(data_init.Bid.iloc[i + 49 + date[0]])
+                exit_points_x.append(i+9)
+                exit_points_y.append(data_init.Bid.iloc[i + 9 + date[0]])
                 
                 aux_buy = False
                 
-                total += round(((data_init.Bid.iloc[i + 49 + date[0]] -
+                total += round(((data_init.Bid.iloc[i + 9 + date[0]] -
                                 buy_price) /
                                 buy_price)*100, 2)
 
-                full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
-                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) + \
-                    ' > ' + market + '\n'
+                full_log += str(data_init.time.iloc[i + 9 + date[0]]) + \
+                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 9 + date[0]]) + '\n'
 
                 full_log += '[P&L] > ' + str(total) + '%.' + '\n'
-    
+
+
     # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
     # computer can start run really slow.
     try:
         if plot:
             plot_data(data,
-                      name=market,
-                      date=[0,0],
-                      smas=smas,
-                      emas=[],
-                      entry_points=(entry_points_x, entry_points_y),
-                      exit_points=(exit_points_x,exit_points_y),
-                      show_smas=True,
-                      show_emas=False,
-                      show_bbands=True,
-                      to_file=to_file)
+                        name=market,
+                        date=[0,0],
+                        smas=smas,
+                        emas=[],
+                        entry_points=(entry_points_x, entry_points_y),
+                        exit_points=(exit_points_x,exit_points_y),
+                        show_smas=True,
+                        show_emas=False,
+                        show_bbands=True,
+                        to_file=to_file)
+
     except Exception as e:
-        log("[ERROR] Ploting data: " + str(e), 0)
+        log("[ERROR] Ploting data: " + str(e), 2)
 
 
     #if len(exit_points_x):
@@ -604,6 +610,6 @@ def backtest_market(entry_funcs,
 
     #full_log += '[TOTAL]> ' + str(total) + '\n'
 
-    log(full_log, 1)
-    
+    log(full_log, 2)
+
     return total
