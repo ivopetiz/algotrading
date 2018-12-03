@@ -19,7 +19,7 @@ from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
 from multiprocessing import cpu_count
 from logging import basicConfig, info, debug, DEBUG
-from itertools import takewhile, repeat
+#from itertools import takewhile, repeat
 
 plt.ion()
 
@@ -231,12 +231,6 @@ def get_last_data(market,
                         exchange=exchange,
                         db_client=db_client)
 
-#TODO
-# def is_market(market):
-#
-#     Checks if market exists.
-#
-#     return True
 
 def detect_init(data):
     '''
@@ -560,7 +554,7 @@ def beep(duration=0.5):
     return 0
 
 
-def log(message, level=2):
+def log(message, level=1, func_level=2):
     '''
     Log function to select the type of log will be done.
     
@@ -571,10 +565,10 @@ def log(message, level=2):
     Returns 0
     '''
     
-    if level > var.global_log_level: return 1
-
-    if level > 0: debug(message)
-    if level > 1: print message
+    #if level > var.global_log_level: return 1
+    if func_level > level:
+        if level > 0: debug(message)
+        if level > 1: print message
     
     return 0
 
