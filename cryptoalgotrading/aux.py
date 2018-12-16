@@ -8,7 +8,7 @@
 import var
 import matplotlib.pylab as plt
 
-from os import system, listdir
+from os import system, listdir, path
 from sys import exit
 from numpy import isnan
 from pandas import read_csv, DataFrame
@@ -19,7 +19,6 @@ from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
 from multiprocessing import cpu_count
 from logging import basicConfig, info, debug, DEBUG
-#from itertools import takewhile, repeat
 
 plt.ion()
 
@@ -567,8 +566,8 @@ def log(message, level=1, func_level=2):
     
     #if level > var.global_log_level: return 1
     if func_level > level:
-        if level > 0: debug(message)
-        if level > 1: print message
+        if level >= 0: debug(message)
+        if level >= 1: print message
     
     return 0
 
@@ -586,6 +585,11 @@ def manage_files(markets, interval='1m'):
 
     for market in markets:
         markets_name.append(check_market_name(market))
+
+    if not path.isdir(var.data_dir + "/hist-" + interval):
+    	log(var.data_dir + "/hist-" + \
+    		interval + "doesn't exist.",0)
+    	exit(1)
 
     for f in listdir(var.data_dir + "/hist-" + interval):
         for market in markets_name:

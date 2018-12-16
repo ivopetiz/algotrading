@@ -491,9 +491,10 @@ def backtest(markets,
         else:
             log("Without files to analyse.",0,log_level)
 
-    # For selected markets.
-        #markets = manage_files(markets, interval=interval)
 
+    # For selected markets.
+    if from_file: markets = manage_files(markets, interval=interval)
+  
     # Prevents errors from markets and funcs as str.
     if type(markets) is str: markets=[markets]
     if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
