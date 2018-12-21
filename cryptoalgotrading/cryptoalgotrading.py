@@ -56,7 +56,7 @@ def tick_by_tick(market,
                  emas=var.default_volume_emas,
                  refresh_interval=1,
                  from_file=True,
-                 plot=True,
+                 #plot=True,
                  log_level=2):
     '''
     Simulates a working bot, in realtime or in faster speed, using pre own data from DB or file,
@@ -166,7 +166,7 @@ def tick_by_tick(market,
                             exit_funcs,
                             smas,
                             emas,
-                            stop = 1,
+                            stop = 0,
                             bought_at=buy_price,
                             max_price=high_price):
             
@@ -184,9 +184,9 @@ def tick_by_tick(market,
 
                 print '[P&L] > ' + str(total) + '%.' + '\n'
    
-        plt.plot(data.Last.iloc[i:i+50])
-        plt.draw()
-        plt.clf()
+        #plt.plot(data.Last.iloc[i:i+50])
+        #plt.draw()
+        #plt.clf()
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
             sleep(refresh_interval - (time()-start_time))
