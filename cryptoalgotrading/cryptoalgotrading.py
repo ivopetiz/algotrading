@@ -48,6 +48,56 @@ def signal_handler(sig, frame):
 simplefilter(action='ignore', category=FutureWarning)
 
 
+@safe
+def is_time_to_exit(data,
+                    funcs,
+                    smas=var.default_smas,
+                    emas=var.default_emas,
+                    stop=1,
+                    bought_at=0,
+                    max_price=0,
+                    count=-1):
+    '''
+    Detects when is time to exit trade.
+
+    stop variable:
+    0 -> no stop loss [DANGEROUS]
+    1 -> regular stop loss
+    2 -> trailing stop loss
+    '''
+
+    if count == 0: return True
+
+    if stop == 1:
+        if stop_loss(data.Last.iloc[-1], bought_at, percentage=10):
+            return True
+    elif stop == 2:
+        if trailing_stop_loss(data.Last.iloc[-1], max_price, percentage=10):
+            return True
+
+    for func in funcs:
+        if func(data, smas=smas, emas=emas):
+            return True
+    
+    return False 
+
+
+@safe
+def is_time_to_buy(data, 
+                   funcs, 
+                   smas=var.default_smas,
+                   emas=var.default_emas):
+    '''
+    Detects when is time to enter trade.
+    '''
+
+    for func in funcs:
+        if func(data, smas=smas, emas=emas):
+            return True
+
+    return False
+
+
 def tick_by_tick(market,
                  entry_funcs,
                  exit_funcs,
@@ -56,14 +106,16 @@ def tick_by_tick(market,
                  emas=var.default_volume_emas,
                  refresh_interval=1,
                  from_file=True,
-                 #plot=True,
+                 plot=False,
                  log_level=2):
     '''
-    Simulates a working bot, in realtime or in faster speed, using pre own data from DB or file,
+    Simulates a working bot, in realtime or in faster speed, 
+     using pre own data from DB or file,
      to test an autonomous bot on a specific market.
 
     Args:
-        markets(string): list with markets to backtest or empty to run all available markets.
+        markets(string): list with markets to backtest or 
+            empty to run all available markets.
         entry_funcs(list): list of entry functions to test.
         exit_funcs(list): list of entry functions to test.
         interval(string): time between measures.
@@ -95,6 +147,9 @@ def tick_by_tick(market,
 
     exit_points_x = []
     exit_points_y = []
+
+    if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
+    if type(exit_funcs) is not list: exit_funcs=[exit_funcs]
 
     print '[Market analysis]: ' + market + '\n'
 
@@ -142,6 +197,7 @@ def tick_by_tick(market,
     #Tests several functions.
     for i in xrange(len(data)-50):
         start_time = time()
+        #print data_init.Last.iloc[i]
         if not aux_buy:
             if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
                 
@@ -188,11 +244,11 @@ def tick_by_tick(market,
         #plt.draw()
         #plt.clf()
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
+
         if refresh_interval - (time()-start_time) > 0:
             sleep(refresh_interval - (time()-start_time))
 
     return total
-
 
 
 def realtime(entry_funcs,
@@ -375,57 +431,6 @@ def realtime(entry_funcs,
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
             sleep(refresh_interval - (time()-start_time))
-
-
-@safe
-def is_time_to_exit(data,
-                    funcs,
-                    smas=var.default_smas,
-                    emas=var.default_emas,
-                    stop=1,
-                    bought_at=0,
-                    max_price=0,
-                    count=-1):
-    '''
-    Detects when is time to exit trade.
-
-    stop variable:
-    0 -> no stop loss [DANGEROUS]
-    1 -> regular stop loss
-    2 -> trailing stop loss
-    '''
-
-    if count == 0: return True
-
-    if stop == 1:
-        if stop_loss(data.Last.iloc[-1], bought_at, percentage=10):
-            return True
-    elif stop == 2:
-        if trailing_stop_loss(data.Last.iloc[-1], max_price, percentage=10):
-            return True
-
-    for func in funcs:
-        if func(data, smas=smas, emas=emas):
-            return True
-    
-    return False 
-
-
-@safe
-def is_time_to_buy(data, 
-                   funcs, 
-                   smas=var.default_smas,
-                   emas=var.default_emas):
-    '''
-    Detects when is time to enter trade.
-    '''
-
-    for func in funcs:
-        if func(data, smas=smas, emas=emas):
-            return True
-
-    return False
-
 
 @timeit
 def backtest(markets,
