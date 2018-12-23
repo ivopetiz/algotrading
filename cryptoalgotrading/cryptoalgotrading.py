@@ -287,6 +287,9 @@ def realtime(entry_funcs,
 
     validate = smas[-1] + 5
 
+    if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
+    if type(exit_funcs) is not list: exit_funcs=[exit_funcs]
+
     buy_list = {}  # Owned coins list.
     coins = {}
 

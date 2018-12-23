@@ -55,7 +55,7 @@ class TestCryptoalgotrading(unittest.TestCase):
                                 interval='10s',
                                 from_file=True,
                                 plot=False,
-                                refresh_interval=0.001),
+                                refresh_interval=0.01),
                             2),
                         -32.08)
                         
