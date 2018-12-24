@@ -16,28 +16,23 @@
 
 
 import var
+import signal
+
 import pandas as pd
+import matplotlib.pyplot as plt
 from sys import exit
 from time import time, sleep
-
 from warnings import simplefilter
-from riskmanagement import RiskManagement
-
 from functools import partial
+from matplotlib import animation
+from riskmanagement import RiskManagement
 from multiprocessing import Pool
-
 from aux import get_markets_list, get_last_data, \
                 log, Bittrex, stop_loss, trailing_stop_loss, \
                 timeit, safe, connect_db, get_markets_on_files, \
                 manage_files, num_processors, plot_data, \
                 check_market_name, get_data_from_file, \
                 time_to_index, get_historical_data
-
-import matplotlib.pyplot as plt
-from matplotlib import animation
-
-import signal
-import sys
 
 
 def signal_handler(sig, frame):

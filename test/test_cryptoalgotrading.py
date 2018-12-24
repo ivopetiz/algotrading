@@ -70,6 +70,23 @@ class TestCryptoalgotrading(unittest.TestCase):
                             2), 
                         -224.69)
 
+        self.assertEqual(round(backtest("BTC-XRP", 
+                                  entry.cross_smas, 
+                                  exit.cross_smas, 
+                                  interval='10m', 
+                                  from_file=True, 
+                                  smas=[5,10,18]),
+                            2), 
+                        -37.13)
+
+        self.assertEqual(backtest("BTC-XRP", 
+                                  entry.cross_smas, 
+                                  exit.cross_smas, 
+                                  interval='10m', 
+                                  from_file=False, 
+                                  smas=[5,10,18]), 
+                        0)                                              
+
 
     def test_backtest_market(self):
         self.assertEqual(round(backtest_market([entry.cross_smas], 
