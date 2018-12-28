@@ -21,6 +21,7 @@ import signal
 import pandas as pd
 import matplotlib.pyplot as plt
 from sys import exit
+from numpy import isnan
 from time import time, sleep
 from warnings import simplefilter
 from functools import partial
@@ -685,5 +686,8 @@ def backtest_market(entry_funcs,
     log('[' + market + '][TOTAL]> ' + str(total)  + '%.', 0, log_level)
 
     log(full_log, 1, log_level)
+
+    if isnan(total):
+        return 0
 
     return total
