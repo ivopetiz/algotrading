@@ -579,10 +579,6 @@ def manage_files(markets, interval='1m'):
     all_files = []
     markets_name = []
 
-    if type(markets) is str: 
-        markets=[markets]
-
-
     for market in markets:
         markets_name.append(check_market_name(market))
 

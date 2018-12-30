@@ -87,5 +87,9 @@ class TestAux(unittest.TestCase):
         self.assertEqual(file_lines(data_dir + "/hist-10s/BTC-DGB.csv"), 5088)
 
 
+    def test_manage_files(self):
+        self.assertEqual(manage_files("BTC-XRP",'10m'),['BTC-XRP'])
+
+
 if __name__ == '__main__':
     unittest.main()
