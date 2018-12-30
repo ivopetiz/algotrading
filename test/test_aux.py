@@ -30,7 +30,7 @@ class TestAux(unittest.TestCase):
 
     def test_num_processors(self):
         self.assertEqual(num_processors("low"), 1)
-
+        self.assertEqual(num_processors(2), 2)
 
     def test_beep(self):
         self.assertEqual(beep(), 0)
@@ -48,8 +48,8 @@ class TestAux(unittest.TestCase):
     #    self.assertEqual(4,4)
 
 
-    #def test_get_markets_on_files(self):
-    #    self.assertEqual(4,4)
+    def test_get_markets_on_files(self):
+        self.assertEqual(get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
 
 
     #def test_get_historical_data(self):
@@ -88,8 +88,8 @@ class TestAux(unittest.TestCase):
 
 
     def test_manage_files(self):
-        self.assertEqual(manage_files("BTC-XRP",'10m'),['BTC-XRP'])
-
+        self.assertEqual(manage_files(["BTC-XRP"],'10m'),['BTC-XRP'])
+        self.assertEqual(manage_files(["BTC-XXX"],'10m'),[])
 
 if __name__ == '__main__':
     unittest.main()
