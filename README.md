@@ -7,25 +7,25 @@
 
 Crypto AlgoTrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or csv files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
-* [Operating modes](#operating-modes)
-* [How to start](#how-to-start)
-* [Entry functions](#entry-functions)
-* [Exit functions](#exit-functions)
-* [Plot data](#plot-data)
-* [Logs](#logs)
-* [Examples](#examples)
-* [Additional info](#additional-info)
+*   [Operating modes](#operating-modes)
+*   [How to start](#how-to-start)
+*   [Entry functions](#entry-functions)
+*   [Exit functions](#exit-functions)
+*   [Plot data](#plot-data)
+*   [Logs](#logs)
+*   [Examples](#examples)
+*   [Additional info](#additional-info)
 
 ___
 ## Operating modes
 
 Framework has 3 operating modes:
 
-* Realtime -- Trades with real data in real time, with real money or in simulation mode.
+*   Realtime -- Trades with real data in real time, with real money or in simulation mode.
 
-* Tick-by-tick -- Testing strategies in real time frames, so user can follow its entries and exits strategies.
+*   Tick-by-tick -- Testing strategies in real time frames, so user can follow its entries and exits strategies.
 
-* Backtest -- Backtesting strategies and presenting the results.
+*   Backtest -- Backtesting strategies and presenting the results.
 
 ### Realtime
 
@@ -56,9 +56,9 @@ pip install -r requirements.txt
 First step is to collect data. To get markets data is necessary to run a DB, to get and manage all data or save the data to CSV files.
 There are 2 options:
 
-* Install and configure a database.
+*   Install and configure a database.
 
-* Run a script to collect data and save it to CSV files.
+*   Run a script to collect data and save it to CSV files.
 
 #### Database
 
