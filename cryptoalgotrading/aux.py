@@ -6,10 +6,10 @@
 
 
 import var
+import sys
 import matplotlib.pylab as plt
 
 from os import system, listdir, path
-from sys import exit
 from numpy import isnan
 from pandas import read_csv, DataFrame
 from time import time, localtime
@@ -71,15 +71,15 @@ def connect_db():
 
     # returning InfluxDBClient object.
     try:
-        conn = InfluxDBClient(var.db_host, 
-                              var.db_port, 
-                              var.db_user, 
-                              var.db_password, 
+        conn = InfluxDBClient(var.db_host,
+                              var.db_port,
+                              var.db_user,
+                              var.db_password,
                               var.db_name)
 
     except Exception as err:
         log("[ERROR] " + str(err))
-        exit(1)
+        sys.exit(1)
 
     return conn
 
@@ -102,7 +102,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
     #elif exchange=='binance':
     #   TODO
 
-    return ret 
+    return ret
 
 
 def get_markets_on_files(interval, base='BTC'):
@@ -197,7 +197,7 @@ def get_historical_data(market,
     return detect_init(DataFrame(list(res.get_points(measurement=var.exchange))))
 
 
-def get_last_data(market, 
+def get_last_data(market,
                   last='24',
                   interval=var.default_interval,
                   exchange='bittrex',
@@ -220,7 +220,7 @@ def get_last_data(market,
 
     # date and time format> 2018-02-02 00:00:00
     start_date = format(datetime.now() -
-                        timedelta(hours=last), 
+                        timedelta(hours=last),
                         '%Y-%m-%d %H:%M:%S')
 
     return get_historical_data(market,
@@ -335,9 +335,9 @@ def plot_data(data,
     return True
 
 
-def get_histdata_to_file(markets=[], 
-                         interval=var.default_interval, 
-                         base_market='BTC', 
+def get_histdata_to_file(markets=[],
+                         interval=var.default_interval,
+                         base_market='BTC',
                          exchange='bittrex'):
     '''
     Gets data from DB to file.
@@ -405,7 +405,7 @@ def time_to_index(data, _datetime):
     '''
     Converts input time to DB time.
     '''
-    #TODO 
+    #TODO
     # Improve date presentation
 
     #2017-09-09T06:25:00Z
@@ -531,18 +531,18 @@ def num_processors(level="medium"):
         n_threads = mp-1
     elif level == "extreme" or level == "max":
          n_threads = mp
-    elif type(level) == int and 0<level<=mp:
+    elif isinstance(level,int) and 0<level<=mp:
         n_threads = level
     else:
         n_threads = mp/2
 
     log("[INFO] Using " + str(n_threads) + " threads.", 1)
 
-    return n_threads      
+    return n_threads
 
 
 def beep(duration=0.5):
-    ''' 
+    '''
     It beeps!
     Used to alert for possible manual entry or exit.
     '''
@@ -568,7 +568,7 @@ def log(message, level=1, func_level=2):
     if func_level > level:
         if level >= 0: debug(message)
         if level >= 1: print message
-    
+
     return 0
 
 
@@ -585,11 +585,11 @@ def manage_files(markets, interval='1m'):
     if not path.isdir(var.data_dir + "/hist-" + interval):
     	log(var.data_dir + "/hist-" + \
     		interval + "doesn't exist.",0)
-    	exit(1)
+    	sys.exit(1)
 
     for f in listdir(var.data_dir + "/hist-" + interval):
         for market in markets_name:
-            if f.startswith(market): 
+            if f.startswith(market):
                 all_files.append(f.split('.')[0])
                 continue
 
@@ -601,7 +601,7 @@ def file_lines(filename):
     Counts the number of lines in a file
     '''
 
-    f = open(filename)                  
+    f = open(filename)
     lines = 0
     buf_size = 1024 * 1024
     read_f = f.read # loop optimization

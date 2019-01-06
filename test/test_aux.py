@@ -38,8 +38,8 @@ class TestAux(unittest.TestCase):
 
     def test_log(self):
         self.assertEqual(log("Running unit tests..."), 0)
-    
-    
+
+
     #def test_connect_db(self):
     #    self.assertEqual()
 

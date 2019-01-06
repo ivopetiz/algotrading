@@ -46,12 +46,12 @@ class RiskManagement:
             
             # Checks if the transaction is complete.
             if res["success"] == True:
-                # REMOVE SLEEP 
+                # REMOVE SLEEP
                 time.sleep(1)
                 order = self.conn.get_order(res["result"]["uuid"])
 
                 # If order is open means the transaction didn't occur
-                # and is necessary to cancel it. 
+                # and is necessary to cancel it.
                 if order["result"]["IsOpen"]:
                     cancel = self.conn.cancel(res["result"]["uuid"])
                     # Couldn't buy at desired rate.

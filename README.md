@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.com/ivopetiz/crypto-algotrading.svg?branch=master)](https://travis-ci.com/ivopetiz/crypto-algotrading)
 [![Coverage Status](https://coveralls.io/repos/github/ivopetiz/crypto-algotrading/badge.svg?branch=master)](https://coveralls.io/github/ivopetiz/crypto-algotrading?branch=master)
 
-### Algorithmic trading framework for cryptocurrencies in Python.
+## Algorithmic trading framework for cryptocurrencies in Python
 
 Crypto AlgoTrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or csv files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
@@ -23,9 +23,7 @@ ___
 Framework has 3 operating modes:
 
 *   Realtime -- Trades with real data in real time, with real money or in simulation mode.
-
 *   Tick-by-tick -- Testing strategies in real time frames, so user can follow its entries and exits strategies.
-
 *   Backtest -- Backtesting strategies and presenting the results.
 
 ### Realtime
@@ -58,7 +56,6 @@ First step is to collect data. To get markets data is necessary to run a DB, to 
 There are 2 options:
 
 *   Install and configure a database.
-
 *   Run a script to collect data and save it to CSV files.
 
 #### Database
@@ -66,12 +63,12 @@ There are 2 options:
 Trading Bot is ready to operate with InfluxDB, but can work with other databases, with some small changes.
 
 To install, configure and use a InfluxDB database, you can clone this repository:
-https://github.com/ivopetiz/crypto-database
+[https://github.com/ivopetiz/crypto-database]
 
 #### Script
 
 If you don't want to install and manage any databases and simply want to get data to CSV files you can use the script in this Gist:
-https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a
+[https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a]
 
 *Using a database is the best option, once you can analyse and plot data using DB tools, as Chronograf, and can always extract data to CSV if needed.*
 

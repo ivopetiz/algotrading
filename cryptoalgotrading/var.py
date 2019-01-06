@@ -1,6 +1,6 @@
 """
     var.py
-    
+
     Framework predefined variables.
 
     It is important to define some environment variables before use this 

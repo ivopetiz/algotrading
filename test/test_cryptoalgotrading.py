@@ -16,16 +16,16 @@ class TestCryptoalgotrading(unittest.TestCase):
 
         q = get_data_from_file("BTC-XRP", interval='10m')
 
-        self.assertEqual(is_time_to_buy(q[4416:4416+50], 
-                                        [entry.cross_smas], 
+        self.assertEqual(is_time_to_buy(q[4416:4416+50],
+                                        [entry.cross_smas],
                                         [4,8,12], [4,8,12]),
                                          False)
-        self.assertEqual(is_time_to_buy(q[4417:4417+50], 
-                                        [entry.cross_smas], 
+        self.assertEqual(is_time_to_buy(q[4417:4417+50],
+                                        [entry.cross_smas],
                                         [4,8,12], [4,8,12]),
                                          True)
-        self.assertEqual(is_time_to_buy(q[4418:4418+50], 
-                                        [entry.cross_smas], 
+        self.assertEqual(is_time_to_buy(q[4418:4418+50],
+                                        [entry.cross_smas],
                                         [4,8,12], [4,8,12]),
                                          False)
 
@@ -34,17 +34,17 @@ class TestCryptoalgotrading(unittest.TestCase):
 
         q = get_data_from_file("BTC-XRP", interval='10m')
 
-        self.assertEqual(is_time_to_exit(q[4778:4778+50], 
-                                         [exit.cross_smas], 
-                                         [4,8,12], [4,8,12]), 
+        self.assertEqual(is_time_to_exit(q[4778:4778+50],
+                                         [exit.cross_smas],
+                                         [4,8,12], [4,8,12]),
                                          False)
-        self.assertEqual(is_time_to_exit(q[4779:4779+50], 
-                                         [exit.cross_smas], 
-                                         [4,8,12], [4,8,12]), 
+        self.assertEqual(is_time_to_exit(q[4779:4779+50],
+                                         [exit.cross_smas],
+                                         [4,8,12], [4,8,12]),
                                          True)
-        self.assertEqual(is_time_to_exit(q[4780:4780+50], 
-                                         [exit.cross_smas], 
-                                         [4,8,12], [4,8,12]), 
+        self.assertEqual(is_time_to_exit(q[4780:4780+50],
+                                         [exit.cross_smas],
+                                         [4,8,12], [4,8,12]),
                                          False)
 
 
@@ -61,37 +61,37 @@ class TestCryptoalgotrading(unittest.TestCase):
                         
 
     def test_backtest(self):
-        self.assertEqual(round(backtest(["BTC-XRP","BTC-SRN"], 
-                                  entry.cross_smas, 
-                                  exit.cross_smas, 
-                                  interval='10m', 
-                                  from_file=True, 
+        self.assertEqual(round(backtest(["BTC-XRP","BTC-SRN"],
+                                  entry.cross_smas,
+                                  exit.cross_smas,
+                                  interval='10m',
+                                  from_file=True,
                                   smas=[5,10,18]),
                             2), 
                         -224.69)
 
-        self.assertEqual(round(backtest("BTC-XRP", 
-                                  entry.cross_smas, 
-                                  exit.cross_smas, 
-                                  interval='10m', 
-                                  from_file=True, 
+        self.assertEqual(round(backtest("BTC-XRP",
+                                  entry.cross_smas,
+                                  exit.cross_smas,
+                                  interval='10m',
+                                  from_file=True,
                                   smas=[5,10,18]),
                             2), 
                         -37.13)
 
-        self.assertEqual(backtest("BTC-XRP", 
-                                  entry.cross_smas, 
-                                  exit.cross_smas, 
-                                  interval='10m', 
-                                  from_file=False, 
-                                  smas=[5,10,18]), 
-                        0)                                              
+        self.assertEqual(backtest("BTC-XRP",
+                                  entry.cross_smas,
+                                  exit.cross_smas,
+                                  interval='10m',
+                                  from_file=False,
+                                  smas=[5,10,18]),
+                        0)
 
 
     def test_backtest_market(self):
-        self.assertEqual(round(backtest_market([entry.cross_smas], 
-                                               [exit.cross_smas], 
-                                               '10m', 
+        self.assertEqual(round(backtest_market([entry.cross_smas],
+                                               [exit.cross_smas],
+                                               '10m',
                                                [0,0],
                                                [5,10,18],
                                                [5,10,18],
@@ -101,7 +101,7 @@ class TestCryptoalgotrading(unittest.TestCase):
                                                0,
 					                           1,
                                                "BTC-XRP"),
-                                            2), 
+                                            2),
                         -37.13)
 
 

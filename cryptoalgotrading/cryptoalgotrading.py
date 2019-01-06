@@ -1,7 +1,7 @@
 """
     cryptoalgotrading.py
 
-    Need to import this file in order to use this framework. 
+    Need to import this file in order to use this framework.
 """
 ########
 ### TODO
@@ -40,7 +40,7 @@ def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
     sys.exit(0)
 
-# Prevents FutureWarning from Pandas. 
+# Prevents FutureWarning from Pandas.
 simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -79,8 +79,8 @@ def is_time_to_exit(data,
 
 
 @safe
-def is_time_to_buy(data, 
-                   funcs, 
+def is_time_to_buy(data,
+                   funcs,
                    smas=var.default_smas,
                    emas=var.default_emas):
     '''
@@ -257,7 +257,7 @@ def realtime(entry_funcs,
              main_coins=["BTC","USDT"],
              log_level=1):
     '''
-    Bot using realtime data, doesn't need DB or csv files to work. 
+    Bot using realtime data, doesn't need DB or csv files to work.
 
     Args:
         entry_funcs(list): list of entry functions to test.
@@ -268,7 +268,7 @@ def realtime(entry_funcs,
         emas(list): list of EMA values to use.
         refresh_interval(int): Data refresh rate.
         simulation(bool): Defines if it's running as a simulation or real money mode.
-        main_coins(list): 
+        main_coins(list):
     '''
 
     #log_level:
@@ -318,7 +318,7 @@ def realtime(entry_funcs,
                 if market_name in coins:
                     
                     # Checks if has enough data to analyse.
-                    if coins[market_name] == validate: 
+                    if coins[market_name] == validate:
                         locals()[market_name] = pd.DataFrame.append(locals()[market_name],
                                                                  [market]).tail(validate)
                     # If not adds data and keep going.
@@ -334,9 +334,9 @@ def realtime(entry_funcs,
                     coins[market_name] = 1
                     continue
                 
-                data = locals()[market_name].rename(index=str, 
+                data = locals()[market_name].rename(index=str,
                                 columns={
-                                    "OpenBuyOrders": "OpenBuy", 
+                                    "OpenBuyOrders": "OpenBuy",
                                     "OpenSellOrders": "OpenSell"})
 
                 # Checks if coin is in buy portfolio and looks for a sell opportunity.
@@ -357,13 +357,13 @@ def realtime(entry_funcs,
                             sell_res = bt.sell(market_name,
                                                buy_list[market_name]['quantity'],
                                                data.Bid.iloc[-1])
-                            
+
                             # MUDAR
                             sold_at = sell_res
 
                             log('[SELL]@ ' + str(sold_at) +\
                                     ' > ' + market_name, 1, log_level)
-                            
+
                             log('[P&L] ' + market_name + '> ' +\
                                     str(round(((sold_at-\
                                                 buy_list[market_name]['bought_at'])/\
@@ -382,22 +382,21 @@ def realtime(entry_funcs,
                                                     buy_list[market_name]['bought_at'])/\
                                                     buy_list[market_name]['bought_at'])*100,2)) +\
                                         '%.', 1, log_level)
-                        
+
                         del buy_list[market_name]
-                    
+
                     #if not time to exit increment count.
                     else:
-                        buy_list[market_name]['count'] += 1                        
-                
+                        buy_list[market_name]['count'] += 1
+
                 # if has no coins from a certain market checks if is time to buy.
                 else:
-                    if is_time_to_buy(data, 
-                                      entry_funcs):
+                    if is_time_to_buy(data, entry_funcs):
 
                         if not simulation:
                             #REAL
                             sucs, msg = bt.buy(market, data.Ask.iloc[-1]*1.01)
-                            
+
                             if sucs:
                                 buy_list[market_name] = {}
                                 buy_list[market_name]['bought_at'] = msg[0]
@@ -426,7 +425,7 @@ def realtime(entry_funcs,
                             log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
                                 #' > ' + funcs.func_name +\
                                 ' > ' + market_name, 1, log_level)
-   
+
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
             sleep(refresh_interval - (time()-start_time))
@@ -496,9 +495,9 @@ def backtest(markets,
             log("Without files to analyse.",0,log_level)
 
     # Prevents errors from markets and funcs as str.
-    if type(markets) is str: markets=[markets]
-    if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
-    if type(exit_funcs) is not list: exit_funcs=[exit_funcs]
+    if isinstance(markets,str): markets=[markets]
+    if not isinstance(entry_funcs,list): entry_funcs=[entry_funcs]
+    if not isinstance(exit_funcs,list): exit_funcs=[exit_funcs]
 
     # For selected markets.
     if from_file: markets = manage_files(markets, interval=interval)
@@ -507,7 +506,7 @@ def backtest(markets,
 
     # Create a multiprocessing Pool
     pool = Pool(num_processors(mp_level))  
-    
+
     # Display information about pool.
     total = pool.map(partial(backtest_market,
                              entry_funcs,
@@ -520,7 +519,7 @@ def backtest(markets,
                              to_file,
                              plot,
                              db_client,
-                             log_level), 
+                             log_level),
                              markets)
 
     pool.close()
@@ -531,15 +530,15 @@ def backtest(markets,
     return sum(total)
 
 
-def backtest_market(entry_funcs, 
-                    exit_funcs, 
-                    interval, 
-                    _date, 
-                    smas, 
-                    emas, 
+def backtest_market(entry_funcs,
+                    exit_funcs,
+                    interval,
+                    _date,
+                    smas,
+                    emas,
                     from_file,
                     to_file,
-                    plot, 
+                    plot,
                     db_client,
                     log_level,
                     market):
@@ -597,13 +596,13 @@ def backtest_market(entry_funcs,
     else:
         try:
             data = get_historical_data(
-                                    market, 
-                                    interval=interval, 
-                                    init_date=_date[0], 
+                                    market,
+                                    interval=interval,
+                                    init_date=_date[0],
                                     end_date=_date[1])
             date[0], date[1] = 0, len(data)
             data_init = data
-            
+
         except Exception as e:
             log(str(e), 0, log_level)
             log('[ERROR] Can\'t find ' + market + ' in BD.', 0, log_level)
@@ -618,16 +617,16 @@ def backtest_market(entry_funcs,
     for i in xrange(len(data)-50):
         if not aux_buy:
             if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
-                
+
                 buy_price = data_init.Ask.iloc[i + 49 + date[0]]
                 high_price = buy_price
-                
+
                 entry_points_x.append(i + 49)
                 entry_points_y.append(data_init.Ask.iloc[i + 49 + date[0]])
-                
+
                 if exit_funcs:
                     aux_buy = True
-                
+
                 full_log += str(data_init.time.iloc[i + 49 + date[0]]) + \
                     ' [BUY] @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + '\n'
 
@@ -643,12 +642,12 @@ def backtest_market(entry_funcs,
                             stop = 0,
                             bought_at=buy_price,
                             max_price=high_price):
-            
+
                 exit_points_x.append(i+49)
                 exit_points_y.append(data_init.Bid.iloc[i + 49 + date[0]])
-                
+
                 aux_buy = False
-                
+
                 total += round(((data_init.Bid.iloc[i + 49 + date[0]] -
                                 buy_price) /
                                 buy_price)*100, 2)
