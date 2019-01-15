@@ -18,7 +18,7 @@ from finance import bollinger_bands
 from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
 from multiprocessing import cpu_count
-from logging import basicConfig, info, debug, DEBUG
+from logging import basicConfig, debug, DEBUG
 
 plt.ion()
 

@@ -16,11 +16,11 @@
 
 
 import var
+import sys
 import signal
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from sys import exit
 from numpy import isnan
 from time import time, sleep
 from warnings import simplefilter
@@ -28,7 +28,7 @@ from functools import partial
 from matplotlib import animation
 from riskmanagement import RiskManagement
 from multiprocessing import Pool
-from aux import get_markets_list, get_last_data, \
+from aux import get_markets_list, \
                 log, Bittrex, stop_loss, trailing_stop_loss, \
                 timeit, safe, connect_db, get_markets_on_files, \
                 manage_files, num_processors, plot_data, \
@@ -74,8 +74,8 @@ def is_time_to_exit(data,
     for func in funcs:
         if func(data, smas=smas, emas=emas):
             return True
-    
-    return False 
+
+    return False
 
 
 @safe
@@ -99,7 +99,7 @@ def tick_by_tick(market,
                  exit_funcs,
                  interval=var.default_interval,
                  smas=var.default_smas,
-                 emas=var.default_volume_emas,
+                 emas=var.default_emas,
                  refresh_interval=1,
                  from_file=True,
                  plot=False,
@@ -171,9 +171,9 @@ def tick_by_tick(market,
     else:
         try:
             data = get_historical_data(
-                                    market, 
-                                    interval=interval, 
-                                    init_date=_date[0], 
+                                    market,
+                                    interval=interval,
+                                    init_date=_date[0],
                                     end_date=_date[1])
             date[0], date[1] = 0, len(data)
             data_init = data
@@ -196,16 +196,16 @@ def tick_by_tick(market,
         #print data_init.Last.iloc[i]
         if not aux_buy:
             if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
-                
+
                 buy_price = data_init.Ask.iloc[i + 49 + date[0]]
                 high_price = buy_price
-                
+
                 entry_points_x.append(i + 49)
                 entry_points_y.append(data_init.Ask.iloc[i + 49 + date[0]])
-                
+
                 if exit_funcs:
                     aux_buy = True
-                
+
                 print str(data_init.time.iloc[i + 49 + date[0]]) + \
                     ' [BUY] @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + '\n'
 
@@ -221,12 +221,12 @@ def tick_by_tick(market,
                             stop = 0,
                             bought_at=buy_price,
                             max_price=high_price):
-            
+
                 exit_points_x.append(i+49)
                 exit_points_y.append(data_init.Bid.iloc[i + 49 + date[0]])
-                
+
                 aux_buy = False
-                
+
                 total += round(((data_init.Bid.iloc[i + 49 + date[0]] -
                                 buy_price) /
                                 buy_price)*100, 2)
@@ -235,7 +235,7 @@ def tick_by_tick(market,
                     ' [SELL]@ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) + '\n'
 
                 print '[P&L] > ' + str(total) + '%.' + '\n'
-   
+
         #plt.plot(data.Last.iloc[i:i+50])
         #plt.draw()
         #plt.clf()
@@ -283,8 +283,8 @@ def realtime(entry_funcs,
 
     validate = smas[-1] + 5
 
-    if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
-    if type(exit_funcs) is not list: exit_funcs=[exit_funcs]
+    if not isinstance(entry_funcs, list): entry_funcs=[entry_funcs]
+    if not isinstance(exit_funcs, list): exit_funcs=[exit_funcs]
 
     buy_list = {}  # Owned coins list.
     coins = {}
@@ -298,7 +298,7 @@ def realtime(entry_funcs,
             bt = RiskManagement(var.ky, var.sct)
         except:
             log("[Error] Couldn't connect to Bittrex", 0, log_level)
-            exit()
+            sys.exit(1)
 
     while True:
 
@@ -316,7 +316,7 @@ def realtime(entry_funcs,
 
                 # Checks if market already exists in analysed coins.
                 if market_name in coins:
-                    
+
                     # Checks if has enough data to analyse.
                     if coins[market_name] == validate:
                         locals()[market_name] = pd.DataFrame.append(locals()[market_name],
@@ -333,7 +333,7 @@ def realtime(entry_funcs,
                     locals()[market_name] = pd.DataFrame([market])
                     coins[market_name] = 1
                     continue
-                
+
                 data = locals()[market_name].rename(index=str,
                                 columns={
                                     "OpenBuyOrders": "OpenBuy",

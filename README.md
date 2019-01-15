@@ -63,12 +63,12 @@ There are 2 options:
 Trading Bot is ready to operate with InfluxDB, but can work with other databases, with some small changes.
 
 To install, configure and use a InfluxDB database, you can clone this repository:
-[https://github.com/ivopetiz/crypto-database]
+https://github.com/ivopetiz/crypto-database
 
 #### Script
 
 If you don't want to install and manage any databases and simply want to get data to CSV files you can use the script in this Gist:
-[https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a]
+https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a
 
 *Using a database is the best option, once you can analyse and plot data using DB tools, as Chronograf, and can always extract data to CSV if needed.*
 

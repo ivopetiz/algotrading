@@ -1,4 +1,3 @@
-
 import unittest
 from cryptoalgotrading.aux import get_data_from_file
 from cryptoalgotrading.cryptoalgotrading import backtest, backtest_market,\
