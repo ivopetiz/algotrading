@@ -372,15 +372,16 @@ def get_histdata_to_file(markets=[],
                             interval=interval, 
                             exchange=exchange)
         
-        filename_ = var.data_dir + '/hist-' + 
-                    interval + '/' + 
+        filename_ = var.data_dir + '/hist-' + \
+                    interval + '/' + \
                     verified_market + '.'
 
         if filetype is 'csv':
             data_.to_csv(filename_ + filetype)
         elif filetype is 'hdf':
             data_.to_hdf(filename_ + filetype, 'data', 
-                         mode='w', format='table')
+                         mode='w', format='table',
+                         complevel=9, complib='bzip2')
         #TEST
         del data_
     
@@ -408,7 +409,7 @@ def get_data_from_file(market,
     '''
     verified_market = check_market_name(market, exchange=exchange)
 
-    filename_ = var.data_dir + '/hist-' + interval 
+    filename_ = var.data_dir + '/hist-' + interval \
                 + '/' + verified_market + '.' + filetype
 
     if filetype is 'csv':
@@ -416,7 +417,7 @@ def get_data_from_file(market,
                         index_col=0, low_memory=True)    # csv reading.
     elif filetype is 'hdf':
         return read_hdf(filename,'data')
-    else return 0
+    else: return 0
 
 
 def check_market_name(market, exchange='bittrex'):
