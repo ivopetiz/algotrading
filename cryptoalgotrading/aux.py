@@ -11,7 +11,7 @@ import matplotlib.pylab as plt
 
 from os import system, listdir, path
 from numpy import isnan
-from pandas import read_csv, DataFrame
+from pandas import read_csv, read_hdf, DataFrame
 from time import time, localtime
 from datetime import datetime, timedelta
 from finance import bollinger_bands
@@ -338,7 +338,8 @@ def plot_data(data,
 def get_histdata_to_file(markets=[],
                          interval=var.default_interval,
                          base_market='BTC',
-                         exchange='bittrex'):
+                         exchange='bittrex',
+                         filetype='csv'):
     '''
     Gets data from DB to file.
     Prevents excess of DB accesses.
@@ -348,28 +349,48 @@ def get_histdata_to_file(markets=[],
     - market: list of str with markets.
     - interval: str with time between measures.
         Empty for default_interval.
+    - base_market: str with base market.
+        Default is BTC.
+    - exchange: str with crypto exchange.
+        Default is Bittrex.
+    - filetype: str with filetype to save.
+        Default is csv 
 
     Returns:
     - 'True'
     '''
 
-    if type(markets) is str: markets = [markets]
+    if isinstance(markets,str): markets = [markets]
 
     if not markets: markets = get_markets_list(base_market)
 
     for market in markets:
         verified_market = check_market_name(market, exchange=exchange)
-        print verified_market
-        get_historical_data(verified_market,
-                            interval=interval, 
-                            exchange=exchange).to_csv(
-            var.data_dir + '/hist-' + interval +
-            '/' + verified_market + '.csv')
+        log(verified_market, 2)
 
+        data_ = get_historical_data(verified_market,
+                            interval=interval, 
+                            exchange=exchange)
+        
+        filename_ = var.data_dir + '/hist-' + 
+                    interval + '/' + 
+                    verified_market + '.'
+
+        if filetype is 'csv':
+            data_.to_csv(filename_ + filetype)
+        elif filetype is 'hdf':
+            data_.to_hdf(filename_ + filetype, 'data', 
+                         mode='w', format='table')
+        #TEST
+        del data_
+    
     return True
 
 
-def get_data_from_file(market, interval=var.default_interval, exchange='bittrex'):
+def get_data_from_file(market,
+                       interval=var.default_interval,
+                       exchange='bittrex',
+                       filetype='csv'):
     '''
     Gets data from file.
 
@@ -377,16 +398,25 @@ def get_data_from_file(market, interval=var.default_interval, exchange='bittrex'
     - market: str with market.
     - interval: str with time between measures.
         Empty for default_interval.
+    - exchange: str with crypto exchange.
+        bittrex as default exchange.
+    - filetype: str with filetype.
+        default type is csv.
 
     Returns:
     - pd.DataFrame
     '''
     verified_market = check_market_name(market, exchange=exchange)
 
-    return read_csv(var.data_dir + '/hist-' + interval 
-                    + '/' + verified_market + '.csv',
-                    sep=',', engine='c',            # Optimized for a faster
-                    index_col=0, low_memory=True)   # csv reading.
+    filename_ = var.data_dir + '/hist-' + interval 
+                + '/' + verified_market + '.' + filetype
+
+    if filetype is 'csv':
+        return read_csv(filename_,  sep=',', engine='c', # Optimized for a faster
+                        index_col=0, low_memory=True)    # csv reading.
+    elif filetype is 'hdf':
+        return read_hdf(filename,'data')
+    else return 0
 
 
 def check_market_name(market, exchange='bittrex'):

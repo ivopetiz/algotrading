@@ -13,6 +13,7 @@
 #   improve multiprocessing display information.
 #   break big files into smaller ones.
 #   backtest based on pandas.Dataframe.
+# > add HDF5 support.
 
 
 import var
@@ -479,7 +480,7 @@ def backtest(markets,
             db_client = connect_db()
         except Exception as e:
             log(str(e),0,log_level)
-            raise e
+            sys.exit(1)
     else:
         db_client = 0
 
@@ -495,7 +496,7 @@ def backtest(markets,
             log("Without files to analyse.",0,log_level)
 
     # Prevents errors from markets and funcs as str.
-    if isinstance(markets,str): markets=[markets]
+    if not isinstance(markets,list): markets=[markets]
     if not isinstance(entry_funcs,list): entry_funcs=[entry_funcs]
     if not isinstance(exit_funcs,list): exit_funcs=[exit_funcs]
 
