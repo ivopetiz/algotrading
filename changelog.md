@@ -1,5 +1,14 @@
 # changelog
 
+## 2019-01-29
+
+*   Added HDF5 Filetype support.
+
+## 2019-01-03
+
+*   Added Codecy badge.
+*   Implemented new unit tests to more aux funcs. 
+
 ## 2018-11-24
 
 *   Improved performance on csv reading method.

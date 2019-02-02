@@ -13,6 +13,7 @@
 #   improve multiprocessing display information.
 #   break big files into smaller ones.
 #   backtest based on pandas.Dataframe.
+# > add HDF5 support.
 
 
 import var
@@ -430,6 +431,7 @@ def realtime(entry_funcs,
         if refresh_interval - (time()-start_time) > 0:
             sleep(refresh_interval - (time()-start_time))
 
+
 @timeit
 def backtest(markets,
              entry_funcs,
@@ -479,7 +481,7 @@ def backtest(markets,
             db_client = connect_db()
         except Exception as e:
             log(str(e),0,log_level)
-            raise e
+            sys.exit(1)
     else:
         db_client = 0
 
@@ -495,7 +497,7 @@ def backtest(markets,
             log("Without files to analyse.",0,log_level)
 
     # Prevents errors from markets and funcs as str.
-    if isinstance(markets,str): markets=[markets]
+    if not isinstance(markets,list): markets=[markets]
     if not isinstance(entry_funcs,list): entry_funcs=[entry_funcs]
     if not isinstance(exit_funcs,list): exit_funcs=[exit_funcs]
 
@@ -657,6 +659,7 @@ def backtest_market(entry_funcs,
 
                 full_log += '[P&L] > ' + str(total) + '%.' + '\n'
 
+    del data_init
 
     # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
     # computer can start run really slow.
@@ -677,7 +680,7 @@ def backtest_market(entry_funcs,
     except Exception as e:
         log("[ERROR] Ploting data: " + str(e), 0, log_level)
 
-
+    del data
     #if len(exit_points_x):
     #    log(market + ' > ' + str(total), log_level)
 
@@ -685,7 +688,6 @@ def backtest_market(entry_funcs,
 
     log(full_log, 1, log_level)
 
-    if isnan(total):
-        return 0
+    if isnan(total): return 0
 
     return total
