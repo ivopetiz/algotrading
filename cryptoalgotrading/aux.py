@@ -192,6 +192,8 @@ def get_historical_data(market,
 
     res = db_client.query(command)
 
+    db_client.close()
+
     # returning Pandas DataFrame.
     #return pd.DataFrame(list(res.get_points(measurement=exchange)))
     return detect_init(DataFrame(list(res.get_points(measurement=var.exchange))))
@@ -380,7 +382,7 @@ def get_histdata_to_file(markets=[],
             data_.to_csv(filename_ + filetype)
         elif filetype is 'hdf':
             data_.to_hdf(filename_ + filetype, 'data', 
-                         mode='w', format='table',
+                         mode='w', format='t',
                          complevel=9, complib='bzip2')
         #TEST
         del data_
@@ -413,10 +415,9 @@ def get_data_from_file(market,
                 + '/' + verified_market + '.' + filetype
 
     if filetype is 'csv':
-        return read_csv(filename_,  sep=',', engine='c', # Optimized for a faster
-                        index_col=0, low_memory=True)    # csv reading.
-    elif filetype is 'hdf':
-        return read_hdf(filename,'data')
+        return read_csv(filename_,  sep=',', engine='c') # Optimized.
+    elif filetype is 'h5':
+        return read_hdf(filename_,'data')
     else: return 0
 
 
