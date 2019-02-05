@@ -13,8 +13,6 @@
 #   improve multiprocessing display information.
 #   break big files into smaller ones.
 #   backtest based on pandas.Dataframe.
-# > add HDF5 support.
-
 
 import var
 import sys
@@ -480,7 +478,7 @@ def backtest(markets,
         try:
             db_client = connect_db()
         except Exception as e:
-            log(str(e),0,log_level)
+            log(str(e), 0, log_level)
             sys.exit(1)
     else:
         db_client = 0
@@ -494,7 +492,7 @@ def backtest(markets,
             else:
                 markets = get_markets_list(base=base_market)
         else:
-            log("Without files to analyse.",0,log_level)
+            log("Without files to analyse.", 0, log_level)
 
     # Prevents errors from markets and funcs as str.
     if not isinstance(markets,list): markets=[markets]
@@ -562,6 +560,7 @@ def backtest_market(entry_funcs,
     Returns:
         float: returns backtests profit & loss value for applied strategies.
     '''
+
     date = [0,0]
 
     total = 0
@@ -586,15 +585,14 @@ def backtest_market(entry_funcs,
 
         data_init = data
 
-        if type(_date[0]) is str:
+        if isinstance(_date[0], str):
             date[0], date[1] = time_to_index(data, _date)
 
         if date[1] == 0:
             data = data[date[0]:]
-
         else:
             data = data[date[0]:date[1]]
-
+        
     else:
         try:
             data = get_historical_data(
@@ -604,7 +602,6 @@ def backtest_market(entry_funcs,
                                     end_date=_date[1])
             date[0], date[1] = 0, len(data)
             data_init = data
-
         except Exception as e:
             log(str(e), 0, log_level)
             log('[ERROR] Can\'t find ' + market + ' in BD.', 0, log_level)

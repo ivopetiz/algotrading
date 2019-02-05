@@ -61,6 +61,17 @@ def safe(method):
 
         #return result
     return ret
+
+
+def dropnan(method):
+    '''
+    Decorator to return drop NaN from DataFrames.
+    '''
+    def ret(*args, **kw):
+        return method(*args, **kw).dropna()
+
+    return ret
+
 #####################################################################
 
 
@@ -235,12 +246,12 @@ def get_last_data(market,
 
 def detect_init(data):
     '''
-    Remove data without without info in case of market
+    Remove data without info in case of market
     has started after the implementation of the BD.
     '''
     
     #TODO try to implement this on DB query.
-    for i in range(len(data)):
+    for i in xrange(len(data)):
         #TODO remove numpy lib and use other method to detect NaN.
         if not isnan(data.Last.iloc[i]):
             return data[i:len(data)]
@@ -390,6 +401,7 @@ def get_histdata_to_file(markets=[],
     return True
 
 
+@dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
@@ -415,7 +427,7 @@ def get_data_from_file(market,
                 + '/' + verified_market + '.' + filetype
 
     if filetype is 'csv':
-        return read_csv(filename_,  sep=',', engine='c') # Optimized.
+        return read_csv(filename_, sep=',', engine='c', index_col=0) # Optimized.
     elif filetype is 'h5':
         return read_hdf(filename_,'data')
     else: return 0
@@ -597,10 +609,11 @@ def log(message, level=1, func_level=2):
     '''
     
     #if level > var.global_log_level: return 1
-    if func_level > level:
-        if level >= 0: debug(message)
-        if level >= 1: print message
-
+    #if func_level > level:
+    #    if level >= 0: print message
+    #    if level >= 1: debug(message)
+    if func_level => level: debug(message)
+    elif func_level > level: print message
     return 0
 
 
