@@ -400,8 +400,9 @@ def get_histdata_to_file(markets=[],
     
     return True
 
-
-@dropnan
+# Use it if you got too much NaN in your data.
+# Will make your func slower!
+#@dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
@@ -608,11 +609,7 @@ def log(message, level=1, func_level=2):
     Returns 0
     '''
     
-    #if level > var.global_log_level: return 1
-    #if func_level > level:
-    #    if level >= 0: print message
-    #    if level >= 1: debug(message)
-    if func_level => level: debug(message)
+    if func_level >= level: debug(message)
     elif func_level > level: print message
     return 0
 
