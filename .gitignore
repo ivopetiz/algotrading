@@ -15,3 +15,4 @@ cryptoalgotrading.egg-info/*
 .coveralls.yml
 *.ipynb
 parallel.py
+tmp/*
