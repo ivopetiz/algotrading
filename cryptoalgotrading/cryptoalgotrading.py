@@ -295,7 +295,7 @@ def realtime(exchanges,
     coins = {}
 
     # Bittrex exchange
-    if "Bittrex" in exchanges:
+    if "bittrex" in exchanges:
         if simulation:
             bt = Bittrex('', '')
             log("Starting Bot with Bittrex", 1, log_level)
@@ -307,7 +307,7 @@ def realtime(exchanges,
                 nr_exchanges -=1
             
     # Binance exchange
-    if "Binance" in exchanges:
+    if "binance" in exchanges:
         if simulation:
             
             # T E M P
