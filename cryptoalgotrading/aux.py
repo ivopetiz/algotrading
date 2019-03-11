@@ -157,7 +157,7 @@ def get_historical_data(market,
     Returns:
     - market data in pandas.DataFrame.
     '''
-    verified_market = check_market_name(market, exchange='bittrex')
+    verified_market = check_market_name(market, exchange)
 
     if not init_date:
         init_date = '2018-02-02 00:00:00'
@@ -191,12 +191,10 @@ def get_historical_data(market,
             " last(High) AS High," +\
             " last(Low) AS Low," +\
             " last(Ask) AS Ask," +\
-            " last(Bid) AS Bid," +\
-            "FROM bittrex WHERE " + time + \
+            " last(Bid) AS Bid " +\
+            "FROM binance WHERE " + time + \
             " AND MarketName='" + verified_market + \
             "' GROUP BY time(" + interval + ")"
-            #" last(OpenBuyOrders) AS OpenBuy," +\
-            #" last(OpenSellOrders) AS OpenSell " + \
 
     #print command
     db_client = connect_db()
@@ -207,7 +205,7 @@ def get_historical_data(market,
 
     # returning Pandas DataFrame.
     #return pd.DataFrame(list(res.get_points(measurement=exchange)))
-    return detect_init(DataFrame(list(res.get_points(measurement=var.exchange))))
+    return detect_init(DataFrame(list(res.get_points(measurement=exchange))))
 
 
 def get_last_data(market,
@@ -382,12 +380,16 @@ def get_histdata_to_file(markets=[],
         log(verified_market, 2)
 
         data_ = get_historical_data(verified_market,
-                            interval=interval, 
-                            exchange=exchange)
+                                    interval=interval, 
+                                    exchange=exchange)
         
         filename_ = var.data_dir + '/hist-' + \
                     interval + '/' + \
                     verified_market + '.'
+
+        if type(data_) is not DataFrame:
+            log("Couldn't get data", 0, 2)
+            return False
 
         if filetype is 'csv':
             data_.to_csv(filename_ + filetype)
@@ -397,6 +399,7 @@ def get_histdata_to_file(markets=[],
                          complevel=9, complib='bzip2')
         #TEST
         del data_
+        log(filename_ + filetype +" downloaded.", 0, 1)
     
     return True
 
@@ -440,10 +443,13 @@ def check_market_name(market, exchange='bittrex'):
     '''
     market = market.upper()
 
-    if '-' in market:  # and len(market) > 5:
-        return market
+    if exchange == 'bittrex':
+        if '-' in market:  # and len(market) > 5:
+            return market
+        return 'BTC-' + market
 
-    return 'BTC-' + market
+    if exchange == 'binance':
+        return market
 
 
 def time_to_index(data, _datetime):

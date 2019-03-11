@@ -22,6 +22,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from numpy import isnan
 from time import time, sleep
+from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
 from matplotlib import animation
@@ -246,7 +247,8 @@ def tick_by_tick(market,
     return total
 
 
-def realtime(entry_funcs,
+def realtime(exchanges,
+             entry_funcs,
              exit_funcs,
              interval=var.default_interval,
              smas=var.default_smas,
@@ -259,6 +261,7 @@ def realtime(entry_funcs,
     Bot using realtime data, doesn't need DB or csv files to work.
 
     Args:
+        exchanges(list): list of exchanges.
         entry_funcs(list): list of entry functions to test.
         exit_funcs(list): list of entry functions to test.
         markets(string): list with markets to backtest or empty to run all available markets.
@@ -282,22 +285,46 @@ def realtime(entry_funcs,
 
     validate = smas[-1] + 5
 
+    nr_exchanges = len(exchanges)
+
+    if not isinstance(exchanges, list): exchanges=[exchanges]
     if not isinstance(entry_funcs, list): entry_funcs=[entry_funcs]
     if not isinstance(exit_funcs, list): exit_funcs=[exit_funcs]
 
     buy_list = {}  # Owned coins list.
     coins = {}
 
-    if simulation:
-        bt = Bittrex('', '')
-        log("Starting Bot", 1, log_level)
-        #print 'starting...'
-    else:
-        try:
-            bt = RiskManagement(var.ky, var.sct)
-        except:
-            log("[Error] Couldn't connect to Bittrex", 0, log_level)
+    # Bittrex exchange
+    if "Bittrex" in exchanges:
+        if simulation:
+            bt = Bittrex('', '')
+            log("Starting Bot with Bittrex", 1, log_level)
+        else:
+            try:
+                bt = RiskManagement(var.ky, var.sct)
+            except:
+                log("[Error] Couldn't connect to Bittrex", 0, log_level)
+                nr_exchanges -=1
+            
+    # Binance exchange
+    if "Binance" in exchanges:
+        if simulation:
+            
+            # T E M P
+            bnb = Binance('', '')
+            log("Starting Bot with Binance", 1, log_level)
+        else:
+            print "Can't use Binance exchange in real scenario, just simulation."
             sys.exit(1)
+            #try:
+            #    bnb = RiskManagement(var.ky, var.sct)
+            #except:
+            #    log("[Error] Couldn't connect to Binance", 0, log_level)
+            #    nr_exchanges -=1
+
+    if not nr_exchanges:
+        sys.exit(1)
+
 
     while True:
 
@@ -338,7 +365,7 @@ def realtime(entry_funcs,
                                     "OpenBuyOrders": "OpenBuy",
                                     "OpenSellOrders": "OpenSell"})
 
-                # Checks if coin is in buy portfolio and looks for a sell opportunity.
+                # Checks if coin is in portfolio and looks for a sell opportunity.
                 if market_name in buy_list:
 
                     # Needed to make use of stop loss and trailing stop loss functions.
