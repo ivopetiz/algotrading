@@ -84,7 +84,7 @@ def is_time_to_buy(data,
                    smas=var.default_smas,
                    emas=var.default_emas):
     '''
-    Detects when is time to enter trade.
+    Detects when is time to enter.
     '''
 
     for func in funcs:
@@ -255,7 +255,7 @@ def realtime(exchanges,
              emas=var.default_volume_emas,
              refresh_interval=10,
              simulation=True,
-             main_coins=["BTC","USDT"],
+             main_coins=("BTC","USDT"),
              log_level=1):
     '''
     Bot using realtime data, doesn't need DB or csv files to work.
@@ -270,7 +270,7 @@ def realtime(exchanges,
         emas(list): list of EMA values to use.
         refresh_interval(int): Data refresh rate.
         simulation(bool): Defines if it's running as a simulation or real money mode.
-        main_coins(list):
+        main_coins(tuple): tuple of main coins.
     '''
 
     #log_level:
@@ -291,7 +291,7 @@ def realtime(exchanges,
     if not isinstance(entry_funcs, list): entry_funcs=[entry_funcs]
     if not isinstance(exit_funcs, list): exit_funcs=[exit_funcs]
 
-    buy_list = {}  # Owned coins list.
+    portfolio = {}  # Owned coins list.
     coins = {}
 
     # Bittrex exchange
@@ -311,8 +311,11 @@ def realtime(exchanges,
         if simulation:
             
             # T E M P
-            bnb = Binance('', '')
-            log("Starting Bot with Binance", 1, log_level)
+            try:
+                bnb = Binance('', '')
+                log("Starting Bot with Binance", 1, log_level)
+            except:
+                log("[Error] Couldn't connect to Binance", 0, log_level)
         else:
             print "Can't use Binance exchange in real scenario, just simulation."
             sys.exit(1)
@@ -330,15 +333,22 @@ def realtime(exchanges,
 
         start_time = time()
 
+        # X implementar binance
         markets = bt.get_market_summaries()['result']
+        markets += bnb.get_market_summaries()['result']
 
         for market in markets:
 
             # Needed to pass unicode to string.
+
+            # implementar binance
             market_name = str(market['MarketName'])
 
             # Checks if pair is included in main coins.
-            if market_name.split('-')[0] in main_coins:
+            
+            # implementar binance
+            #if market_name.split('-')[0] in main_coins:
+            if market_name.endswith(main_coins):
 
                 # Checks if market already exists in analysed coins.
                 if market_name in coins:
@@ -347,7 +357,7 @@ def realtime(exchanges,
                     if coins[market_name] == validate:
                         locals()[market_name] = pd.DataFrame.append(locals()[market_name],
                                                                  [market]).tail(validate)
-                    # If not adds data and keep going.
+                    # If not, adds data and keep going.
                     else:
                         locals()[market_name] = pd.DataFrame.append(locals()[market_name],
                                                                  [market])
@@ -360,31 +370,37 @@ def realtime(exchanges,
                     coins[market_name] = 1
                     continue
 
-                data = locals()[market_name].rename(index=str,
-                                columns={
-                                    "OpenBuyOrders": "OpenBuy",
-                                    "OpenSellOrders": "OpenSell"})
+                # implementar binance
+                if '-' in market_name:
+                    # Renames OpenBuy and OpenSell in Bittrex
+                    data = locals()[market_name].rename(index=str,
+                                    columns={
+                                        "OpenBuyOrders": "OpenBuy",
+                                        "OpenSellOrders": "OpenSell"})
+                else:
+                    data = locals()[market_name]
 
                 # Checks if coin is in portfolio and looks for a sell opportunity.
-                if market_name in buy_list:
+                if market_name in portfolio:
 
                     # Needed to make use of stop loss and trailing stop loss functions.
-                    if buy_list[market_name]['max_price'] < data.Bid.iloc[-1]:
-                        buy_list[market_name]['max_price'] = data.Bid.iloc[-1]
+                    if portfolio[market_name]['max_price'] < data.Bid.iloc[-1]:
+                        portfolio[market_name]['max_price'] = data.Bid.iloc[-1]
 
                     if is_time_to_exit(data,
                                        exit_funcs,
-                                       bought_at = buy_list[market_name]['bought_at'],
-                                       max_price = buy_list[market_name]['max_price'],
-                                       count     = buy_list[market_name]['count']):
+                                       bought_at = portfolio[market_name]['bought_at'],
+                                       max_price = portfolio[market_name]['max_price'],
+                                       count     = portfolio[market_name]['count']):
 
+                        # implementar binance
                         if not simulation:
                             #REAL
                             sell_res = bt.sell(market_name,
-                                               buy_list[market_name]['quantity'],
+                                               portfolio[market_name]['quantity'],
                                                data.Bid.iloc[-1])
 
-                            # MUDAR
+                            # M U D A R
                             sold_at = sell_res
 
                             log('[SELL]@ ' + str(sold_at) +\
@@ -392,10 +408,12 @@ def realtime(exchanges,
 
                             log('[P&L] ' + market_name + '> ' +\
                                     str(round(((sold_at-\
-                                                buy_list[market_name]['bought_at'])/\
-                                                buy_list[market_name]['bought_at'])*100,2)) +\
+                                                portfolio[market_name]['bought_at'])/\
+                                                portfolio[market_name]['bought_at'])*100,2)) +\
                                     '%.', 1, log_level)
 
+
+                        # implementar binance
                         else:
                             #SIMULATION
                             #print '> https://bittrex.com/Market/Index?MarketName=' + market_name
@@ -405,17 +423,17 @@ def realtime(exchanges,
 
                             log('[P&L] ' + market_name + '> ' +\
                                         str(round(((data.Bid.iloc[-1]-\
-                                                    buy_list[market_name]['bought_at'])/\
-                                                    buy_list[market_name]['bought_at'])*100,2)) +\
+                                                    portfolio[market_name]['bought_at'])/\
+                                                    portfolio[market_name]['bought_at'])*100,2)) +\
                                         '%.', 1, log_level)
 
-                        del buy_list[market_name]
+                        del portfolio[market_name]
 
-                    #if not time to exit increment count.
+                    #if not time to exit, increment count.
                     else:
-                        buy_list[market_name]['count'] += 1
+                        portfolio[market_name]['count'] += 1
 
-                # if has no coins from a certain market checks if is time to buy.
+                # if the coin is not on portfolio, checks if is time to buy.
                 else:
                     if is_time_to_buy(data, entry_funcs):
 
@@ -424,11 +442,11 @@ def realtime(exchanges,
                             sucs, msg = bt.buy(market, data.Ask.iloc[-1]*1.01)
 
                             if sucs:
-                                buy_list[market_name] = {}
-                                buy_list[market_name]['bought_at'] = msg[0]
-                                buy_list[market_name]['max_price'] = msg[0]
-                                buy_list[market_name]['quantity']  = msg[1]
-                                buy_list[market_name]['count']  = 0
+                                portfolio[market_name] = {}
+                                portfolio[market_name]['bought_at'] = msg[0]
+                                portfolio[market_name]['max_price'] = msg[0]
+                                portfolio[market_name]['quantity']  = msg[1]
+                                portfolio[market_name]['count']  = 0
 
                                 log('[BUY]@ ' + str(msg[0]) +\
                                     #' > ' + funcs.func_name +\
@@ -440,11 +458,11 @@ def realtime(exchanges,
 
                         else:
                             #SIMULATION
-                            buy_list[market_name] = {}
-                            buy_list[market_name]['bought_at'] = data.Ask.iloc[-1]
-                            buy_list[market_name]['max_price'] = data.Ask.iloc[-1]
-                            buy_list[market_name]['quantity']  = 1
-                            buy_list[market_name]['count']  = 0
+                            portfolio[market_name] = {}
+                            portfolio[market_name]['bought_at'] = data.Ask.iloc[-1]
+                            portfolio[market_name]['max_price'] = data.Ask.iloc[-1]
+                            portfolio[market_name]['quantity']  = 1
+                            portfolio[market_name]['count']  = 0
 
                             #print '> https://bittrex.com/Market/Index?MarketName='+market_name
 
