@@ -20,6 +20,7 @@ prompt-toolkit==1.0.15
 ptyprocess==0.6.0
 Pygments==2.2.0
 pyparsing==2.2.0
+python-binance==0.7.1
 python-dateutil==2.7.3
 pytz==2018.5
 requests==2.20.0
