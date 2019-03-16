@@ -39,7 +39,7 @@ else:
 
 LOG_FILENAME = logs_dir + '/indicators.log'
 
-fig_dir = "figs/tmp/"
+fig_dir = "figs/"
 
 db_host = 'localhost'
 db_port = 8086
