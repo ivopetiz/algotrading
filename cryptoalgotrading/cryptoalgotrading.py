@@ -19,13 +19,13 @@ import sys
 import signal
 
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from numpy import isnan
 from time import time, sleep
 from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
-from matplotlib import animation
+#from matplotlib import animation
 from riskmanagement import RiskManagement
 from multiprocessing import Pool
 from aux import get_markets_list, \
@@ -126,7 +126,7 @@ def tick_by_tick(market,
     #   2 - Writes logs to file and prints on screen.
     #   Default is 2.
 
-    plt.ion()
+    #plt.ion()
 
     var.global_log_level = log_level
 
@@ -188,7 +188,7 @@ def tick_by_tick(market,
     buy_price = 0
     high_price = 0
 
-    plt.show()
+    #plt.show()
 
     #Tests several functions.
     for i in xrange(len(data)-50):

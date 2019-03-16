@@ -70,7 +70,7 @@ class TestAux(unittest.TestCase):
 
 
     def test_plot_data(self):
-        self.assertEqual(plot_data(get_data_from_file("BTC-SRN",interval='10m')), True)
+        self.assertEqual(plot_data(get_data_from_file("BTC-SRN",interval='10m'),to_file=True), True)
 
 
     #def test_get_histdata_to_file(self):

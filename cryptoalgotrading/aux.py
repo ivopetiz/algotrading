@@ -4,9 +4,14 @@
     Aux functions needed to do some data manipulation, plot data, etc.
 """
 
-
+import os
 import var
 import sys
+import matplotlib as mpl
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
+
 import matplotlib.pylab as plt
 
 from os import system, listdir, path
@@ -21,9 +26,9 @@ from binance.client import Client as Binance
 from multiprocessing import cpu_count
 from logging import basicConfig, debug, DEBUG
 
-plt.ion()
+#plt.ion()
 
-plt.style.use('ggplot')
+#plt.style.use('ggplot')
 
 # Initiates log file.
 basicConfig(filename=var.LOG_FILENAME,
