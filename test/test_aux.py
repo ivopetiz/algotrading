@@ -73,8 +73,8 @@ class TestAux(unittest.TestCase):
         self.assertEqual(plot_data(get_data_from_file("BTC-SRN",interval='10m')), True)
 
 
-    def test_get_histdata_to_file(self):
-        self.assertEqual(,4)
+    #def test_get_histdata_to_file(self):
+    #    self.assertEqual(,4)
 
 
     def test_get_data_from_file(self):
@@ -85,7 +85,7 @@ class TestAux(unittest.TestCase):
     def test_time_to_index(self):
         self.assertEqual(time_to_index(get_data_from_file("BTC-SRN",interval='10m'),
                                                         ['01-03-2018','04-03-2018']),
-                                                            (33568, 33998))                                                   (0, 0))                                                
+                                                            (33568, 33998))                                   
 
 
     #def test_timeit(self):
