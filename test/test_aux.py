@@ -44,8 +44,11 @@ class TestAux(unittest.TestCase):
     #    self.assertEqual()
 
 
-    #def test_get_markets_list(self):
-    #    self.assertEqual(4,4)
+    def test_get_markets_list(self):
+        self.assertTrue(type(get_markets_list()) is list)
+        self.assertTrue(type(get_markets_list(base='BTC')) is list)
+        self.assertTrue(type(get_markets_list(exchange='binance',base='BTC')) is list)
+        self.assertTrue(type(get_markets_list(exchange='cryptopia')) is bool)
 
 
     def test_get_markets_on_files(self):
