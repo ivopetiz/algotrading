@@ -454,7 +454,7 @@ def check_market_name(market, exchange='bittrex'):
             return market
         return 'BTC-' + market
 
-    if exchange == 'binance':
+    elif exchange == 'binance':
         return market
 
 
@@ -495,7 +495,11 @@ def time_to_index(data, _datetime):
                      str(t_hour) + ':' +
                      str(t_minute) + ':00Z')
 
-    d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
+    try:
+        d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
+    except:
+        print 
+        return (0,0)
 
     return d.index[0], d.index[-1]
 
