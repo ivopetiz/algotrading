@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from finance import bollinger_bands
 from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
+from binance.client import Client as Binance
 from multiprocessing import cpu_count
 from logging import basicConfig, debug, DEBUG
 
@@ -105,13 +106,18 @@ def get_markets_list(base='BTC', exchange='bittrex'):
 
     Returns:
     - list of markets.
+    - False if unsupported exchange.
     '''
+
+    ret = False
+
     if exchange=='bittrex':
         bt = Bittrex('', '')
         ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
 
-    #elif exchange=='binance':
-    #   TODO
+    elif exchange=='binance':
+        bnb = Binance('','')
+        ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
 
     return ret
 
@@ -448,7 +454,7 @@ def check_market_name(market, exchange='bittrex'):
             return market
         return 'BTC-' + market
 
-    if exchange == 'binance':
+    elif exchange == 'binance':
         return market
 
 
@@ -489,7 +495,11 @@ def time_to_index(data, _datetime):
                      str(t_hour) + ':' +
                      str(t_minute) + ':00Z')
 
-    d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
+    try:
+        d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
+    except:
+        print 
+        return (0,0)
 
     return d.index[0], d.index[-1]
 

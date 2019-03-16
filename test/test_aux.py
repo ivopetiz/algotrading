@@ -1,4 +1,5 @@
 import unittest
+import pandas
 from cryptoalgotrading.var import data_dir
 from cryptoalgotrading.aux import *
 
@@ -44,8 +45,11 @@ class TestAux(unittest.TestCase):
     #    self.assertEqual()
 
 
-    #def test_get_markets_list(self):
-    #    self.assertEqual(4,4)
+    def test_get_markets_list(self):
+        self.assertTrue(type(get_markets_list()) is list)
+        self.assertTrue(type(get_markets_list(base='BTC')) is list)
+        self.assertTrue(type(get_markets_list(exchange='binance',base='BTC')) is list)
+        self.assertTrue(type(get_markets_list(exchange='cryptopia')) is bool)
 
 
     def test_get_markets_on_files(self):
@@ -60,24 +64,28 @@ class TestAux(unittest.TestCase):
     #    self.assertEqual(4,4)
 
 
-    #def test_detect_init(self):
-    #    self.assertEqual(4,4)
+    def test_detect_init(self):
+        self.assertIsInstance(detect_init(get_data_from_file("BTC-SRN",interval='10m')),
+                                          pandas.core.frame.DataFrame)
 
 
-    #def test_plot_data(self):
-    #    self.assertEqual(4,4)
+    def test_plot_data(self):
+        self.assertEqual(plot_data(get_data_from_file("BTC-SRN",interval='10m')), True)
 
 
-    #def test_get_histdata_to_file(self):
-    #    self.assertEqual(4,4)
+    def test_get_histdata_to_file(self):
+        self.assertEqual(,4)
 
 
-    #def test_get_data_from_file(self):
-    #    self.assertEqual(4,4)
+    def test_get_data_from_file(self):
+        self.assertIsInstance(detect_init(get_data_from_file("BTC-SRN",interval='10m')),
+                                          pandas.core.frame.DataFrame)
 
 
-    #def test_time_to_index(self):
-    #    self.assertEqual(4,4)
+    def test_time_to_index(self):
+        self.assertEqual(time_to_index(get_data_from_file("BTC-SRN",interval='10m'),
+                                                        ['01-03-2018','04-03-2018']),
+                                                            (33568, 33998))                                                   (0, 0))                                                
 
 
     #def test_timeit(self):
