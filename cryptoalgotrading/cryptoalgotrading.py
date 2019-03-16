@@ -333,20 +333,20 @@ def realtime(exchanges,
 
         start_time = time()
 
-        # X implementar binance
         markets = bt.get_market_summaries()['result']
-        markets += bnb.get_market_summaries()['result']
+        markets += bnb.get_ticker()
 
         for market in markets:
 
             # Needed to pass unicode to string.
-
-            # implementar binance
-            market_name = str(market['MarketName'])
+            # Binance 
+            if market.has_key('symbol'):
+                market_name = str(market['symbol'])
+            elif market.has_key('MarketName'):
+                market_name = str(market['MarketName'])
 
             # Checks if pair is included in main coins.
             
-            # implementar binance
             #if market_name.split('-')[0] in main_coins:
             if market_name.endswith(main_coins):
 
@@ -370,7 +370,6 @@ def realtime(exchanges,
                     coins[market_name] = 1
                     continue
 
-                # implementar binance
                 if '-' in market_name:
                     # Renames OpenBuy and OpenSell in Bittrex
                     data = locals()[market_name].rename(index=str,
