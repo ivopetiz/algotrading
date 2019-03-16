@@ -443,7 +443,7 @@ def get_data_from_file(market,
 
     if filetype is 'csv':
         return read_csv(filename_, sep=',', engine='c', index_col=0) # Optimized.
-    elif filetype is 'h5':
+    elif filetype is 'hdf':
         return read_hdf(filename_,'data')
     else: return 0
 
@@ -502,8 +502,8 @@ def time_to_index(data, _datetime):
 
     try:
         d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
-    except:
-        print 
+    except e as err:
+        print err
         return (0,0)
 
     return d.index[0], d.index[-1]
