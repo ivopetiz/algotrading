@@ -677,3 +677,20 @@ def file_lines(filename):
     return lines
 
 
+def binance2btrx (_data):
+    '''
+    Converts Binance data structure into Bittrex's model.
+    '''
+
+    new_data={}
+
+    new_data['Ask'] = float(_data['askPrice'])
+    new_data['BaseVolume'] = float(_data['quoteVolume'])
+    new_data['Bid'] = float(_data['bidPrice'])
+    new_data['High'] = float(_data['highPrice'])
+    new_data['Last'] = float(_data['lastPrice'])
+    new_data['Low'] = float(_data['lowPrice'])
+    new_data['Volume'] = float(_data['volume'])
+    new_data['Count'] = float(_data['count'])
+
+    return new_data

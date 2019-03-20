@@ -120,5 +120,23 @@ class TestAux(unittest.TestCase):
         self.assertEqual(manage_files(["BTC-XXX"],'10m'),[])
 
 
+    def test_binance2btrx(self):
+        self.assertEqual(binance2btrx({'askPrice': '12',
+                                       'bidPrice': '11',
+                                       'count': '333',
+                                       'highPrice': '15',
+                                       'lastPrice': '11.5',
+                                       'lowPrice': '10',
+                                       'quoteVolume': '1000',
+                                       'volume': '100'})
+                                       ,{'Ask': 12.0,
+                                       'BaseVolume': 1000.0,
+                                       'Bid': 11.0,
+                                       'Count': 333.0,
+                                       'High': 15.0,
+                                       'Last': 11.5,
+                                       'Low': 10.0,
+                                       'Volume': 100.0})
+
 if __name__ == '__main__':
     unittest.main()

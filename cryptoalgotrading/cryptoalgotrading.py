@@ -35,6 +35,8 @@ from aux import get_markets_list, \
                 check_market_name, get_data_from_file, \
                 time_to_index, get_historical_data
 
+#from __future__ import print_function
+
 
 def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
@@ -298,12 +300,12 @@ def realtime(exchanges,
     if "bittrex" in exchanges:
         if simulation:
             bt = Bittrex('', '')
-            log("Starting Bot with Bittrex", 1, log_level)
+            print "Starting Bot with Bittrex", 1, log_level
         else:
             try:
                 bt = RiskManagement(var.ky, var.sct)
             except:
-                log("[Error] Couldn't connect to Bittrex", 0, log_level)
+                print "[Error] Couldn't connect to Bittrex", 0, log_level
                 nr_exchanges -=1
             
     # Binance exchange
@@ -313,16 +315,16 @@ def realtime(exchanges,
             # T E M P
             try:
                 bnb = Binance('', '')
-                log("Starting Bot with Binance", 1, log_level)
+                print "Starting Bot with Binance", 1, log_level
             except:
-                log("[Error] Couldn't connect to Binance", 0, log_level)
+                print "[Error] Couldn't connect to Binance", 0, log_level
         else:
             print "Can't use Binance exchange in real scenario, just simulation."
             sys.exit(1)
             #try:
             #    bnb = RiskManagement(var.ky, var.sct)
             #except:
-            #    log("[Error] Couldn't connect to Binance", 0, log_level)
+            #    print("[Error] Couldn't connect to Binance", 0, log_level)
             #    nr_exchanges -=1
 
     if not nr_exchanges:
@@ -341,14 +343,14 @@ def realtime(exchanges,
             # Needed to pass unicode to string.
             # Binance 
             if market.has_key('symbol'):
-                market_name = str(market['symbol'])
+                market_name = 'BT_' + str(market['symbol'])
             elif market.has_key('MarketName'):
-                market_name = str(market['MarketName'])
+                market = binance2btrx(market)
+                market_name = 'BN_' + str(market['MarketName'])
 
             # Checks if pair is included in main coins.
-            
-            #if market_name.split('-')[0] in main_coins:
-            if market_name.endswith(main_coins):
+            if (market_name.startswith('BT_') and market_name.split('-')[0]) or \
+               (market_name.startswith('BN_') and market_name.endswith(main_coins)):
 
                 # Checks if market already exists in analysed coins.
                 if market_name in coins:
@@ -402,14 +404,14 @@ def realtime(exchanges,
                             # M U D A R
                             sold_at = sell_res
 
-                            log('[SELL]@ ' + str(sold_at) +\
-                                    ' > ' + market_name, 1, log_level)
+                            print '[SELL]@ ' + str(sold_at) +\
+                                    ' > ' + market_name, 1, log_level
 
-                            log('[P&L] ' + market_name + '> ' +\
+                            print '[P&L] ' + market_name + '> ' +\
                                     str(round(((sold_at-\
                                                 portfolio[market_name]['bought_at'])/\
                                                 portfolio[market_name]['bought_at'])*100,2)) +\
-                                    '%.', 1, log_level)
+                                    '%.', 1, log_level
 
 
                         # implementar binance
@@ -417,14 +419,14 @@ def realtime(exchanges,
                             #SIMULATION
                             #print '> https://bittrex.com/Market/Index?MarketName=' + market_name
 
-                            log('[SELL]@ ' + str(data.Bid.iloc[-1]) +\
-                                        ' > ' + market_name, 1, log_level)
+                            print '[SELL]@ ' + str(data.Bid.iloc[-1]) +\
+                                        ' > ' + market_name, 1, log_level
 
-                            log('[P&L] ' + market_name + '> ' +\
+                            print '[P&L] ' + market_name + '> ' +\
                                         str(round(((data.Bid.iloc[-1]-\
                                                     portfolio[market_name]['bought_at'])/\
                                                     portfolio[market_name]['bought_at'])*100,2)) +\
-                                        '%.', 1, log_level)
+                                        '%.', 1, log_level
 
                         del portfolio[market_name]
 
@@ -447,13 +449,12 @@ def realtime(exchanges,
                                 portfolio[market_name]['quantity']  = msg[1]
                                 portfolio[market_name]['count']  = 0
 
-                                log('[BUY]@ ' + str(msg[0]) +\
-                                    #' > ' + funcs.func_name +\
-                                    ' > ' + market_name, 1, log_level)
+                                print '[BUY]@ ' + str(msg[0]) +\
+                                      ' > ' + market_name, 1, log_level
 
                             else:
-                                log("[XXXX] Could not buy @ " + data.Ask.iloc[-1] * 1.01 +
-                                     "\n[MSG>] " + msg, 0, log_level)
+                                print "[XXXX] Could not buy @ " + str(data.Ask.iloc[-1] * 1.01) +\
+                                     "\n[MSG>] " + msg, 0, log_level
 
                         else:
                             #SIMULATION
@@ -465,9 +466,8 @@ def realtime(exchanges,
 
                             #print '> https://bittrex.com/Market/Index?MarketName='+market_name
 
-                            log('[BUY]@ ' + str(data.Ask.iloc[-1]) +\
-                                #' > ' + funcs.func_name +\
-                                ' > ' + market_name, 1, log_level)
+                            print '[BUY]@ ' + str(data.Ask.iloc[-1]) +\
+                                  ' > ' + market_name, 1, log_level
 
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
