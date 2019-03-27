@@ -33,7 +33,8 @@ from aux import get_markets_list, \
                 timeit, safe, connect_db, get_markets_on_files, \
                 manage_files, num_processors, plot_data, \
                 check_market_name, get_data_from_file, \
-                time_to_index, get_historical_data
+                time_to_index, get_historical_data, \
+                binance2btrx
 
 #from __future__ import print_function
 
@@ -342,11 +343,11 @@ def realtime(exchanges,
 
             # Needed to pass unicode to string.
             # Binance 
-            if market.has_key('symbol'):
-                market_name = 'BT_' + str(market['symbol'])
-            elif market.has_key('MarketName'):
+            if market.has_key('MarketName'):
+                market_name = 'BT_' + str(market['MarketName'])
+            elif market.has_key('symbol'):
                 market = binance2btrx(market)
-                market_name = 'BN_' + str(market['MarketName'])
+                market_name = 'BN_' + market['MarketName']
 
             # Checks if pair is included in main coins.
             if (market_name.startswith('BT_') and market_name.split('-')[0]) or \
@@ -428,7 +429,10 @@ def realtime(exchanges,
                                                     portfolio[market_name]['bought_at'])*100,2)) +\
                                         '%.', 1, log_level
 
+                        locals()[market_name].to_csv('df_' + market_name + '.csv')
+                        del locals()[market_name]
                         del portfolio[market_name]
+                        coins.pop(market_name)
 
                     #if not time to exit, increment count.
                     else:

@@ -684,6 +684,7 @@ def binance2btrx (_data):
 
     new_data={}
 
+    new_data['MarketName'] = str(_data['symbol'])
     new_data['Ask'] = float(_data['askPrice'])
     new_data['BaseVolume'] = float(_data['quoteVolume'])
     new_data['Bid'] = float(_data['bidPrice'])
