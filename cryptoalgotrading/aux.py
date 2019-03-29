@@ -95,7 +95,7 @@ def connect_db():
                               var.db_name)
 
     except Exception as err:
-        log("[ERROR] " + str(err))
+        log("[ERROR] " + str(err), 0)
         sys.exit(1)
 
     return conn
@@ -117,13 +117,20 @@ def get_markets_list(base='BTC', exchange='bittrex'):
     ret = False
 
     if exchange=='bittrex':
-        bt = Bittrex('', '')
-        ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
-
+        try:
+            bt = Bittrex('', '')
+            log("[INFO] Connected to Bittrex." , 1)
+            ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
+        except:
+            log("[ERROR] Connecting to Bittrex..." , 0)
+    
     elif exchange=='binance':
-        bnb = Binance('','')
-        ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
-
+        try:
+            bnb = Binance('','')
+            log("[INFO] Connected to Binance." , 1)
+            ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
+        except:
+            log("[ERROR] Connecting to Binance..." , 0)
     return ret
 
 
