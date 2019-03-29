@@ -121,7 +121,8 @@ class TestAux(unittest.TestCase):
 
 
     def test_binance2btrx(self):
-        self.assertEqual(binance2btrx({'askPrice': '12',
+        self.assertEqual(binance2btrx({'symbol': 'TIETABTC',
+                                       'askPrice': '12',
                                        'bidPrice': '11',
                                        'count': '333',
                                        'highPrice': '15',
@@ -129,7 +130,8 @@ class TestAux(unittest.TestCase):
                                        'lowPrice': '10',
                                        'quoteVolume': '1000',
                                        'volume': '100'})
-                                       ,{'Ask': 12.0,
+                                       ,{'MarketName': 'TIETABTC',
+                                       'Ask': 12.0,
                                        'BaseVolume': 1000.0,
                                        'Bid': 11.0,
                                        'Count': 333.0,
