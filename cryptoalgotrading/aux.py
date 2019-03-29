@@ -384,7 +384,7 @@ def get_histdata_to_file(markets=[],
 
     if isinstance(markets,str): markets = [markets]
 
-    if not markets: markets = get_markets_list(base_market)
+    if not markets: markets = get_markets_list(base_market, exchange)
 
     for market in markets:
         verified_market = check_market_name(market, exchange=exchange)
