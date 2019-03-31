@@ -9,12 +9,23 @@
 Crypto AlgoTrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or csv files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
 *   [Operating modes](#operating-modes)
+     *   [Realtime](#realtime)
+     *   [Tick-by-tick](#tick-by-tick)
+     *   [Backtest](#backtest)
 *   [How to start](#how-to-start)
+     *   [Pre Requesites](#pre-requesites)
+     *   [Collecting data](#collecting-data)
+           *   [Database](#batabase)
+           *   [Script](#script)
 *   [Entry functions](#entry-functions)
+     *   [cross SMA](#cross-sma)
 *   [Exit functions](#exit-functions)
+     *   [cross SMA](#cross-sma)
 *   [Plot data](#plot-data)
 *   [Logs](#logs)
 *   [Examples](#examples)
+     *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
+     *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
 *   [Additional info](#additional-info)
 
 ___
