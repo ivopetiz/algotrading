@@ -27,6 +27,7 @@ Crypto AlgoTrading Framework is a repository with tools to build and run working
      *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
      *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
 *   [Pypy](#pypy)
+*   [TODO](#todo)
 *   [Additional info](#additional-info)
 
 ___
