@@ -26,6 +26,7 @@ Crypto AlgoTrading Framework is a repository with tools to build and run working
 *   [Examples](#examples)
      *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
      *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
+*   [Pypy](#pypy)
 *   [Additional info](#additional-info)
 
 ___
@@ -190,6 +191,16 @@ It is possible to enter multiple entry and exit functions to backtest, in order 
 Both functions are available on entry.py and exit.py as example.
 
 In finance.py are some functions which could be useful to implement some strategies.
+
+## Pypy
+
+This Crypto AlgoTrading Framework can be used with Pypy, but the results will not be great, during the use of Pandas and Numpy libs.
+
+## TODO
+
+- Python 3 implementation
+- Cython version
+- Pure Python for Pypy (without Pandas and Numpy dependency)
 
 ## Additional Info
 

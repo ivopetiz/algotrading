@@ -1,5 +1,9 @@
 # changelog
 
+## 2019-03-16
+
+*   Implemented Binance #3
+
 ## 2019-01-29
 
 *   Added HDF5 Filetype support.

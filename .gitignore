@@ -16,3 +16,4 @@ cryptoalgotrading.egg-info/*
 *.ipynb
 parallel.py
 tmp/*
+pypy*
