@@ -473,14 +473,19 @@ def check_market_name(market, exchange='bittrex'):
 def time_to_index(data, _datetime):
     '''
     Converts input time to DB time.
-    '''
-    #TODO
-    # Improve date presentation
+    
+    What time_to_index is expecting:
+        '01-01-2017 11:10'
 
-    #2017-09-09T06:25:00Z
+    Returns:
+        2017-09-09T06:25:00Z
+    
+    TODO
+        Improve date presentation
+    '''
+
     #d[(d.time>'2017-09-09T06:25:00Z') & (d.time<'2017-09-09T07:25:00Z')]
 
-    #'1-1-2017 11:10'
 
     #year, month, day = time.strftime("%Y,%m,%d").split(',')
     dtime = []

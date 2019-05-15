@@ -17,3 +17,5 @@ cryptoalgotrading.egg-info/*
 parallel.py
 tmp/*
 pypy*
+df_*
+

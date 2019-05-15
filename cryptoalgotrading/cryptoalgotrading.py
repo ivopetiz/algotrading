@@ -521,6 +521,8 @@ def backtest(markets,
        Default is 2.
     '''
 
+    signal.signal(signal.SIGINT, signal_handler)
+
     if not from_file:
     # Connects to DB.
         try:
@@ -635,7 +637,9 @@ def backtest_market(entry_funcs,
 
         if isinstance(_date[0], str):
             date[0], date[1] = time_to_index(data, _date)
-
+        else:
+            date=_date
+        
         if date[1] == 0:
             data = data[date[0]:]
         else:
@@ -659,6 +663,13 @@ def backtest_market(entry_funcs,
     aux_buy = False
     buy_price = 0
     high_price = 0
+
+    # Test for volume.
+    if data.BaseVolume.mean() < 20:
+        log(full_log, 1, log_level)
+        del data
+        del data_init
+        return 0
 
     #Tests several functions.
     for i in xrange(len(data)-50):
@@ -705,7 +716,7 @@ def backtest_market(entry_funcs,
                 full_log += '[P&L] > ' + str(total) + '%.' + '\n'
 
     del data_init
-
+    
     # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
     # computer can start run really slow.
     try:
