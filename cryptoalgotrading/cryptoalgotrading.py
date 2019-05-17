@@ -744,6 +744,8 @@ def backtest_market(entry_funcs,
 
     log(full_log, 1, log_level)
 
-    if isnan(total): return 0
+    if isnan(total):
+        log("[ERROR] Total is isnan", 0, log_level)
+        return 0
 
     return total
