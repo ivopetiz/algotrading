@@ -55,7 +55,7 @@ class TestAux(unittest.TestCase):
 
 
     def test_get_markets_on_files(self):
-        self.assertEqual(get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
+        self.assertItemsEqual(get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
 
 
     #def test_get_historical_data(self):
