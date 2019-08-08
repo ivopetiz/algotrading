@@ -9,23 +9,23 @@
 Crypto AlgoTrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or csv files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
 *   [Operating modes](#operating-modes)
-     *   [Realtime](#realtime)
-     *   [Tick-by-tick](#tick-by-tick)
-     *   [Backtest](#backtest)
+    *   [Realtime](#realtime)
+    *   [Tick-by-tick](#tick-by-tick)
+    *   [Backtest](#backtest)
 *   [How to start](#how-to-start)
-     *   [Pre Requesites](#pre-requesites)
-     *   [Collecting data](#collecting-data)
-           *   [Database](#batabase)
-           *   [Script](#script)
+    *   [Pre Requesites](#pre-requesites)
+    *   [Collecting data](#collecting-data)
+        *   [Database](#batabase)
+        *   [Script](#script)
 *   [Entry functions](#entry-functions)
-     *   [cross SMA](#cross-sma)
+    *   [cross SMA](#cross-sma)
 *   [Exit functions](#exit-functions)
-     *   [cross SMA](#cross-sma)
+    *   [cross SMA](#cross-sma)
 *   [Plot data](#plot-data)
 *   [Logs](#logs)
 *   [Examples](#examples)
-     *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
-     *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
+    *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
+    *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
 *   [Pypy](#pypy)
 *   [TODO](#todo)
 *   [Additional info](#additional-info)
@@ -199,9 +199,9 @@ This Crypto AlgoTrading Framework can be used with Pypy, but the results will no
 
 ## TODO
 
-- Python 3 implementation
-- Cython version
-- Pure Python for Pypy (without Pandas and Numpy dependency)
+-   Python 3 implementation
+-   Cython version
+-   Pure Python for Pypy (without Pandas and Numpy dependency)
 
 ## Additional Info
 
