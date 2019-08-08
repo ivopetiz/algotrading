@@ -64,7 +64,7 @@ exchange = 'bittrex'
 try:
     ky = environ['API_KEY'] 
     sct= environ['API_SECRET']
-except:
+except Exception:
     #log("Could not use environment variables for key and secret.", 0)
     pass
 
