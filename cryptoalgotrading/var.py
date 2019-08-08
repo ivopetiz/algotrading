@@ -8,9 +8,10 @@
 """
 
 from os import environ
+from aux import log
 #import lib_bittrex
 
-log = True
+#log = True
 global_log_level = 2
 
 # DATABASE VARIABLES
@@ -65,8 +66,8 @@ try:
     ky = environ['API_KEY'] 
     sct= environ['API_SECRET']
 except Exception:
-    #log("Could not use environment variables for key and secret.", 0)
-    pass
+    log("Could not use environment variables for key and secret.", 1)
+    #pass
 
 # Add API Key and API Secret as variables if needed.
 #try:
