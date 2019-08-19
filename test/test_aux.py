@@ -49,11 +49,10 @@ class TestAux(unittest.TestCase):
 
     def test_get_markets_list(self):
         self.assertIsInstance(get_markets_list(),list)
-        self.assertIsInstance(get_markets_list(base='BTC'),list))
-        self.assertIsInstance(get_markets_list(exchange='binance',base='BTC'),list))
+        self.assertIsInstance(get_markets_list(base='BTC'),list)
+        self.assertIsInstance(get_markets_list(exchange='binance',base='BTC'),list)
         self.assertIsInstance(get_markets_list(exchange='cryptopia'),bool)
 
-get_markets_list.isinstance()
     def test_get_markets_on_files(self):
         self.assertItemsEqual(get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
 
@@ -95,10 +94,10 @@ get_markets_list.isinstance()
         self.assertIsInstance(get_data_from_file("BTC-SRN",
                                                  interval='10m'),
                               pandas.core.frame.DataFrame)
-        #self.assertIsInstance(get_data_from_file("BTC-SRN",AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQUUUUUUUUUUUUUUUUUUUUUUUUUUUUUIIIIIIIIIIIIIIIIIIIIII
-        #                                         interval='10m',
-        #                                         filetype='hdf'),
-        #                      pandas.core.frame.DataFrame)
+        self.assertIsInstance(get_data_from_file("BTC-SRN",
+                                                 interval='10m',
+                                                 filetype='hdf'),
+                              pandas.core.frame.DataFrame)
 
     def test_time_to_index(self):
         self.assertEqual(time_to_index(get_data_from_file("BTC-SRN",interval='10m'),

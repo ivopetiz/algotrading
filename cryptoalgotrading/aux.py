@@ -639,7 +639,7 @@ def beep(duration=0.5):
 def log(message, level=1, func_level=2):
     '''
     Log function to select the type of log will be done.
-    
+
     Receives:
         - message: str
         - level: int (default=2)

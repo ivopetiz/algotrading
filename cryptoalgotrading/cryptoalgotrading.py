@@ -644,7 +644,7 @@ def backtest_market(entry_funcs,
             data = data[date[0]:]
         else:
             data = data[date[0]:date[1]]
-        
+
     else:
         try:
             data = get_historical_data(

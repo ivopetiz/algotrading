@@ -56,7 +56,7 @@ class RiskManagement:
                     cancel = self.conn.cancel(res["result"]["uuid"])
                     # Couldn't buy at desired rate.
                     return False, cancel["message"]
-        
+
                 else:
                     # Returns True and price payed for coin.
                     return True, [order["result"]["PricePerUnit"], order["result"]["Quantity"]]

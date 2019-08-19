@@ -12,22 +12,32 @@ Crypto AlgoTrading Framework is a repository with tools to build and run working
     *   [Realtime](#realtime)
     *   [Tick-by-tick](#tick-by-tick)
     *   [Backtest](#backtest)
+
 *   [How to start](#how-to-start)
     *   [Pre Requesites](#pre-requesites)
+
     *   [Collecting data](#collecting-data)
         *   [Database](#batabase)
         *   [Script](#script)
+
 *   [Entry functions](#entry-functions)
     *   [cross SMA](#cross-sma)
+
 *   [Exit functions](#exit-functions)
     *   [cross SMA](#cross-sma)
+
 *   [Plot data](#plot-data)
+
 *   [Logs](#logs)
+
 *   [Examples](#examples)
     *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
     *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
+
 *   [Pypy](#pypy)
+
 *   [TODO](#todo)
+
 *   [Additional info](#additional-info)
 
 ___
@@ -199,9 +209,9 @@ This Crypto AlgoTrading Framework can be used with Pypy, but the results will no
 
 ## TODO
 
--   Python 3 implementation
--   Cython version
--   Pure Python for Pypy (without Pandas and Numpy dependency)
+*   Python 3 implementation
+*   Cython version
+*   Pure Python for Pypy (without Pandas and Numpy dependency)
 
 ## Additional Info
 

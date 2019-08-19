@@ -4,7 +4,7 @@
    See https://bittrex.com/Home/Api
 
    Thanks to ericsomdahl.
-   
+
    Full repo available in https://github.com/ericsomdahl/python-bittrex
 """
 
