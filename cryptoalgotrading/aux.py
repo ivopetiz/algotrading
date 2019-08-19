@@ -366,6 +366,7 @@ def plot_data(data,
 
 def get_histdata_to_file(markets=[],
                          interval=var.default_interval,
+                         date_ =[0,0],
                          base_market='BTC',
                          exchange='bittrex',
                          filetype='csv'):
@@ -378,6 +379,8 @@ def get_histdata_to_file(markets=[],
     - market: list of str with markets.
     - interval: str with time between measures.
         Empty for default_interval.
+    - date_: list of str with init and end date.
+        Default is [0,0] for all data.
     - base_market: str with base market.
         Default is BTC.
     - exchange: str with crypto exchange.
@@ -398,7 +401,9 @@ def get_histdata_to_file(markets=[],
         log(verified_market, 2)
 
         data_ = get_historical_data(verified_market,
-                                    interval=interval, 
+                                    interval=interval,
+                                    init_date=date_[0],
+                                    end_date=date_[1],
                                     exchange=exchange)
         
         filename_ = var.data_dir + '/hist-' + \
