@@ -418,7 +418,7 @@ def get_histdata_to_file(markets=[],
             data_.to_csv(filename_ + filetype)
         elif filetype is 'hdf':
             data_.to_hdf(filename_ + filetype, 'data',
-                         mode='w', format='t',
+                         mode='w', format='f',
                          complevel=9, complib='bzip2')
         #TEST
         del data_

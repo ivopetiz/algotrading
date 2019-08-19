@@ -7,6 +7,7 @@ figs/*
 !figs/fig2_xrp.png
 hist-*
 !hist-10s/BTC-XRP.csv
+!hist-10s/BTC-DCT.hdf
 scripts/*
 data/*
 cryptoalgotrading.egg-info/*
@@ -17,5 +18,4 @@ cryptoalgotrading.egg-info/*
 parallel.py
 tmp/*
 pypy*
-df_*
 

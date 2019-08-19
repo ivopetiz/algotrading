@@ -94,8 +94,8 @@ class TestAux(unittest.TestCase):
         self.assertIsInstance(get_data_from_file("BTC-SRN",
                                                  interval='10m'),
                               pandas.core.frame.DataFrame)
-        self.assertIsInstance(get_data_from_file("BTC-SRN",
-                                                 interval='10m',
+        self.assertIsInstance(get_data_from_file("BTC-DCT",
+                                                 interval='10s',
                                                  filetype='hdf'),
                               pandas.core.frame.DataFrame)
 
