@@ -4,9 +4,8 @@ from cryptoalgotrading.cryptoalgotrading import backtest, backtest_market,\
                                                 is_time_to_buy, is_time_to_exit,\
                                                 tick_by_tick
 
-import cryptoalgotrading.entry as entry 
-import cryptoalgotrading.exit as exit
-
+import cryptoalgotrading.entry as entry
+import cryptoalgotrading.exit as exit_
 
 class TestCryptoalgotrading(unittest.TestCase):
 
@@ -34,15 +33,15 @@ class TestCryptoalgotrading(unittest.TestCase):
         q = get_data_from_file("BTC-XRP", interval='10m')
 
         self.assertEqual(is_time_to_exit(q[4778:4778+50],
-                                         [exit.cross_smas],
+                                         [exit_.cross_smas],
                                          [4,8,12], [4,8,12]),
                                          False)
         self.assertEqual(is_time_to_exit(q[4779:4779+50],
-                                         [exit.cross_smas],
+                                         [exit_.cross_smas],
                                          [4,8,12], [4,8,12]),
                                          True)
         self.assertEqual(is_time_to_exit(q[4780:4780+50],
-                                         [exit.cross_smas],
+                                         [exit_.cross_smas],
                                          [4,8,12], [4,8,12]),
                                          False)
 
@@ -50,19 +49,19 @@ class TestCryptoalgotrading(unittest.TestCase):
     def test_tick_by_tick(self):
         self.assertEqual(round(tick_by_tick("BTC-DGB",
                                 entry.cross_smas,
-                                exit.cross_smas,
+                                exit_.cross_smas,
                                 interval='10s',
                                 from_file=True,
                                 plot=False,
                                 refresh_interval=0.01),
                             2),
                         -32.08)
-                        
+
 
     def test_backtest(self):
         self.assertEqual(round(backtest(["BTC-XRP","BTC-SRN"],
                                   entry.cross_smas,
-                                  exit.cross_smas,
+                                  exit_.cross_smas,
                                   interval='10m',
                                   from_file=True,
                                   smas=[5,10,18]),
@@ -71,16 +70,16 @@ class TestCryptoalgotrading(unittest.TestCase):
 
         self.assertEqual(round(backtest("BTC-XRP",
                                   entry.cross_smas,
-                                  exit.cross_smas,
+                                  exit_.cross_smas,
                                   interval='10m',
                                   from_file=True,
                                   smas=[5,10,18]),
-                            2), 
+                            2),
                         -37.13)
 
         self.assertEqual(backtest("BTC-XRP",
                                   entry.cross_smas,
-                                  exit.cross_smas,
+                                  exit_.cross_smas,
                                   interval='10m',
                                   from_file=False,
                                   smas=[5,10,18]),
@@ -89,7 +88,7 @@ class TestCryptoalgotrading(unittest.TestCase):
 
     def test_backtest_market(self):
         self.assertEqual(round(backtest_market([entry.cross_smas],
-                                               [exit.cross_smas],
+                                               [exit_.cross_smas],
                                                '10m',
                                                [0,0],
                                                [5,10,18],

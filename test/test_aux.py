@@ -48,12 +48,12 @@ class TestAux(unittest.TestCase):
 
 
     def test_get_markets_list(self):
-        self.assertTrue(type(get_markets_list()) is list)
-        self.assertTrue(type(get_markets_list(base='BTC')) is list)
-        self.assertTrue(type(get_markets_list(exchange='binance',base='BTC')) is list)
-        self.assertTrue(type(get_markets_list(exchange='cryptopia')) is bool)
+        self.assertIsInstance(get_markets_list(),list)
+        self.assertIsInstance(get_markets_list(base='BTC'),list))
+        self.assertIsInstance(get_markets_list(exchange='binance',base='BTC'),list))
+        self.assertIsInstance(get_markets_list(exchange='cryptopia'),bool)
 
-
+get_markets_list.isinstance()
     def test_get_markets_on_files(self):
         self.assertItemsEqual(get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
 
@@ -74,7 +74,7 @@ class TestAux(unittest.TestCase):
     def test_plot_data(self):
         self.assertEqual(plot_data(get_data_from_file("BTC-SRN",
                                                       interval='10m'),
-                                                      to_file=True), 
+                                                      to_file=True),
                                                             True)
         self.assertEqual(plot_data(get_data_from_file("BTC-SRN",
                                                       interval='10m'),

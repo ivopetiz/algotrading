@@ -108,12 +108,12 @@ def tick_by_tick(market,
                  plot=False,
                  log_level=2):
     '''
-    Simulates a working bot, in realtime or in faster speed, 
+    Simulates a working bot, in realtime or in faster speed,
      using pre own data from DB or file,
      to test an autonomous bot on a specific market.
 
     Args:
-        markets(string): list with markets to backtest or 
+        markets(string): list with markets to backtest or
             empty to run all available markets.
         entry_funcs(list): list of entry functions to test.
         exit_funcs(list): list of entry functions to test.
@@ -121,7 +121,7 @@ def tick_by_tick(market,
         smas(list): list of SMA values to use.
         emas(list): list of EMA values to use.
         refresh_interval(int): Refresh rate.
-        main_coins(list): 
+        main_coins(list):
     '''
     #log_level:
     #   0 - Only presents total.
@@ -147,8 +147,8 @@ def tick_by_tick(market,
     exit_points_x = []
     exit_points_y = []
 
-    if type(entry_funcs) is not list: entry_funcs=[entry_funcs]
-    if type(exit_funcs) is not list: exit_funcs=[exit_funcs]
+    if not isinstance(entry_funcs, list): entry_funcs=[entry_funcs]
+    if not isinstance(exit_funcs, list): exit_funcs=[exit_funcs]
 
     print '[Market analysis]: ' + market + '\n'
 
@@ -342,7 +342,7 @@ def realtime(exchanges,
         for market in markets:
 
             # Needed to pass unicode to string.
-            # Binance 
+            # Binance
             if market.has_key('MarketName'):
                 market_name = 'BT_' + str(market['MarketName'])
             elif market.has_key('symbol'):
@@ -555,7 +555,7 @@ def backtest(markets,
     log(str(len(markets)) + " files/chunks to analyse...", 1, log_level)
 
     # Create a multiprocessing Pool
-    pool = Pool(num_processors(mp_level))  
+    pool = Pool(num_processors(mp_level))
 
     # Display information about pool.
     total = pool.map(partial(backtest_market,
@@ -716,8 +716,8 @@ def backtest_market(entry_funcs,
                 full_log += '[P&L] > ' + str(total) + '%.' + '\n'
 
     del data_init
-    
-    # Use plot_data for just a few markets. If you try to run plot_data for several markets, 
+
+    # Use plot_data for just a few markets. If you try to run plot_data for several markets,
     # computer can start run really slow.
     try:
         if plot:

@@ -230,7 +230,7 @@ class Bittrex(object):
         :rtype : dict
         """
         return self.api_query('getopenorders', {'market': market})
-    
+
     def get_order(self, uuid):
         return self.api_query('getorder', {'uuid': uuid})
 

@@ -386,7 +386,7 @@ def get_histdata_to_file(markets=[],
     - exchange: str with crypto exchange.
         Default is Bittrex.
     - filetype: str with filetype to save.
-        Default is csv 
+        Default is csv
 
     Returns:
     - 'True'
@@ -410,14 +410,14 @@ def get_histdata_to_file(markets=[],
                     interval + '/' + \
                     verified_market + '.'
 
-        if type(data_) is not DataFrame:
+        if not isinstance(data_, DataFrame):
             log("Couldn't get data", 0, 2)
             return False
 
         if filetype is 'csv':
             data_.to_csv(filename_ + filetype)
         elif filetype is 'hdf':
-            data_.to_hdf(filename_ + filetype, 'data', 
+            data_.to_hdf(filename_ + filetype, 'data',
                          mode='w', format='t',
                          complevel=9, complib='bzip2')
         #TEST
@@ -646,7 +646,7 @@ def log(message, level=1, func_level=2):
 
     Returns 0
     '''
-    
+
     if func_level >= level: debug(message)
     elif func_level > level: print message
     return 0

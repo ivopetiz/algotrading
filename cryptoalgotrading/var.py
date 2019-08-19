@@ -3,7 +3,7 @@
 
     Framework predefined variables.
 
-    It is important to define some environment variables before use this 
+    It is important to define some environment variables before use this
     framework if user wants to use DB and Exchanges' credentials.
 """
 
@@ -14,7 +14,7 @@ log = True
 global_log_level = 2
 
 # DATABASE VARIABLES
-# Best option should be define vars on system 
+# Best option should be define vars on system
 # and then get environment variables.
 try:
     db_user = environ['DB_USER']
@@ -62,7 +62,7 @@ main_coins=["BTC","USDT"]
 exchange = 'bittrex'
 
 try:
-    ky = environ['API_KEY'] 
+    ky = environ['API_KEY']
     sct= environ['API_SECRET']
 except Exception:
     print "Could not use environment variables for key and secret."

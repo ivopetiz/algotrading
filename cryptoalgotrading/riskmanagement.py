@@ -10,7 +10,7 @@ class RiskManagement:
     def __init__(self, key, secret):
         # connects to bittrex through Bittrex lib.
         self.conn = lib_bittrex.Bittrex(key, secret)
-        # min_limit represents minimum value account needs, in order to remain working. 
+        # min_limit represents minimum value account needs, in order to remain working.
         self.min_limit = 1000
         # risk represents percentage of money bot could use each time it buy coins.
         self.risk = 0.05
@@ -25,7 +25,7 @@ class RiskManagement:
 
 
     def get_all_balances(self):
-        # parser do get_balances       
+        # parser do get_balances
         return self.conn.get_balances()
 
 
@@ -64,7 +64,7 @@ class RiskManagement:
             else:
                 # Buy_limit didn't went as predicted.
                 return False, res["message"]
-        
+
         else:
             # Insufficient funds.
             return False, "Cash under Minimum limit."
@@ -74,5 +74,3 @@ class RiskManagement:
 
         self.conn.sell_limit(coin, quantity, rate)
         return True
-
-
