@@ -242,9 +242,9 @@ def tick_by_tick(market,
         #plt.plot(data.Last.iloc[i:i+50])
         #plt.draw()
         #plt.clf()
-        # In case of processing time is bigger than *refresh_interval* doesn't sleep.
 
-        if refresh_interval - (time()-start_time) > 0:
+        # In case of processing time is bigger than *refresh_interval* doesn't sleep.
+        if refresh_interval - (time()-start_time) >= 0:
             sleep(refresh_interval - (time()-start_time))
 
     return total
