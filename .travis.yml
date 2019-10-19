@@ -4,7 +4,7 @@ python:
  - "2.7"
 
 install:
- - pip install coverage coveralls pandas influxdb matplotlib numpy python-binance tables
+ - pip install coverage coveralls pandas influxdb matplotlib numpy python-binance tables==3.5.2
 
 script: 
  - coverage run --source=cryptoalgotrading setup.py test
