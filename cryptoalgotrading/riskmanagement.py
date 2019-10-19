@@ -37,7 +37,7 @@ class RiskManagement:
     def buy(self, coin, rate):
         # Verify if has sufficient funds.
         if self.available[coin.split('-')[0]] > self.min_limit:
-            
+
             # Calculate the amount of 'coin' to buy, based on rate and risk.
             to_spend = self.available[coin.split('-')[0]] * self.risk
             

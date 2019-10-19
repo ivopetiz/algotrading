@@ -88,7 +88,7 @@ def connect_db():
 
     # returning InfluxDBClient object.
     try:
-        conn = InfluxDBClient(var.db_host,
+        conn = DataFrameClient(var.db_host,
                               var.db_port,
                               var.db_user,
                               var.db_password,
@@ -594,7 +594,7 @@ def stop_loss(last, entry_point_x, percentage=5):
 def num_processors(level="medium"):
     '''
     Decides how many cores will use.
-    
+
     level options:
         low             = 1 core
         medium          = half of available cores.
@@ -602,6 +602,7 @@ def num_processors(level="medium"):
         max|extreme     = uses all available cores.
         <cores number>  = uses the number of cores specified.
     '''
+
     mp = cpu_count()
     n_threads = 0
 
