@@ -20,7 +20,7 @@ from pandas import read_csv, read_hdf, DataFrame
 from time import time, localtime
 from datetime import datetime, timedelta
 from finance import bollinger_bands
-from influxdb import InfluxDBClient
+from influxdb import DataFrameClient
 from lib_bittrex import Bittrex
 from binance.client import Client as Binance
 from multiprocessing import cpu_count
@@ -222,8 +222,7 @@ def get_historical_data(market,
     db_client.close()
 
     # returning Pandas DataFrame.
-    #return pd.DataFrame(list(res.get_points(measurement=exchange)))
-    return detect_init(DataFrame(list(res.get_points(measurement=exchange))))
+    return res[exchange]
 
 
 def get_last_data(market,
