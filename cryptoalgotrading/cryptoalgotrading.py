@@ -27,7 +27,7 @@ from warnings import simplefilter
 from functools import partial
 #from matplotlib import animation
 from riskmanagement import RiskManagement
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 from aux import get_markets_list, \
                 log, Bittrex, stop_loss, trailing_stop_loss, \
                 timeit, safe, connect_db, get_markets_on_files, \
@@ -37,6 +37,9 @@ from aux import get_markets_list, \
                 binance2btrx
 
 #from __future__ import print_function
+
+manager = Manager()
+cached = manager.dict()
 
 
 def signal_handler(sig, frame):
@@ -523,6 +526,8 @@ def backtest(markets,
 
     signal.signal(signal.SIGINT, signal_handler)
 
+    #global cached
+
     if not from_file:
     # Connects to DB.
         try:
@@ -577,6 +582,12 @@ def backtest(markets,
 
     log(" Total > " + str(sum(total)), 1, log_level)
 
+    for k in cached:
+        if not cached[k]['last']:
+            del cached[k]
+        else:
+            cached[k]['last'] = cached[k]['last']-1
+
     return sum(total)
 
 
@@ -616,6 +627,8 @@ def backtest_market(entry_funcs,
     total = 0
 
     #market = check_market_name(market)
+    #global cached
+    is_cached = False 
 
     entry_points_x = []
     entry_points_y = []
@@ -646,30 +659,40 @@ def backtest_market(entry_funcs,
             data = data[date[0]:date[1]]
 
     else:
-        try:
-            data = get_historical_data(
-                                    market,
-                                    interval=interval,
-                                    init_date=_date[0],
-                                    end_date=_date[1])
-            date[0], date[1] = 0, len(data)
-            data_init = data
-        except Exception as e:
-            log(str(e), 0, log_level)
-            log('[ERROR] Can\'t find ' + market + ' in BD.', 0, log_level)
-            return 0
+        if cached.has_key(market) and \
+           cached[market]['interval'] == interval and \
+           cached[market]['init_date'] == _date[0] and \
+           cached[market]['end_date'] == _date[1]:
+            # Check if cached data is the same as you want.
+            data = cached[market]['data']
+            cached[market]['last'] = 2
+            is_cached = True
+        else:
+            try:
+                data = get_historical_data(
+                                        market,
+                                        interval=interval,
+                                        init_date=_date[0],
+                                        end_date=_date[1])
+                date[0], date[1] = 0, len(data)
+            except Exception as e:
+                log(str(e), 0, log_level)
+                log('[ERROR] Can\'t find ' + market + ' in BD.', 0, log_level)
+                return 1
             #continue
+
+        data_init = data
 
     aux_buy = False
     buy_price = 0
     high_price = 0
 
-    # Test for volume.
-    if data.BaseVolume.mean() < 20:
-        log(full_log, 1, log_level)
-        del data
-        del data_init
-        return 0
+#    # Test for volume.
+#    if data.BaseVolume.mean() < 20:
+#        log(full_log, 1, log_level)
+#        del data
+#        del data_init
+#        return 0
 
     #Tests several functions.
     for i in xrange(len(data)-50):
@@ -736,7 +759,14 @@ def backtest_market(entry_funcs,
     except Exception as e:
         log("[ERROR] Ploting data: " + str(e), 0, log_level)
 
-    del data
+    if not is_cached:
+        cached[market] = {'interval': interval,
+                          'init_date': _date[0],
+                          'end_date': _date[1],
+                          'data': data,
+                          'last': 2}
+    print cached
+    
     #if len(exit_points_x):
     #    log(market + ' > ' + str(total), log_level)
 
