@@ -40,10 +40,10 @@ class RiskManagement:
 
             # Calculate the amount of 'coin' to buy, based on rate and risk.
             to_spend = self.available[coin.split('-')[0]] * self.risk
-            
+
             # Buy_limit
             res = self.conn.buy_limit(coin, rate/to_spend, rate)
-            
+
             # Checks if the transaction is complete.
             if res["success"] == True:
                 # REMOVE SLEEP
