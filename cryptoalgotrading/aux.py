@@ -189,7 +189,7 @@ def get_historical_data(market,
         time += " AND time < \'" + end_date + "\'"
 
     # Gets data from Bittex exchange.
-    if exchange is 'bittrex':
+    if exchange == 'bittrex':
         command = "SELECT last(Last) AS Last," +\
             " last(BaseVolume) AS BaseVolume," +\
             " last(High) AS High," +\
@@ -203,7 +203,7 @@ def get_historical_data(market,
             "' GROUP BY time(" + interval + ")"
     
     # Gets data from Binance exchange.
-    elif exchange is 'binance':
+    elif exchange == 'binance':
         command = "SELECT last(Last) AS Last," +\
             " last(BaseVolume) AS BaseVolume," +\
             " last(High) AS High," +\
@@ -214,7 +214,6 @@ def get_historical_data(market,
             " AND MarketName='" + verified_market + \
             "' GROUP BY time(" + interval + ")"
 
-    #print command
     db_client = connect_db()
 
     res = db_client.query(command)

@@ -492,6 +492,7 @@ def backtest(markets,
              plot=False,
              to_file=True,
              from_file=False,
+             exchange="bittrex",
              base_market='BTC',
              log_level=1,
              mp_level="medium"):
@@ -545,7 +546,7 @@ def backtest(markets,
             if from_file:
                 markets = get_markets_on_files(interval, base=base_market)
             else:
-                markets = get_markets_list(base=base_market)
+                markets = get_markets_list(base_market, exchange)
         else:
             log("Without files to analyse.", 0, log_level)
 
@@ -573,6 +574,7 @@ def backtest(markets,
                              from_file,
                              to_file,
                              plot,
+                             exchange,
                              db_client,
                              log_level),
                              markets)
@@ -600,6 +602,7 @@ def backtest_market(entry_funcs,
                     from_file,
                     to_file,
                     plot,
+                    exchange,
                     db_client,
                     log_level,
                     market):
@@ -671,9 +674,10 @@ def backtest_market(entry_funcs,
             try:
                 data = get_historical_data(
                                         market,
-                                        interval=interval,
-                                        init_date=_date[0],
-                                        end_date=_date[1])
+                                        interval = interval,
+                                        init_date =_date[0],
+                                        end_date =_date[1],
+                                        exchange = exchange)
                 date[0], date[1] = 0, len(data)
             except Exception as e:
                 log(str(e), 0, log_level)
@@ -765,8 +769,7 @@ def backtest_market(entry_funcs,
                           'end_date': _date[1],
                           'data': data,
                           'last': 2}
-    print cached
-    
+
     #if len(exit_points_x):
     #    log(market + ' > ' + str(total), log_level)
 
