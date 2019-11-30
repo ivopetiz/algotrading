@@ -201,26 +201,26 @@ def tick_by_tick(market,
         start_time = time()
         #print data_init.Last.iloc[i]
         if not aux_buy:
-            if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
+            if is_time_to_buy(data[i:i+110], entry_funcs, smas, emas):
 
                 buy_price = data_init.Ask.iloc[i + 109 + date[0]]
                 high_price = buy_price
 
-                entry_points_x.append(i + 49)
-                entry_points_y.append(data_init.Ask.iloc[i + 49 + date[0]])
+                entry_points_x.append(i + 109)
+                entry_points_y.append(data_init.Ask.iloc[i + 109 + date[0]])
 
                 if exit_funcs:
                     aux_buy = True
 
-                print str(data_init.time.iloc[i + 49 + date[0]]) + \
-                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 49 + date[0]]) + '\n'
+                print str(data_init.time.iloc[i + 109 + date[0]]) + \
+                    ' [BUY] @ ' + str(data_init.Ask.iloc[i + 109 + date[0]]) + '\n'
 
         else:
             # Used for trailing stop loss.
-            if data_init.Last.iloc[i + 49 + date[0]] > high_price:
-                high_price = data_init.Last.iloc[i + 49 + date[0]]
+            if data_init.Last.iloc[i + 109 + date[0]] > high_price:
+                high_price = data_init.Last.iloc[i + 109 + date[0]]
 
-            if is_time_to_exit(data[i:i+50],
+            if is_time_to_exit(data[i:i+110],
                             exit_funcs,
                             smas,
                             emas,
@@ -228,17 +228,17 @@ def tick_by_tick(market,
                             bought_at=buy_price,
                             max_price=high_price):
 
-                exit_points_x.append(i+49)
-                exit_points_y.append(data_init.Bid.iloc[i + 49 + date[0]])
+                exit_points_x.append(i+109)
+                exit_points_y.append(data_init.Bid.iloc[i + 109 + date[0]])
 
                 aux_buy = False
 
-                total += round(((data_init.Bid.iloc[i + 49 + date[0]] -
+                total += round(((data_init.Bid.iloc[i + 109 + date[0]] -
                                 buy_price) /
                                 buy_price)*100, 2)
 
-                print str(data_init.time.iloc[i + 49 + date[0]]) + \
-                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 49 + date[0]]) + '\n'
+                print str(data_init.time.iloc[i + 109 + date[0]]) + \
+                    ' [SELL]@ ' + str(data_init.Bid.iloc[i + 109 + date[0]]) + '\n'
 
                 print '[P&L] > ' + str(total) + '%.' + '\n'
 
