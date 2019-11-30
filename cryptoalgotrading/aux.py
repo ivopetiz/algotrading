@@ -155,6 +155,7 @@ def get_markets_on_files(interval, base='BTC'):
     return markets_list
 
 
+@dropnan
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
@@ -347,7 +348,10 @@ def plot_data(data,
 
     ax2.bar(x, data.BaseVolume.iloc[:], 1, color='black', alpha=0.55)
 
-    ax3.plot(x, data.OpenSell.iloc[:])
+    try:
+        ax3.plot(x, data.OpenSell.iloc[:])
+    except:
+        ax3.plot(x, data.High.iloc[:])
 
     plt.xlim(date[0], end_date)
     plt.tight_layout()
@@ -426,7 +430,7 @@ def get_histdata_to_file(markets=[],
 
 # Use it if you got too much NaN in your data.
 # Will make your func slower!
-#@dropnan
+@dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
