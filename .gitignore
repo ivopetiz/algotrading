@@ -25,4 +25,4 @@ cryptoalgotrading.egg-info/*
 parallel.py
 tmp/*
 pypy*
-
+.pytest_cache
