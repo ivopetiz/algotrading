@@ -214,7 +214,6 @@ def get_historical_data(market,
             " AND MarketName='" + verified_market + \
             "' GROUP BY time(" + interval + ")"
 
-    #print command
     db_client = connect_db()
 
     res = db_client.query(command)
@@ -519,7 +518,7 @@ def time_to_index(data, _datetime):
     try:
         d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
     except e as err:
-        print err
+        print(err)
         return (0,0)
 
     return d.index[0], d.index[-1]
@@ -648,7 +647,7 @@ def log(message, level=1, func_level=2):
     '''
 
     if func_level >= level: debug(message)
-    elif func_level > level: print message
+    elif func_level > level: print(message)
     return 0
 
 
