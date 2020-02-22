@@ -14,15 +14,15 @@ class TestCryptoalgotrading(unittest.TestCase):
 
         q = get_data_from_file("BTC-XRP", interval='10m')
 
-        self.assertEqual(is_time_to_buy(q[4416:4416+50],
+        self.assertEqual(is_time_to_buy(q[4416:4416+110],
                                         [entry.cross_smas],
                                         [4,8,12], [4,8,12]),
                                          False)
-        self.assertEqual(is_time_to_buy(q[4417:4417+50],
+        self.assertEqual(is_time_to_buy(q[4417:4417+110],
                                         [entry.cross_smas],
                                         [4,8,12], [4,8,12]),
                                          True)
-        self.assertEqual(is_time_to_buy(q[4418:4418+50],
+        self.assertEqual(is_time_to_buy(q[4418:4418+110],
                                         [entry.cross_smas],
                                         [4,8,12], [4,8,12]),
                                          False)
@@ -32,15 +32,15 @@ class TestCryptoalgotrading(unittest.TestCase):
 
         q = get_data_from_file("BTC-XRP", interval='10m')
 
-        self.assertEqual(is_time_to_exit(q[4778:4778+50],
+        self.assertEqual(is_time_to_exit(q[4778:4778+110],
                                          [exit_.cross_smas],
                                          [4,8,12], [4,8,12]),
                                          False)
-        self.assertEqual(is_time_to_exit(q[4779:4779+50],
+        self.assertEqual(is_time_to_exit(q[4779:4779+110],
                                          [exit_.cross_smas],
                                          [4,8,12], [4,8,12]),
                                          True)
-        self.assertEqual(is_time_to_exit(q[4780:4780+50],
+        self.assertEqual(is_time_to_exit(q[4780:4780+110],
                                          [exit_.cross_smas],
                                          [4,8,12], [4,8,12]),
                                          False)
@@ -96,6 +96,7 @@ class TestCryptoalgotrading(unittest.TestCase):
                                                True,
                                                False,
                                                False,
+                                               'bittrex',
                                                0,
 					                           1,
                                                "BTC-XRP"),

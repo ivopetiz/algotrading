@@ -20,7 +20,7 @@ from pandas import read_csv, read_hdf, DataFrame
 from time import time, localtime
 from datetime import datetime, timedelta
 from finance import bollinger_bands
-from influxdb import DataFrameClient
+from influxdb import InfluxDBClient
 from lib_bittrex import Bittrex
 from binance.client import Client as Binance
 from multiprocessing import cpu_count
@@ -88,7 +88,7 @@ def connect_db():
 
     # returning InfluxDBClient object.
     try:
-        conn = DataFrameClient(var.db_host,
+        conn = InfluxDBClient(var.db_host,
                               var.db_port,
                               var.db_user,
                               var.db_password,
@@ -155,6 +155,7 @@ def get_markets_on_files(interval, base='BTC'):
     return markets_list
 
 
+@dropnan
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
@@ -189,7 +190,7 @@ def get_historical_data(market,
         time += " AND time < \'" + end_date + "\'"
 
     # Gets data from Bittex exchange.
-    if exchange is 'bittrex':
+    if exchange == 'bittrex':
         command = "SELECT last(Last) AS Last," +\
             " last(BaseVolume) AS BaseVolume," +\
             " last(High) AS High," +\
@@ -203,7 +204,7 @@ def get_historical_data(market,
             "' GROUP BY time(" + interval + ")"
     
     # Gets data from Binance exchange.
-    elif exchange is 'binance':
+    elif exchange == 'binance':
         command = "SELECT last(Last) AS Last," +\
             " last(BaseVolume) AS BaseVolume," +\
             " last(High) AS High," +\
@@ -221,7 +222,7 @@ def get_historical_data(market,
     db_client.close()
 
     # returning Pandas DataFrame.
-    return res[exchange]
+    return detect_init(DataFrame(list(res.get_points(measurement=exchange))))
 
 
 def get_last_data(market,
@@ -347,7 +348,10 @@ def plot_data(data,
 
     ax2.bar(x, data.BaseVolume.iloc[:], 1, color='black', alpha=0.55)
 
-    ax3.plot(x, data.OpenSell.iloc[:])
+    try:
+        ax3.plot(x, data.OpenSell.iloc[:])
+    except:
+        ax3.plot(x, data.High.iloc[:])
 
     plt.xlim(date[0], end_date)
     plt.tight_layout()
@@ -426,7 +430,7 @@ def get_histdata_to_file(markets=[],
 
 # Use it if you got too much NaN in your data.
 # Will make your func slower!
-#@dropnan
+@dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
