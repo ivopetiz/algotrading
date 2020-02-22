@@ -194,7 +194,7 @@ def tick_by_tick(market,
     #plt.show()
 
     #Tests several functions.
-    for i in xrange(len(data)-50):
+    for i in range(len(data)-50):
         start_time = time()
         #print(data_init.Last.iloc[i])
         if not aux_buy:
@@ -672,7 +672,7 @@ def backtest_market(entry_funcs,
         return 0
 
     #Tests several functions.
-    for i in xrange(len(data)-50):
+    for i in range(len(data)-50):
         if not aux_buy:
             if is_time_to_buy(data[i:i+50], entry_funcs, smas, emas):
 

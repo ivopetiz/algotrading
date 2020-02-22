@@ -265,7 +265,7 @@ def detect_init(data):
     '''
     
     #TODO try to implement this on DB query.
-    for i in xrange(len(data)):
+    for i in range(len(data)):
         #TODO remove numpy lib and use other method to detect NaN.
         if not isnan(data.Last.iloc[i]):
             return data[i:len(data)]
@@ -629,8 +629,12 @@ def beep(duration=0.5):
     Used to alert for possible manual entry or exit.
     '''
     freq = 440  # Hz
-    system('play --no-show-progress --null --channels 1 synth %s sine %f' %
-              (duration, freq))
+    try:
+        # Play need to be installed.
+        system('play --no-show-progress --null --channels 1 synth %s sine %f' %
+                  (duration, freq))
+    except:
+        print("Play not installed.")
 
     return 0
 
