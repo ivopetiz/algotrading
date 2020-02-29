@@ -21,8 +21,8 @@ try:
     db_password = environ['DB_PASSWD']
     db_name = environ['DB_NAME']
 
-except:
-    #log("Could not use environment user and password variables.", 0)
+except Exception as e:
+    print("Could not use environment user and password variables.", e)
     db_user = "user"
     db_password = "passwd"
     db_name = "bd"
@@ -64,12 +64,12 @@ exchange = 'bittrex'
 try:
     ky = environ['API_KEY']
     sct= environ['API_SECRET']
-except Exception:
-    print("Could not use environment variables for key and secret.")
+except Exception as e:
+    print("Could not use environment variables for key and secret.", e)
     #pass
 
 # Add API Key and API Secret as variables if needed.
 #try:
 #    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
-#except:
+#except Exception as e:
 #    bt = lib_bittrex.Bittrex("","")

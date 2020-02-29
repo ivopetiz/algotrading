@@ -3,7 +3,7 @@
 """
 
 import time
-import cryptoalgotrading.lib_bittrex
+#import cryptoalgotrading.lib_bittrex
 
 class RiskManagement:
 
@@ -32,7 +32,7 @@ class RiskManagement:
     def get_coin_balance(self, coin):
         return self.conn.get_balance(coin)["result"]["Available"], \
                self.conn.get_balance(coin)["result"]["Pending"]
-        
+
 
     def buy(self, coin, rate):
         # Verify if has sufficient funds.
@@ -45,7 +45,7 @@ class RiskManagement:
             res = self.conn.buy_limit(coin, rate/to_spend, rate)
 
             # Checks if the transaction is complete.
-            if res["success"] == True:
+            if res["success"]:
                 # REMOVE SLEEP
                 time.sleep(1)
                 order = self.conn.get_order(res["result"]["uuid"])

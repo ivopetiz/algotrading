@@ -305,12 +305,12 @@ def realtime(exchanges,
     if "bittrex" in exchanges:
         if simulation:
             bt = Bittrex('', '')
-            print("Starting Bot with Bittrex", 1, log_level)
+            print("Starting Bot with Bittrex")
         else:
             try:
                 bt = RiskManagement(var.ky, var.sct)
-            except:
-                print("[Error] Couldn't connect to Bittrex", 0, log_level)
+            except Exception as e:
+                print("[Error] Couldn't connect to Bittrex", e)
                 nr_exchanges -=1
             
     # Binance exchange
@@ -320,15 +320,15 @@ def realtime(exchanges,
             # T E M P
             try:
                 bnb = Binance.set('', '')
-                print("Starting Bot with Binance", 1, log_level)
-            except:
-                print("[Error] Couldn't connect to Binance", 0, log_level)
+                print("Starting Bot with Binance")
+            except Exception as e:
+                print("[Error] Couldn't connect to Binance", e)
         else:
             print("Can't use Binance exchange in real scenario, just simulation.")
             sys.exit(1)
             #try:
             #    bnb = RiskManagement(var.ky, var.sct)
-            #except:
+            #except Exception as e:
             #    print("[Error] Couldn't connect to Binance", 0, log_level)
             #    nr_exchanges -=1
 
@@ -750,16 +750,16 @@ def backtest_market(entry_funcs,
     try:
         if plot:
             plot_data(data,
-                        name=market,
-                        date=[0,0],
-                        smas=smas,
-                        emas=[],
-                        entry_points=(entry_points_x, entry_points_y),
-                        exit_points=(exit_points_x,exit_points_y),
-                        show_smas=True,
-                        show_emas=True,
-                        show_bbands=False,
-                        to_file=to_file)
+                      name=market,
+                      date=[0,0],
+                      smas=smas,
+                      emas=None,
+                      entry_points=(entry_points_x, entry_points_y),
+                      exit_points=(exit_points_x,exit_points_y),
+                      show_smas=True,
+                      show_emas=True,
+                      show_bbands=False,
+                      to_file=to_file)
 
     except Exception as e:
         log("[ERROR] Ploting data: " + str(e), 0, log_level)

@@ -121,7 +121,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
             bt = Bittrex('', '')
             log("[INFO] Connected to Bittrex." , 1)
             ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
-        except:
+        except Exception as e:
             log("[ERROR] Connecting to Bittrex..." , 0)
     
     elif exchange=='binance':
@@ -129,7 +129,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
             bnb = Binance('','')
             log("[INFO] Connected to Binance." , 1)
             ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
-        except:
+        except Exception as e:
             log("[ERROR] Connecting to Binance..." , 0)
     return ret
 
@@ -277,8 +277,8 @@ def plot_data(data,
               date=[0, 0],
               smas=var.default_smas,
               emas=var.default_emas,
-              entry_points=[],
-              exit_points=[],
+              entry_points=None,
+              exit_points=None,
               market_name='',
               to_file=False,
               show_smas=False,
@@ -330,7 +330,7 @@ def plot_data(data,
         for ema in emas:
             ax1.plot(x, data.Last.ewm(ema).mean())
 
-    if len(entry_points):
+    if entry_points:
         ax1.plot(entry_points[0],
                  entry_points[1],
                  marker='o',
@@ -338,7 +338,7 @@ def plot_data(data,
                  color='green',
                  alpha=0.75)
 
-    if len(exit_points):
+    if exit_points:
         ax1.plot(exit_points[0],
                  exit_points[1],
                  marker='o',
@@ -350,7 +350,7 @@ def plot_data(data,
 
     try:
         ax3.plot(x, data.OpenSell.iloc[:])
-    except:
+    except Exception as e:
         ax3.plot(x, data.High.iloc[:])
 
     plt.xlim(date[0], end_date)
@@ -366,7 +366,7 @@ def plot_data(data,
     return True
 
 
-def get_histdata_to_file(markets=[],
+def get_histdata_to_file(markets=None,
                          interval=var.default_interval,
                          date_ =[0,0],
                          base_market='BTC',
@@ -396,7 +396,8 @@ def get_histdata_to_file(markets=[],
 
     if isinstance(markets,str): markets = [markets]
 
-    if not markets: markets = get_markets_list(base_market, exchange)
+    if not markets: 
+        markets = get_markets_list(base_market, exchange)
 
     for market in markets:
         verified_market = check_market_name(market, exchange=exchange)
@@ -507,7 +508,7 @@ def time_to_index(data, _datetime):
 
         try:
             t_day, t_month, t_year = t_date.split('-')
-        except:
+        except Exception as e:
             t_day, t_month = t_date.split('-')
             t_year = localtime(time())[0]
 
@@ -539,14 +540,14 @@ def get_time_right(date_n_time):
     if '-' in date_n_time:
         try:
             t_day, t_month, t_year = t_date.split('-')
-        except:
+        except Exception as e:
             t_day, t_month = t_date.split('-')
             t_year = str(localtime()[0])
 
     elif '/' in date_n_time:
         try:
             t_day, t_month, t_year = t_date.split('/')
-        except:
+        except Exception as e:
             t_day, t_month = t_date.split('/')
             t_year = str(localtime()[0])
 
@@ -637,8 +638,8 @@ def beep(duration=0.5):
         # Play need to be installed.
         system('play --no-show-progress --null --channels 1 synth %s sine %f' %
                   (duration, freq))
-    except:
-        print("Play not installed.")
+    except Exception as e:
+        print(e, "Couldn't play beep.")
 
     return 0
 
