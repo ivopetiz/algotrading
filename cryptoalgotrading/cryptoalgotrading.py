@@ -51,7 +51,7 @@ def signal_handler(sig, frame):
 simplefilter(action='ignore', category=FutureWarning)
 
 
-@safe
+#@safe
 def is_time_to_exit(data,
                     funcs,
                     smas=var.default_smas,
@@ -85,7 +85,7 @@ def is_time_to_exit(data,
     return False
 
 
-@safe
+#@safe
 def is_time_to_buy(data,
                    funcs,
                    smas=var.default_smas,
@@ -347,9 +347,9 @@ def realtime(exchanges,
 
             # Needed to pass unicode to string.
             # Binance
-            if market.has_key('MarketName'):
+            if 'MarketName' in market:
                 market_name = 'BT_' + str(market['MarketName'])
-            elif market.has_key('symbol'):
+            elif 'symbol' in market:
                 market = binance2btrx(market)
                 market_name = 'BN_' + market['MarketName']
 
@@ -663,7 +663,7 @@ def backtest_market(entry_funcs,
             data = data[date[0]:date[1]]
 
     else:
-        if cached.has_key(market) and \
+        if market in cached and \
            cached[market]['interval'] == interval and \
            cached[market]['init_date'] == _date[0] and \
            cached[market]['end_date'] == _date[1]:
@@ -683,7 +683,7 @@ def backtest_market(entry_funcs,
             except Exception as e:
                 log(str(e), 0, log_level)
                 log('[ERROR] Can\'t find ' + market + ' in BD.', 0, log_level)
-                return 1
+                return 0
             #continue
 
         data_init = data

@@ -155,7 +155,7 @@ def get_markets_on_files(interval, base='BTC'):
     return markets_list
 
 
-@dropnan
+#@dropnan
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
@@ -430,7 +430,7 @@ def get_histdata_to_file(markets=[],
 
 # Use it if you got too much NaN in your data.
 # Will make your func slower!
-@dropnan
+#@dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
