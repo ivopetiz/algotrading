@@ -5,7 +5,7 @@
 """
 
 import os
-import var
+import cryptoalgotrading.var as var
 import sys
 import matplotlib as mpl
 if os.environ.get('DISPLAY','') == '':
@@ -19,9 +19,9 @@ from numpy import isnan
 from pandas import read_csv, read_hdf, DataFrame
 from time import time, localtime
 from datetime import datetime, timedelta
-from finance import bollinger_bands
+from cryptoalgotrading.finance import bollinger_bands
 from influxdb import InfluxDBClient
-from lib_bittrex import Bittrex
+from cryptoalgotrading.lib_bittrex import Bittrex
 from binance.client import Client as Binance
 from multiprocessing import cpu_count
 from logging import basicConfig, debug, DEBUG
@@ -612,7 +612,7 @@ def num_processors(level="medium"):
     if level == "low":
         n_threads = 1
     elif level == "medium":
-        n_threads = mp/2
+        n_threads = int(mp/2)
     elif level == "high":
         n_threads = mp-1
     elif level == "extreme" or level == "max":
@@ -620,7 +620,7 @@ def num_processors(level="medium"):
     elif isinstance(level,int) and 0<level<=mp:
         n_threads = level
     else:
-        n_threads = mp/2
+        n_threads = int(mp/2)
 
     log("[INFO] Using " + str(n_threads) + " threads.", 1)
 

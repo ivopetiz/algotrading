@@ -65,7 +65,7 @@ try:
     ky = environ['API_KEY']
     sct= environ['API_SECRET']
 except Exception:
-    print "Could not use environment variables for key and secret."
+    print("Could not use environment variables for key and secret.")
     #pass
 
 # Add API Key and API Secret as variables if needed.

@@ -3,7 +3,7 @@
 """
 
 import time
-import lib_bittrex
+import cryptoalgotrading.lib_bittrex
 
 class RiskManagement:
 

@@ -14,7 +14,7 @@
 #   break big files into smaller ones.
 #   backtest based on pandas.Dataframe.
 
-import var
+import cryptoalgotrading.var as var
 import sys
 import signal
 
@@ -26,9 +26,10 @@ from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
 #from matplotlib import animation
-from riskmanagement import RiskManagement
+from cryptoalgotrading.riskmanagement import RiskManagement
 from multiprocessing import Pool, Manager
-from aux import get_markets_list, \
+#import cryptoalgotrading.aux as
+from cryptoalgotrading.aux import get_markets_list, \
                 log, Bittrex, stop_loss, trailing_stop_loss, \
                 timeit, safe, connect_db, get_markets_on_files, \
                 manage_files, num_processors, plot_data, \
@@ -318,7 +319,7 @@ def realtime(exchanges,
             
             # T E M P
             try:
-                bnb = Binance('', '')
+                bnb = Binance.set('', '')
                 print("Starting Bot with Binance", 1, log_level)
             except:
                 print("[Error] Couldn't connect to Binance", 0, log_level)
