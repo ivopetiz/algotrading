@@ -1,46 +1,46 @@
 import unittest
 import pandas
 from cryptoalgotrading.var import data_dir
-from cryptoalgotrading.aux import *
+import cryptoalgotrading.aux as aux
 
 class TestAux(unittest.TestCase):
 
 
     def test_trailing_stop_loss(self):
-        self.assertEqual(trailing_stop_loss(100, 110, 11), False)
-        self.assertEqual(trailing_stop_loss(100, 110, 10), False)
-        self.assertEqual(trailing_stop_loss(100, 110, 9), True)
+        self.assertEqual(aux.trailing_stop_loss(100, 110, 11), False)
+        self.assertEqual(aux.trailing_stop_loss(100, 110, 10), False)
+        self.assertEqual(aux.trailing_stop_loss(100, 110, 9), True)
 
 
     def test_stop_loss(self):
-        self.assertEqual(stop_loss(100, 110, 11), False)
-        self.assertEqual(stop_loss(100, 110, 10), False)
-        self.assertEqual(stop_loss(100, 110, 9), True)
+        self.assertEqual(aux.stop_loss(100, 110, 11), False)
+        self.assertEqual(aux.stop_loss(100, 110, 10), False)
+        self.assertEqual(aux.stop_loss(100, 110, 9), True)
 
 
     def test_check_market_name(self):
-        self.assertEqual(check_market_name("ETH"), "BTC-ETH")
-        self.assertEqual(check_market_name("go"),"BTC-GO")
-        self.assertEqual(check_market_name("gobtc",exchange='binance'),"GOBTC")
+        self.assertEqual(aux.check_market_name("ETH"), "BTC-ETH")
+        self.assertEqual(aux.check_market_name("go"),"BTC-GO")
+        self.assertEqual(aux.check_market_name("gobtc",exchange='binance'),"GOBTC")
 
     def test_get_time_right(self):
-        self.assertEqual(get_time_right("1-2-2018"), '2018-2-1T00:00:00Z')
-        self.assertEqual(get_time_right("1-2-2018 23:23"), '2018-2-1T23:23:00Z')
-        self.assertEqual(get_time_right("1/2/2018 22:22"), '2018-2-1T22:22:00Z')
-        self.assertEqual(get_time_right("1/2"), '2020-2-1T00:00:00Z')
-        self.assertEqual(get_time_right("1-2"), '2020-2-1T00:00:00Z')
+        self.assertEqual(aux.get_time_right("1-2-2018"), '2018-2-1T00:00:00Z')
+        self.assertEqual(aux.get_time_right("1-2-2018 23:23"), '2018-2-1T23:23:00Z')
+        self.assertEqual(aux.get_time_right("1/2/2018 22:22"), '2018-2-1T22:22:00Z')
+        self.assertEqual(aux.get_time_right("1/2"), '2020-2-1T00:00:00Z')
+        self.assertEqual(aux.get_time_right("1-2"), '2020-2-1T00:00:00Z')
 
 
     def test_num_processors(self):
-        self.assertEqual(num_processors("low"), 1)
-        self.assertEqual(num_processors(2), 2)
+        self.assertEqual(aux.num_processors("low"), 1)
+        self.assertEqual(aux.num_processors(2), 2)
 
     def test_beep(self):
-        self.assertEqual(beep(), 0)
+        self.assertEqual(aux.beep(), 0)
 
 
     def test_log(self):
-        self.assertEqual(log("Running unit tests..."), 0)
+        self.assertEqual(aux.log("Running unit tests..."), 0)
 
 
     #def test_connect_db(self):
@@ -48,13 +48,13 @@ class TestAux(unittest.TestCase):
 
 
     def test_get_markets_list(self):
-        self.assertIsInstance(get_markets_list(),list)
-        self.assertIsInstance(get_markets_list(base='BTC'),list)
-        self.assertIsInstance(get_markets_list(exchange='binance',base='BTC'),list)
-        self.assertIsInstance(get_markets_list(exchange='cryptopia'),bool)
+        self.assertIsInstance(aux.get_markets_list(),list)
+        self.assertIsInstance(aux.get_markets_list(base='BTC'),list)
+        self.assertIsInstance(aux.get_markets_list(exchange='binance',base='BTC'),list)
+        self.assertIsInstance(aux.get_markets_list(exchange='cryptopia'),bool)
 
     def test_get_markets_on_files(self):
-        self.assertItemsEqual(get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
+        self.assertCountEqual(aux.get_markets_on_files('10m'), ["BTC-SRN","BTC-XRP"])
 
 
     #def test_get_historical_data(self):
@@ -66,16 +66,16 @@ class TestAux(unittest.TestCase):
 
 
     def test_detect_init(self):
-        self.assertIsInstance(detect_init(get_data_from_file("BTC-SRN",interval='10m')),
+        self.assertIsInstance(aux.detect_init(aux.get_data_from_file("BTC-SRN",interval='10m')),
                                           pandas.core.frame.DataFrame)
 
 
     def test_plot_data(self):
-        self.assertEqual(plot_data(get_data_from_file("BTC-SRN",
+        self.assertEqual(aux.plot_data(aux.get_data_from_file("BTC-SRN",
                                                       interval='10m'),
                                                       to_file=True),
                                                             True)
-        self.assertEqual(plot_data(get_data_from_file("BTC-SRN",
+        self.assertEqual(aux.plot_data(aux.get_data_from_file("BTC-SRN",
                                                       interval='10m'),
                                                       entry_points=[10,30,50],
                                                       exit_points=[20,40,60],
@@ -91,19 +91,19 @@ class TestAux(unittest.TestCase):
 
 
     def test_get_data_from_file(self):
-        self.assertIsInstance(get_data_from_file("BTC-SRN",
+        self.assertIsInstance(aux.get_data_from_file("BTC-SRN",
                                                  interval='10m'),
                               pandas.core.frame.DataFrame)
-        self.assertIsInstance(get_data_from_file("BTC-DCT",
+        self.assertIsInstance(aux.get_data_from_file("BTC-DCT",
                                                  interval='10s',
                                                  filetype='hdf'),
                               pandas.core.frame.DataFrame)
 
     def test_time_to_index(self):
-        self.assertEqual(time_to_index(get_data_from_file("BTC-SRN",interval='10m'),
+        self.assertEqual(aux.time_to_index(aux.get_data_from_file("BTC-SRN",interval='10m'),
                                                         ['01-03-2018','04-03-2018']),
                                                             (33568, 33998))
-        self.assertEqual(time_to_index(get_data_from_file("BTC-SRN",interval='10m'),
+        self.assertEqual(aux.time_to_index(aux.get_data_from_file("BTC-SRN",interval='10m'),
                                                         ['01-03-2018 00:00','04-03-2018']),
                                                             (33568, 33998))
 
@@ -111,16 +111,16 @@ class TestAux(unittest.TestCase):
     #    self.assertEqual(timeit(),)
 
     def test_file_lines(self):
-        self.assertEqual(file_lines(data_dir + "/hist-10s/BTC-DGB.csv"), 5088)
+        self.assertEqual(aux.file_lines(data_dir + "/hist-10s/BTC-DGB.csv"), 5088)
 
 
     def test_manage_files(self):
-        self.assertEqual(manage_files(["BTC-XRP"],'10m'),['BTC-XRP'])
-        self.assertEqual(manage_files(["BTC-XXX"],'10m'),[])
+        self.assertEqual(aux.manage_files(["BTC-XRP"],'10m'),['BTC-XRP'])
+        self.assertEqual(aux.manage_files(["BTC-XXX"],'10m'),[])
 
 
     def test_binance2btrx(self):
-        self.assertEqual(binance2btrx({'symbol': 'TIETABTC',
+        self.assertEqual(aux.binance2btrx({'symbol': 'TIETABTC',
                                        'askPrice': '12',
                                        'bidPrice': '11',
                                        'count': '333',
