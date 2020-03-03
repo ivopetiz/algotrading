@@ -1,8 +1,8 @@
 # Crypto AlgoTrading Framework
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dfad2f1a06c744eeb4efcdef8ee9d6e0)](https://app.codacy.com/app/ivopetiz/crypto-algotrading?utm_source=github.com&utm_medium=referral&utm_content=ivopetiz/crypto-algotrading&utm_campaign=Badge_Grade_Dashboard)
-[![Build Status](https://travis-ci.com/ivopetiz/crypto-algotrading.svg?branch=master)](https://travis-ci.com/ivopetiz/crypto-algotrading)
-[![Coverage Status](https://coveralls.io/repos/github/ivopetiz/crypto-algotrading/badge.svg?branch=master)](https://coveralls.io/github/ivopetiz/crypto-algotrading?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dfad2f1a06c744eeb4efcdef8ee9d6e0)](https://app.codacy.com/app/ivopetiz/algotrading?utm_source=github.com&utm_medium=referral&utm_content=ivopetiz/crypto-algotrading&utm_campaign=Badge_Grade_Dashboard)
+[![Build Status](https://travis-ci.com/ivopetiz/algotrading.svg?branch=master)](https://travis-ci.com/ivopetiz/algotrading)
+[![Coverage Status](https://coveralls.io/repos/github/ivopetiz/algotrading/badge.svg?branch=master)](https://coveralls.io/github/ivopetiz/algotrading?branch=master)
 
 ## Algorithmic trading framework for cryptocurrencies in Python
 
