@@ -557,8 +557,9 @@ def backtest(markets,
     if not isinstance(exit_funcs,list): exit_funcs=[exit_funcs]
 
     # For selected markets.
-    if from_file: markets = manage_files(markets, interval=interval)
-    
+    if from_file: 
+        markets = manage_files(markets, interval=interval)
+
     log(str(len(markets)) + " files/chunks to analyse...", 1, log_level)
 
     # Create a multiprocessing Pool

@@ -396,7 +396,7 @@ def get_histdata_to_file(markets=None,
 
     if isinstance(markets,str): markets = [markets]
 
-    if not markets: 
+    if not markets:
         markets = get_markets_list(base_market, exchange)
 
     for market in markets:
@@ -540,7 +540,7 @@ def get_time_right(date_n_time):
     if '-' in date_n_time:
         try:
             t_day, t_month, t_year = t_date.split('-')
-        except Exception as e:
+        except Exception:
             t_day, t_month = t_date.split('-')
             t_year = str(localtime()[0])
 

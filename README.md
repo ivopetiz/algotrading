@@ -209,9 +209,10 @@ This Crypto AlgoTrading Framework can be used with Pypy, but the results will no
 
 ## TODO
 
-*   Python 3 implementation
-*   Cython version
-*   Pure Python for Pypy (without Pandas and Numpy dependency)
+- [ ] Add ByBit API
+- [x] Python 3 implementation
+- [ ] Cython version
+- [ ] Pure Python for Pypy (without Pandas and Numpy dependency)
 
 ## Additional Info
 
