@@ -9,7 +9,7 @@ import cryptoalgotrading.var as var
 import sys
 import matplotlib as mpl
 if os.environ.get('DISPLAY','') == '':
-    print('no display found. Using non-interactive Agg backend')
+    print(f'No display found. Using non-interactive Agg backend')
     mpl.use('Agg')
 
 import matplotlib.pylab as plt
@@ -522,8 +522,8 @@ def time_to_index(data, _datetime):
 
     try:
         d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
-    except e as err:
-        print(err)
+    except Exception as e:
+        print(f'{e}')
         return (0,0)
 
     return d.index[0], d.index[-1]
@@ -639,7 +639,7 @@ def beep(duration=0.5):
         system('play --no-show-progress --null --channels 1 synth %s sine %f' %
                   (duration, freq))
     except Exception as e:
-        print(e, "Couldn't play beep.")
+        print(f"Couldn't play beep-> {e}")
 
     return 0
 

@@ -22,7 +22,7 @@ try:
     db_name = environ['DB_NAME']
 
 except Exception as e:
-    print("Could not use environment user and password variables.", e)
+    print(f"Could not use environment user and password variables-> {e}")
     db_user = "user"
     db_password = "passwd"
     db_name = "bd"
@@ -65,7 +65,7 @@ try:
     ky = environ['API_KEY']
     sct= environ['API_SECRET']
 except Exception as e:
-    print("Could not use environment variables for key and secret.", e)
+    print(f"Could not use environment variables for key and secret->{e}")
     #pass
 
 # Add API Key and API Secret as variables if needed.
