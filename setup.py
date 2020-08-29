@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 __title__ = "cryptoalgotrading"
 __description__ = "Algotrading framework for crypto currencies"
-__url__ = "https://github.com/ivopetiz/crypto-algotrading"
+__url__ = "https://github.com/ivopetiz/algotrading"
 __author_email__ = "ivopetiz@gmail.com"
 __license__ = "MIT"
 
