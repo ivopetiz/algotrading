@@ -8,6 +8,8 @@
 
 Algotrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or CSV files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
+[A Medium story dedicated to this project](https://ivopetiz.medium.com/my-algorithmic-trading-project-f5d2eb2dbb5a)
+
 *   [Operating modes](#operating-modes)
     *   [Realtime](#realtime)
     *   [Tick-by-tick](#tick-by-tick)
