@@ -6,7 +6,9 @@
 
 ## Algorithmic trading framework for cryptocurrencies in Python
 
-Crypto AlgoTrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or csv files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
+Algotrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or CSV files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
+
+[A Medium story dedicated to this project](https://ivopetiz.medium.com/my-algorithmic-trading-project-f5d2eb2dbb5a)
 
 *   [Operating modes](#operating-modes)
     *   [Realtime](#realtime)
@@ -43,7 +45,7 @@ Crypto AlgoTrading Framework is a repository with tools to build and run working
 ___
 ## Operating modes
 
-Framework has 3 operating modes:
+Framework has three operating modes:
 
 *   Realtime -- Trades with real data in real time, with real money or in simulation mode.
 *   Tick-by-tick -- Testing strategies in real time frames, so user can follow its entries and exits strategies.
@@ -51,22 +53,21 @@ Framework has 3 operating modes:
 
 ### Realtime
 
-In realtime, Trading Bot operates in real time, with live data from exchanges APIs. It doesn't need pre stored data or DB to work.
-In this mode, bot can trade real money, simulate or alert user when is time to buy or sell, based on entry and exit strategies defined by user. Can also simulate user's strategies and present the results in real time.
+In realtime, Trading Bot operates in real-time, with live data from exchanges APIs. It doesn't need pre-stored data or DB to work. In this mode, a bot can trade real money, simulate or alert the user when its time to buy or sell, based on entry and exit strategies defined by the user. Can also simulate users strategies and present the results in real-time.
 
 ### Tick-by-tick
 
-Tick-by-tick mode allows users to check strategies in a visible timeframe, to better check entries and exit points or to detect strategies faults or new entry and exit points. Uses data from csv files or DB.
+Tick-by-tick mode allows users to check strategies in a visible timeframe, to better check entries and exit points or to detect strategies faults or new entry and exit points. Use data from CSV files or DB.
 
 ### Backtest
 
-Allows users to backtest strategies, with previous stored data. Can also plot trading data showing entry and exit points for implemented strategies.
+Allows users to backtest strategies, with previously stored data. Can also plot trading data showing entry and exit points for implemented strategies.
 
 ## How to start
 
 ### Pre requisites
 
-In order to get crypto-algotrading fully working is necessary to install some packages and Python libs, as IPython, Pandas, Matplotlib, Numpy, Python-Influxdb and Python-tk. 
+To get algotrading fully working is necessary to install some packages and Python libs, as IPython, Pandas, Matplotlib, Numpy, Python-Influxdb and Python-tk. 
 On Linux machines these packages could be installed with:
 
 ```bash
@@ -75,8 +76,8 @@ pip install -r requirements.txt
 
 ### Collecting data
 
-First step is to collect data. To get markets data is necessary to run a DB, to get and manage all data or save the data to CSV files.
-There are 2 options:
+The first step is to collect data. To get markets data is necessary to run a DB, to get and manage all data or save the data to CSV files. 
+There are two options:
 
 *   Install and configure a database.
 *   Run a script to collect data and save it to CSV files.
@@ -97,10 +98,10 @@ https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a
 
 ## Entry functions
 
-Entry functions aggregate all strategies to enter in a specific market. Once data fill all the requisites to enter a specific market, an action is taken.
-Users can use one or several functions in the same call, in order to fill the requesites and enter market/markets.
-Functions should return *True*, if the available data represent an exit point for user. If not the return need to be *False*.
-<entry.py> should aggregate all users' entry functions.
+Entry functions aggregate all strategies to enter in a specific market. Once data fill all the requisites to enter a specific market, an action is taken. 
+Users can use one or several functions in the same call, to fill the requisites and enter market/markets. 
+Functions should return *True*, if the available data represent an exit point for the user. If not, the return needs to be *False*.
+<entry.py> should aggregate all users entry functions.
 
 ### Example
 
@@ -124,10 +125,9 @@ def cross_smas(data, smas=[5, 10]):
 
 ## Exit functions
 
-Exit functions has all functions responsible for exit strategies. When user is in the market and data met an exit criteria, bot will exit market.
-Exit functions can be used with other exit functions, to cover more situations, as used in entry functions.
-Stop loss and trailing stop loss are also implemented, in order to exit markets in case of unexpected price drop.
-Functions should return *True*, if the available data represent an exit point for user. If not the return need to be *False*.
+Exit functions have all functions responsible for exit strategies. When a user is in the market, and data met exit criteria, the bot will exit the market. 
+Exit functions can be used with other exit functions, to cover more situations, as used in entry functions. 
+Stop loss and trailing stop loss are also implemented, to exit markets in case of an unexpected price drop. Functions should return *True*, if the available data represent an exit point for the user. If not, the return needs to be *False*.
 <exit.py> should aggregate all users' exit functions.
 
 ### Example
@@ -194,10 +194,10 @@ Based on market data available for BTC_XRP pair, code above can present an outpu
 
 ![testing strategy on BTC-XRP pair data.](figs/fig2_xrp.png)
 
-Figure has 3 charts. The chart on top presents on top BTC-XRP data from a certain period, with its Bollinguer bands and 3 SMA lines. Green points represent the entry points for the defined strategy. In the middle is a chart representing volume data and at the bottom is represented the number of selling orders among time. All these fields and charts are configurable on *plot* function.
+The figure has three charts. The chart on top presents on top BTC-XRP data from a certain period, with its Bollinger bands and 3 SMA lines. Green points represent the entry points for the defined strategy. In the middle is a chart representing volume data and at the bottom is represented the number of selling orders among time. All these fields and charts are configurable on *plot* function.
 
-Can also add exit points by adding an exit function or functions to backtest function.
-It is possible to enter multiple entry and exit functions to backtest, in order to define different entry and exit positions.
+Can also add exit points by adding an exit function or functions to backtest function. 
+It is possible to enter multiple entries and exit functions to backtest, to define different entry and exit positions.
 
 Both functions are available on entry.py and exit.py as example.
 
