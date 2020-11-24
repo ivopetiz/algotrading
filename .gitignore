@@ -28,3 +28,4 @@ parallel.py
 tmp
 pypy*
 .pytest_cache
+.idea/

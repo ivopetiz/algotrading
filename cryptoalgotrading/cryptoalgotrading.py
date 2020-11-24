@@ -51,7 +51,7 @@ def signal_handler(sig, frame):
 simplefilter(action='ignore', category=FutureWarning)
 
 
-#@safe
+@safe
 def is_time_to_exit(data,
                     funcs,
                     smas=var.default_smas,
@@ -85,7 +85,7 @@ def is_time_to_exit(data,
     return False
 
 
-#@safe
+@safe
 def is_time_to_buy(data,
                    funcs,
                    smas=var.default_smas,
