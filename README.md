@@ -100,7 +100,7 @@ https://gist.github.com/ivopetiz/051eb8dcef769e655254df21a093831a
 
 Entry functions aggregate all strategies to enter in a specific market. Once data fill all the requisites to enter a specific market, an action is taken. 
 Users can use one or several functions in the same call, to fill the requisites and enter market/markets. 
-Functions should return *True*, if the available data represent an exit point for the user. If not, the return needs to be *False*.
+Functions should return *True*, if the available data represent an entry point for the user. If not, the return needs to be *False*.
 <entry.py> should aggregate all users entry functions.
 
 ### Example
