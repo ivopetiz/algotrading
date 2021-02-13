@@ -1,10 +1,12 @@
 language: python
 
 python:
- - "3.85"
+ - "3.8"
+ - "3.9"
 
 install:
- - pip install coverage coveralls pandas influxdb matplotlib numpy==1.16.5 python-binance tables==3.5.2
+  - pip install -r requirements.txt
+  # - pip install coverage coveralls pandas influxdb matplotlib numpy==1.16.5 python-binance tables==3.5.2
 
 script: 
  - coverage run --source=cryptoalgotrading setup.py test
