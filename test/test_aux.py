@@ -27,8 +27,8 @@ class TestAux(unittest.TestCase):
         self.assertEqual(aux.get_time_right("1-2-2018"), '2018-2-1T00:00:00Z')
         self.assertEqual(aux.get_time_right("1-2-2018 23:23"), '2018-2-1T23:23:00Z')
         self.assertEqual(aux.get_time_right("1/2/2018 22:22"), '2018-2-1T22:22:00Z')
-        self.assertEqual(aux.get_time_right("1/2"), '2020-2-1T00:00:00Z')
-        self.assertEqual(aux.get_time_right("1-2"), '2020-2-1T00:00:00Z')
+        self.assertEqual(aux.get_time_right("1/2"), '2021-2-1T00:00:00Z')
+        self.assertEqual(aux.get_time_right("1-2"), '2021-2-1T00:00:00Z')
 
 
     def test_num_processors(self):
