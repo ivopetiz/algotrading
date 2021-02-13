@@ -12,6 +12,9 @@ if os.environ.get('DISPLAY','') == '':
     print(f'No display found. Using non-interactive Agg backend')
     mpl.use('Agg')
 
+mpl.rcParams['text.usetex'] = False
+mpl.rcParams['font.family'] = 'DejaVu Sans'
+
 import matplotlib.pylab as plt
 
 from os import system, listdir, path
@@ -311,9 +314,8 @@ def plot_data(data,
         end_date = date[1]
 
     x = range(date[0], end_date)
-
     ax1.plot(x, data.Last, color='black', linewidth=1, alpha=0.65)
-
+    
     if show_bbands:
         bb_upper, bb_lower, bb_sma = bollinger_bands(data.Last, 10, 2)
         #ax1.plot(x, bb_upper, color='red', linestyle='none', linewidth=1)
@@ -321,7 +323,6 @@ def plot_data(data,
 
         ax1.fill_between(x, bb_sma, bb_upper, color='green', alpha=0.3)
         ax1.fill_between(x, bb_lower, bb_sma, color='red', alpha=0.3)
-
     if show_smas:
         for sma in smas:
             ax1.plot(x, data.Last.rolling(sma).mean())
@@ -337,7 +338,6 @@ def plot_data(data,
                  linestyle='None',
                  color='green',
                  alpha=0.75)
-
     if exit_points:
         ax1.plot(exit_points[0],
                  exit_points[1],
@@ -345,7 +345,6 @@ def plot_data(data,
                  linestyle='None',
                  color='red',
                  alpha=0.75)
-
     ax2.bar(x, data.BaseVolume.iloc[:], 1, color='black', alpha=0.55)
 
     try:
@@ -417,9 +416,9 @@ def get_histdata_to_file(markets=None,
             log("Couldn't get data", 0, 2)
             return False
 
-        if filetype is 'csv':
+        if filetype == 'csv':
             data_.to_csv(filename_ + filetype)
-        elif filetype is 'hdf':
+        elif filetype == 'hdf':
             data_.to_hdf(filename_ + filetype, 'data',
                          mode='w', format='f',
                          complevel=9, complib='bzip2')
@@ -456,9 +455,9 @@ def get_data_from_file(market,
     filename_ = var.data_dir + '/hist-' + interval \
                 + '/' + verified_market + '.' + filetype
 
-    if filetype is 'csv':
+    if filetype == 'csv':
         return read_csv(filename_, sep=',', engine='c', index_col=0) # Optimized.
-    elif filetype is 'hdf':
+    elif filetype == 'hdf':
         return read_hdf(filename_,'data')
     else: return 0
 
@@ -698,6 +697,8 @@ def file_lines(filename):
     while buf:
         lines += buf.count('\n')
         buf = read_f(buf_size)
+
+    f.close()
 
     return lines
 

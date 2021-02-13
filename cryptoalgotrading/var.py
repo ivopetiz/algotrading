@@ -7,7 +7,7 @@
     framework if user wants to use DB and Exchanges' credentials.
 """
 
-from os import environ, getenv
+from os import getenv
 #import lib_bittrex
 
 log = True
@@ -33,22 +33,22 @@ db_port = getenv('db_port') or 8086
 # interval must be coincident with Influxdb intervals.
 default_interval = '10m'
 
-default_smas = [10,20,30]
-default_emas = [2,4,8]
-default_volume_smas = [3,6]
-default_volume_emas = [3,6]
+default_smas = [10, 20, 30]
+default_emas = [2, 4, 8]
+default_volume_smas = [3, 6]
+default_volume_emas = [3, 6]
 default_mom = 4
 
 validade = 50
 refresh_interval = 60 # interval in seconds.
 
 # pairs first market.
-main_coins=["BTC","USDT"]
+main_coins = ["BTC", "USDT"]
 
 exchange = 'bittrex'
 
 ky = getenv('API_KEY') or ""
-sct= getenv('API_SECRET') or ""
+sct = getenv('API_SECRET') or ""
 
 # Add API Key and API Secret as variables if needed.
 #try:

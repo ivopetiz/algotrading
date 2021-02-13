@@ -687,12 +687,12 @@ def backtest_market(entry_funcs,
     buy_price = 0
     high_price = 0
 
-#    # Test for volume.
-#    if data.BaseVolume.mean() < 20:
-#        log(full_log, 1, log_level)
-#        del data
-#        del data_init
-#        return 0
+    ## Test for volume.
+    #if data.BaseVolume.mean() < 20:
+    #    log(full_log, 1, log_level)
+    #    del data
+    #    del data_init
+    #    return 0
 
     #Tests several functions.
     for i in range(len(data)-110):
