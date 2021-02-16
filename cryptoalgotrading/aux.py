@@ -8,12 +8,16 @@ import os
 import cryptoalgotrading.var as var
 import sys
 import matplotlib as mpl
+from matplotlib import rc
 if os.environ.get('DISPLAY','') == '':
     print(f'No display found. Using non-interactive Agg backend')
     mpl.use('Agg')
 
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+## for Palatino and other serif fonts use:
+#rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
 mpl.rcParams['text.usetex'] = False
-mpl.rcParams['font.family'] = 'DejaVu Sans'
 
 import matplotlib.pylab as plt
 
@@ -158,7 +162,7 @@ def get_markets_on_files(interval, base='BTC'):
     return markets_list
 
 
-#@dropnan
+@dropnan
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
@@ -323,9 +327,11 @@ def plot_data(data,
 
         ax1.fill_between(x, bb_sma, bb_upper, color='green', alpha=0.3)
         ax1.fill_between(x, bb_lower, bb_sma, color='red', alpha=0.3)
+    
     if show_smas:
         for sma in smas:
             ax1.plot(x, data.Last.rolling(sma).mean())
+
 
     if show_emas:
         for ema in emas:
@@ -337,14 +343,14 @@ def plot_data(data,
                  marker='o',
                  linestyle='None',
                  color='green',
-                 alpha=0.75)
+                 alpha=0.55)
     if exit_points:
         ax1.plot(exit_points[0],
                  exit_points[1],
                  marker='o',
                  linestyle='None',
                  color='red',
-                 alpha=0.75)
+                 alpha=0.45)
     ax2.bar(x, data.BaseVolume.iloc[:], 1, color='black', alpha=0.55)
 
     try:
@@ -430,7 +436,7 @@ def get_histdata_to_file(markets=None,
 
 # Use it if you got too much NaN in your data.
 # Will make your func slower!
-#@dropnan
+@dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
@@ -559,7 +565,7 @@ def get_time_right(date_n_time):
         t_minute + ':00Z'
 
 
-def trailing_stop_loss(last, higher, percentage=10):
+def trailing_stop_loss(last, higher, percentage=5):
     '''
     Trailing stop loss function.
     
