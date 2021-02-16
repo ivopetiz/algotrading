@@ -36,8 +36,7 @@ from cryptoalgotrading.aux import get_markets_list, \
                 check_market_name, get_data_from_file, \
                 time_to_index, get_historical_data, \
                 binance2btrx
-
-#from __future__ import print_function
+import logging as log
 
 manager = Manager()
 cached = manager.dict()
@@ -529,7 +528,7 @@ def backtest(markets,
         try:
             db_client = connect_db()
         except Exception as e:
-            log(str(e), 0, log_level)
+            log.exception(e)
             sys.exit(1)
     else:
         db_client = 0
@@ -543,7 +542,7 @@ def backtest(markets,
             else:
                 markets = get_markets_list(base_market, exchange)
         else:
-            log("Without files to analyse.", 0, log_level)
+            log.error("Without files to analyse.")
 
     # Prevents errors from markets and funcs as str.
     if not isinstance(markets,list): markets=[markets]
@@ -554,7 +553,7 @@ def backtest(markets,
     if from_file: 
         markets = manage_files(markets, interval=interval)
 
-    log(str(len(markets)) + " files/chunks to analyse...", 1, log_level)
+    log.info(str(len(markets)) + " files/chunks to analyse...")
 
     # Create a multiprocessing Pool
     pool = Pool(num_processors(mp_level))
@@ -578,7 +577,7 @@ def backtest(markets,
     pool.close()
     pool.join()
 
-    log(" Total > " + str(sum(total)), 1, log_level)
+    log.info(" Total > " + str(sum(total)))
 
     for k in cached.keys():
         if cached[k]['last'] < 1:
@@ -641,8 +640,8 @@ def backtest_market(entry_funcs,
         try:
             data = get_data_from_file(market, interval=interval)
         except Exception as e:
-            log(str(e), 0, log_level)
-            log('[ERROR] Can\'t find ' + market + ' in files.', 0, log_level)
+            log.exception(e)
+            log.error(f"Can\'t find {market} in files")
             return 0
 
         data_init = data
@@ -676,8 +675,8 @@ def backtest_market(entry_funcs,
                                         exchange = exchange)
                 date[0], date[1] = 0, len(data)
             except Exception as e:
-                log(str(e), 0, log_level)
-                log('[ERROR] Can\'t find ' + market + ' in BD.', 0, log_level)
+                log.exception(e)
+                log.error(f"Can't find {market} in BD")
                 return 0
             #continue
 
@@ -757,7 +756,8 @@ def backtest_market(entry_funcs,
                       to_file=to_file)
 
     except Exception as e:
-        log("[ERROR] Ploting data: " + str(e), 0, log_level)
+        log.error("Ploting data")
+        log.exception(e)
 
     if not is_cached:
         cached[market] = {'interval': interval,
@@ -769,12 +769,12 @@ def backtest_market(entry_funcs,
     #if len(exit_points_x):
     #    log(market + ' > ' + str(total), log_level)
 
-    log('[' + market + '][TOTAL]> ' + str(total)  + '%.', 0, log_level)
+    log.info(f"[{market}][TOTAL]> {total:.2}")
 
-    log(full_log, 1, log_level)
+    log.info(full_log)
 
     if isnan(total):
-        log("[ERROR] Total is isnan", 0, log_level)
+        log.error("Total is isnan")
         return 0
 
     return total

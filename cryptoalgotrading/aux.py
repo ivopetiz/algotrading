@@ -31,17 +31,18 @@ from influxdb import InfluxDBClient
 from cryptoalgotrading.lib_bittrex import Bittrex
 from binance.client import Client as Binance
 from multiprocessing import cpu_count
-from logging import basicConfig, debug, DEBUG
+import logging as log 
+#basicConfig, debug, DEBUG
 
 #plt.ion()
 
 #plt.style.use('ggplot')
 
 # Initiates log file.
-basicConfig(filename=var.LOG_FILENAME,
+log.basicConfig(filename=var.LOG_FILENAME,
                     format='%(asctime)s - %(message)s',
                     datefmt='%d/%m/%Y %H:%M:%S',
-                    level=DEBUG)
+                    level=log.DEBUG)
 
 
 #####################################################################
@@ -55,7 +56,7 @@ def timeit(method):
         result = method(*args, **kw)
         te = time()
 
-        log('Duration: %2.2f sec' % (te-ts), 1)
+        log.info('Duration: %2.2f sec' % (te-ts))
         return result
 
     return timed
@@ -70,7 +71,7 @@ def safe(method):
             return method(*args, **kw)
 
         except Exception as e:
-            log(str(e), 2)
+            log.exception(e)
 
         #return result
     return ret
@@ -101,8 +102,8 @@ def connect_db():
                               var.db_password,
                               var.db_name)
 
-    except Exception as err:
-        log("[ERROR] " + str(err), 0)
+    except Exception as e:
+        log.exception(e)
         sys.exit(1)
 
     return conn
@@ -126,18 +127,18 @@ def get_markets_list(base='BTC', exchange='bittrex'):
     if exchange=='bittrex':
         try:
             bt = Bittrex('', '')
-            log("[INFO] Connected to Bittrex." , 1)
+            log.debug("Connected to Bittrex.")
             ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
         except Exception as e:
-            log("[ERROR] Connecting to Bittrex..." , 0)
+            log.exception(f"Connecting to Bittrex - {e}")
     
     elif exchange=='binance':
         try:
             bnb = Binance('','')
-            log("[INFO] Connected to Binance." , 1)
+            log.debug("Connected to Binance.")
             ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
         except Exception as e:
-            log("[ERROR] Connecting to Binance..." , 0)
+            log.exception(f"Connecting to Binance - {e}")
     return ret
 
 
@@ -406,7 +407,7 @@ def get_histdata_to_file(markets=None,
 
     for market in markets:
         verified_market = check_market_name(market, exchange=exchange)
-        log(verified_market, 2)
+        log.debug(verified_market)
 
         data_ = get_historical_data(verified_market,
                                     interval=interval,
@@ -419,7 +420,7 @@ def get_histdata_to_file(markets=None,
                     verified_market + '.'
 
         if not isinstance(data_, DataFrame):
-            log("Couldn't get data", 0, 2)
+            log.error("Couldn't get data")
             return False
 
         if filetype == 'csv':
@@ -430,7 +431,7 @@ def get_histdata_to_file(markets=None,
                          complevel=9, complib='bzip2')
         #TEST
         del data_
-        log(filename_ + filetype +" downloaded.", 0, 1)
+        log.info(filename_ + filetype +" downloaded.")
     
     return True
 
@@ -528,7 +529,7 @@ def time_to_index(data, _datetime):
     try:
         d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
     except Exception as e:
-        print(f'{e}')
+        log.exception(f"{e}")
         return (0,0)
 
     return d.index[0], d.index[-1]
@@ -649,22 +650,6 @@ def beep(duration=0.5):
     return 0
 
 
-def log(message, level=1, func_level=2):
-    '''
-    Log function to select the type of log will be done.
-
-    Receives:
-        - message: str
-        - level: int (default=2)
-
-    Returns 0
-    '''
-
-    if func_level >= level: debug(message)
-    elif func_level > level: print(message)
-    return 0
-
-
 def manage_files(markets, interval='1m'):
     '''
     Manage market files in order to improve framework performance.
@@ -676,8 +661,8 @@ def manage_files(markets, interval='1m'):
         markets_name.append(check_market_name(market))
 
     if not path.isdir(var.data_dir + "/hist-" + interval):
-    	log(var.data_dir + "/hist-" + \
-    		interval + "doesn't exist.",0)
+    	log.error(var.data_dir + "/hist-" + \
+    		interval + "doesn't exist.")
     	sys.exit(1)
 
     for f in listdir(var.data_dir + "/hist-" + interval):
