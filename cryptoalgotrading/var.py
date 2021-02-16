@@ -10,9 +10,6 @@
 from os import getenv
 #import lib_bittrex
 
-log = True
-global_log_level = 2
-
 # DATABASE VARIABLES
 # Best option should be define vars on system
 # and then get environment variables.
