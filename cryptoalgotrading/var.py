@@ -4,11 +4,11 @@
     Framework predefined variables.
 
     It is important to define some environment variables before use this
-    framework if user wants to use DB and Exchanges' credentials.
+    framework, if user wants to use DB and Exchanges' credentials.
 """
 
 from os import getenv
-#import lib_bittrex
+
 
 # DATABASE VARIABLES
 # Best option should be define vars on system
@@ -47,8 +47,5 @@ exchange = 'bittrex'
 ky = getenv('API_KEY') or ""
 sct = getenv('API_SECRET') or ""
 
-# Add API Key and API Secret as variables if needed.
-#try:
-#    bt = lib_bittrex.Bittrex(environ['API_KEY'], environ['API_SECRET'])
-#except Exception as e:
-#    bt = lib_bittrex.Bittrex("","")
+bnc_ky = getenv('BNC_API_KEY') or ""
+bnc_sct = getenv('BNC_API_SECRET') or ""
