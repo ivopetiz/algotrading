@@ -352,6 +352,8 @@ def plot_data(data,
                  linestyle='None',
                  color='red',
                  alpha=0.45)
+    ax2.set_ylim((data.BaseVolume.min()-1,
+                  data.BaseVolume.max()+1))
     ax2.bar(x, data.BaseVolume.iloc[:], 1, color='black', alpha=0.55)
 
     try:
@@ -365,7 +367,7 @@ def plot_data(data,
     if to_file:
         if not name:
             name = 'fig_test' + str(time())
-        f.savefig(var.fig_dir + name + '.pdf', bbox_inches='tight')
+        f.savefig(f"{var.fig_dir}{name}-{str(time())}.pdf", bbox_inches='tight')
         plt.close(f)
     #plt.show()
 
@@ -618,8 +620,6 @@ def num_processors(level="medium"):
 
     if level == "low":
         n_threads = 1
-    elif level == "medium":
-        n_threads = int(mp/2)
     elif level == "high":
         n_threads = mp-1
     elif level == "extreme" or level == "max":
