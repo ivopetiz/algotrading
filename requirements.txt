@@ -10,7 +10,7 @@ influxdb==5.2.0
 ipython==5.7.0
 ipython-genutils==0.2.0
 kiwisolver==1.0.1
-matplotlib==2.2.2
+matplotlib==3.3.4
 numpy==1.16.5
 pandas==1.2.0
 pathlib2==2.3.2
@@ -28,7 +28,7 @@ scandir==1.7
 simplegeneric==0.8.1
 six==1.11.0
 subprocess32==3.5.2
-tables==3.5.2
+tables==3.6.1
 traitlets==4.3.2
 urllib3==1.24.2
 wcwidth==0.1.7
