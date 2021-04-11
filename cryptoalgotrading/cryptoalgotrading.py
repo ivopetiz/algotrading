@@ -25,10 +25,9 @@ from time import time, sleep
 from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
-#from matplotlib import animation
 from cryptoalgotrading.riskmanagement import RiskManagement
+from cryptoalgotrading.riskmanagement import Binance as Bnb
 from multiprocessing import Pool, Manager
-#import cryptoalgotrading.aux as
 from cryptoalgotrading.aux import get_markets_list, \
                 log, Bittrex, stop_loss, trailing_stop_loss, \
                 timeit, safe, connect_db, get_markets_on_files, \
@@ -43,7 +42,7 @@ cached = manager.dict()
 
 
 def signal_handler(sig, frame):
-    print(f'You pressed Ctrl+C!')
+    log.info(f"You pressed Ctrl+C!")
     sys.exit(0)
 
 # Prevents FutureWarning from Pandas.
@@ -153,14 +152,14 @@ def tick_by_tick(market,
     if not isinstance(entry_funcs, list): entry_funcs=[entry_funcs]
     if not isinstance(exit_funcs, list): exit_funcs=[exit_funcs]
 
-    print(f'[Market analysis]: {market}')
+    log.info(f"[Market analysis]: {market}")
 
     if from_file:
         try:
             data = get_data_from_file(market, interval=interval)
         except Exception as e:
-            log(str(e), 1)
-            log('[ERROR] Can\'t find ' + market + ' in files.', 1)
+            log.error(f"Unable to get data from file: {e}")
+            log.error(f"Unable to find {market} in files.")
             return 0
 
         data_init = data
@@ -185,10 +184,9 @@ def tick_by_tick(market,
             data_init = data
             
         except Exception as e:
-            log(str(e), 1)
-            log('[ERROR] Can\'t find ' + market + ' in BD.', 1)
+            log.error(f"Unable to get data from file: {e}")
+            log.error(f"Unable to find {market} in DB.")
             return 0
-            #continue
 
     aux_buy = False
     buy_price = 0
@@ -212,7 +210,7 @@ def tick_by_tick(market,
                 if exit_funcs:
                     aux_buy = True
 
-                print(f'''{data_init.time.iloc[i + 109 + date[0]]} \
+                log.info(f'''{data_init.time.iloc[i + 109 + date[0]]} \
                      [BUY] @ {data_init.Ask.iloc[i + 109 + date[0]]}''')
 
         else:
@@ -237,10 +235,10 @@ def tick_by_tick(market,
                                 buy_price) /
                                 buy_price)*100, 2)
 
-                print(f'''{data_init.time.iloc[i + 109 + date[0]]} \
+                log.info(f'''{data_init.time.iloc[i + 109 + date[0]]} \
                      [SELL]@ {data_init.Bid.iloc[i + 109 + date[0]]}''')
 
-                print(f'[P&L] > {total}%.')
+                log.info(f'[P&L] > {total}%.')
 
         #plt.plot(data.Last.iloc[i:i+50])
         #plt.draw()
@@ -304,43 +302,42 @@ def realtime(exchanges,
     if "bittrex" in exchanges:
         if simulation:
             bt = Bittrex('', '')
-            print(f"Starting Bot with Bittrex")
+            log.debug(f"Starting Bot with Bittrex")
         else:
             try:
                 bt = RiskManagement(var.ky, var.sct)
             except Exception as e:
-                print(f"[Error] Couldn't connect to Bittrex: {e}")
+                log.error(f"Unable to connect to Bittrex: {e}")
                 nr_exchanges -=1
             
     # Binance exchange
     if "binance" in exchanges:
         if simulation:
-            
-            # T E M P
             try:
-                bnb = Binance.set('', '')
-                print("Starting Bot with Binance")
+                bnb = Binance('', '')
+                log.info("Starting Bot with Binance")
             except Exception as e:
-                print(f"[Error] Couldn't connect to Binance: {e}")
+                log.error(f"Unable to connect to Binance: {e}")
         else:
-            print(f"Can't use Binance exchange in real scenario, just simulation.")
-            sys.exit(1)
-            #try:
-            #    bnb = RiskManagement(var.ky, var.sct)
-            #except Exception as e:
-            #    print("[Error] Couldn't connect to Binance", 0, log_level)
-            #    nr_exchanges -=1
+            #print(f"Can't use Binance exchange in real scenario, just simulation.")
+            #sys.exit(1)
+            try:
+                bnb = Bnb(var.bnb_ky, var.bnb_sct)
+            except Exception as e:
+                log.error(f"Unable to connect to Binance")
+                nr_exchanges -=1
 
     if not nr_exchanges:
         sys.exit(1)
 
+    markets = []
 
     while True:
 
         start_time = time()
 
-        markets = bt.get_market_summaries()['result']
-        markets += bnb.get_ticker()
+        if "bittrex" in exchanges: markets += bt.get_market_summaries()['result']
+        if "binance" in exchanges: markets += bnb.get_ticker()
 
         for market in markets:
 
@@ -408,25 +405,25 @@ def realtime(exchanges,
                             # M U D A R
                             sold_at = sell_res
 
-                            print(f'[SELL]@ {sold_at} > {market_name}')
+                            log.info(f'[SELL]@ {sold_at} > {market_name}')
 
                             res = ((sold_at - portfolio[market_name]['bought_at'])/\
                                     portfolio[market_name]['bought_at'])*100
 
-                            print(f'[P&L] {market_name}> {res:.2f}%.')
+                            log.info(f'[P&L] {market_name}> {res:.2f}%.')
 
 
                         # implementar binance
                         else:
                             #SIMULATION
-                            #print('> https://bittrex.com/Market/Index?MarketName=' + market_name)
+                            #log.info('> https://bittrex.com/Market/Index?MarketName=' + market_name)
 
-                            print(f'[SELL]@ {data.Bid.iloc[-1]} > {market_name}')
+                            log.info(f'[SELL]@ {data.Bid.iloc[-1]} > {market_name}')
 
                             res = ((data.Bid.iloc[-1] - portfolio[market_name]['bought_at'])/\
                                     portfolio[market_name]['bought_at'])*100
 
-                            print(f'[P&L] {market_name} > {res:.2f}%.')
+                            log.info(f'[P&L] {market_name} > {res:.2f}%.')
 
                         locals()[market_name].to_csv('df_' + market_name + '.csv')
                         del locals()[market_name]
@@ -452,10 +449,10 @@ def realtime(exchanges,
                                 portfolio[market_name]['quantity']  = msg[1]
                                 portfolio[market_name]['count']  = 0
 
-                                print(f'[BUY]@ {msg[0]} > {market_name}')
+                                log.info(f'[BUY]@ {msg[0]} > {market_name}')
 
                             else:
-                                print(f"[XXXX] Could not buy @ {data.Ask.iloc[-1] * 1.01} \
+                                log.info(f"[XXXX] Could not buy @ {data.Ask.iloc[-1] * 1.01} \
                                     [MSG>] {msg}")
 
                         else:
@@ -466,9 +463,9 @@ def realtime(exchanges,
                             portfolio[market_name]['quantity']  = 1
                             portfolio[market_name]['count']  = 0
 
-                            #print('> https://bittrex.com/Market/Index?MarketName='+market_name)
+                            #log.info('> https://bittrex.com/Market/Index?MarketName='+market_name)
 
-                            print(f'[BUY]@{data.Ask.iloc[-1]} > {market_name}')
+                            log.info(f'[BUY]@{data.Ask.iloc[-1]} > {market_name}')
 
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) > 0:
@@ -542,7 +539,7 @@ def backtest(markets,
             else:
                 markets = get_markets_list(base_market, exchange)
         else:
-            log.error("Without files to analyse.")
+            log.error(f"Without files to analyse.")
 
     # Prevents errors from markets and funcs as str.
     if not isinstance(markets,list): markets=[markets]
@@ -553,7 +550,7 @@ def backtest(markets,
     if from_file: 
         markets = manage_files(markets, interval=interval)
 
-    log.info(str(len(markets)) + " files/chunks to analyse...")
+    log.debug(f"{str(len(markets))} files/chunks to analyse...")
 
     # Create a multiprocessing Pool
     pool = Pool(num_processors(mp_level))
@@ -577,7 +574,7 @@ def backtest(markets,
     pool.close()
     pool.join()
 
-    log.info(" Total > " + str(sum(total)))
+    log.info(f" Total > {str(sum(total))}")
 
     for k in cached.keys():
         if cached[k]['last'] < 1:
@@ -676,7 +673,7 @@ def backtest_market(entry_funcs,
                 date[0], date[1] = 0, len(data)
             except Exception as e:
                 log.exception(e)
-                log.error(f"Can't find {market} in BD")
+                log.error(f"Unable to find {market} in BD.")
                 return 0
             #continue
 
@@ -756,8 +753,8 @@ def backtest_market(entry_funcs,
                       to_file=to_file)
 
     except Exception as e:
-        log.error("Ploting data")
         log.exception(e)
+        log.error(f"Unable to plot data.")
 
     if not is_cached:
         cached[market] = {'interval': interval,
@@ -769,9 +766,9 @@ def backtest_market(entry_funcs,
     #if len(exit_points_x):
     #    log(market + ' > ' + str(total), log_level)
 
-    log.info(f"[{market}][TOTAL]> {total:.2}")
+    log.info(f"[{market}][TOTAL]> {total:.2f}")
 
-    log.info(full_log)
+    log.debug(full_log)
 
     if isnan(total):
         log.error("Total is isnan")

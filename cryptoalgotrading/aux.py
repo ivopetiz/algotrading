@@ -40,9 +40,9 @@ import logging as log
 
 # Initiates log file.
 log.basicConfig(filename=var.LOG_FILENAME,
-                    format='%(asctime)s - %(message)s',
-                    datefmt='%d/%m/%Y %H:%M:%S',
-                    level=log.DEBUG)
+                format='%(asctime)s - %(message)s',
+                datefmt='%d/%m/%Y %H:%M:%S',
+                level=log.DEBUG)
 
 
 #####################################################################
@@ -56,7 +56,7 @@ def timeit(method):
         result = method(*args, **kw)
         te = time()
 
-        log.info('Duration: %2.2f sec' % (te-ts))
+        log.debug('Duration: %2.2f sec' % (te-ts))
         return result
 
     return timed
@@ -103,7 +103,7 @@ def connect_db():
                               var.db_name)
 
     except Exception as e:
-        log.exception(e)
+        log.exception(f"Unable to connect to DB: {e}")
         sys.exit(1)
 
     return conn
@@ -130,7 +130,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
             log.debug("Connected to Bittrex.")
             ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
         except Exception as e:
-            log.exception(f"Connecting to Bittrex - {e}")
+            log.exception(f"Unable to connect to Bittrex - {e}")
     
     elif exchange=='binance':
         try:
@@ -138,7 +138,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
             log.debug("Connected to Binance.")
             ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
         except Exception as e:
-            log.exception(f"Connecting to Binance - {e}")
+            log.exception(f"Unable to connect to Binance - {e}")
     return ret
 
 
@@ -156,14 +156,14 @@ def get_markets_on_files(interval, base='BTC'):
     '''
     markets_list=[]
 
-    for file_ in listdir(var.data_dir + '/hist-' + interval):
+    for file_ in listdir(f"{var.data_dir}/hist-{interval}"):
         if file_.startswith(base):
             markets_list.append(file_.split('.')[0])
 
     return markets_list
 
 
-@dropnan
+#@dropnan
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
@@ -426,14 +426,14 @@ def get_histdata_to_file(markets=None,
             return False
 
         if filetype == 'csv':
-            data_.to_csv(filename_ + filetype)
+            data_.to_csv(f"{filename_}{filetype}")
         elif filetype == 'hdf':
-            data_.to_hdf(filename_ + filetype, 'data',
+            data_.to_hdf(f"{filename_}{filetype}", 'data',
                          mode='w', format='f',
                          complevel=9, complib='bzip2')
         #TEST
         del data_
-        log.info(filename_ + filetype +" downloaded.")
+        log.info(f"{filename_}{filetype} downloaded.")
     
     return True
 
@@ -629,8 +629,7 @@ def num_processors(level="medium"):
     else:
         n_threads = int(mp/2)
 
-    log("[INFO] Using " + str(n_threads) + " threads.", 1)
-
+    log.info(f"Using {n_threads} threads.")
     return n_threads
 
 
@@ -642,10 +641,10 @@ def beep(duration=0.5):
     freq = 440  # Hz
     try:
         # Play need to be installed.
-        system('play --no-show-progress --null --channels 1 synth %s sine %f' %
-                  (duration, freq))
+        system(f"play --no-show-progress --null --channels 1 synth {duration} sine {freq}")
+
     except Exception as e:
-        print(f"Couldn't play beep-> {e}")
+        log.error(f"Couldn't play beep-> {e}")
 
     return 0
 
@@ -660,12 +659,11 @@ def manage_files(markets, interval='1m'):
     for market in markets:
         markets_name.append(check_market_name(market))
 
-    if not path.isdir(var.data_dir + "/hist-" + interval):
-    	log.error(var.data_dir + "/hist-" + \
-    		interval + "doesn't exist.")
+    if not path.isdir(f"{var.data_dir}/hist-{interval}"):
+    	log.error(f"{var.data_dir}/hist-{interval} doesn't exist.")
     	sys.exit(1)
 
-    for f in listdir(var.data_dir + "/hist-" + interval):
+    for f in listdir(f"{var.data_dir}/hist-{interval}"):
         for market in markets_name:
             if f.startswith(market):
                 all_files.append(f.split('.')[0])

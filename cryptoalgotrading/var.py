@@ -47,5 +47,5 @@ exchange = 'bittrex'
 ky = getenv('API_KEY') or ""
 sct = getenv('API_SECRET') or ""
 
-bnc_ky = getenv('BNC_API_KEY') or ""
-bnc_sct = getenv('BNC_API_SECRET') or ""
+bnb_ky = getenv('BNC_API_KEY') or ""
+bnb_sct = getenv('BNC_API_SECRET') or ""
