@@ -425,7 +425,7 @@ def realtime(exchanges,
 
                             log.info(f'[P&L] {market_name} > {res:.2f}%.')
 
-                        locals()[market_name].to_csv('df_' + market_name + '.csv')
+                        locals()[market_name].to_csv(f"df_{market_name}{data.time.iloc[-1]}.csv")
                         del locals()[market_name]
                         del portfolio[market_name]
                         coins.pop(market_name)
