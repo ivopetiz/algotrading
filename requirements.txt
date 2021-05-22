@@ -1,5 +1,6 @@
 backports.functools-lru-cache==1.5
 backports.shutil-get-terminal-size==1.0.0
+binance~=0.3
 certifi==2018.4.16
 chardet==3.0.4
 cycler==0.10.0
@@ -11,7 +12,7 @@ ipython==5.7.0
 ipython-genutils==0.2.0
 kiwisolver==1.0.1
 matplotlib==3.3.4
-numpy==1.16.5
+numpy~=1.19.4
 pandas==1.2.0
 pathlib2==2.3.2
 pexpect==4.6.0
@@ -23,12 +24,14 @@ pyparsing==2.2.0
 python-binance==0.7.1
 python-dateutil==2.7.3
 pytz==2018.5
-requests==2.20.0
+requests~=2.25.1
 scandir==1.7
 simplegeneric==0.8.1
 six==1.11.0
+setuptools~=45.2.0
 subprocess32==3.5.2
 tables==3.6.1
 traitlets==4.3.2
 urllib3==1.24.2
 wcwidth==0.1.7
+
