@@ -4,39 +4,36 @@
     Aux functions needed to do some data manipulation, plot data, etc.
 """
 
-import os
-import cryptoalgotrading.var as var
+from os import system, listdir, path, environ
 import sys
 import matplotlib as mpl
-from matplotlib import rc
-if os.environ.get('DISPLAY','') == '':
-    print(f'No display found. Using non-interactive Agg backend')
-    mpl.use('Agg')
-
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-## for Palatino and other serif fonts use:
-#rc('font',**{'family':'serif','serif':['Palatino']})
-rc('text', usetex=True)
-mpl.rcParams['text.usetex'] = False
-
-import matplotlib.pylab as plt
-
-from os import system, listdir, path
 from numpy import isnan
 from pandas import read_csv, read_hdf, DataFrame
 from time import time, localtime
 from datetime import datetime, timedelta
+import cryptoalgotrading.var as var
 from cryptoalgotrading.finance import bollinger_bands
-from influxdb import InfluxDBClient
 from cryptoalgotrading.lib_bittrex import Bittrex
+from influxdb import InfluxDBClient
 from binance.client import Client as Binance
 from multiprocessing import cpu_count
-import logging as log 
-#basicConfig, debug, DEBUG
+import logging as log
 
-#plt.ion()
+if environ.get('DISPLAY', '') == '':
+    print(f'No display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
 
-#plt.style.use('ggplot')
+mpl.rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
+# for Palatino and other serif fonts use:
+# rc('font',**{'family':'serif','serif':['Palatino']})
+mpl.rc('text', usetex=True)
+mpl.rcParams['text.usetex'] = False
+
+import matplotlib.pylab as plt
+
+# plt.ion()
+
+# plt.style.use('ggplot')
 
 # Initiates log file.
 log.basicConfig(filename=var.LOG_FILENAME,
@@ -45,27 +42,28 @@ log.basicConfig(filename=var.LOG_FILENAME,
                 level=log.DEBUG)
 
 
-#####################################################################
-## Decorators
+# Decorators
 def timeit(method):
-    '''
+    """
     Decorator to measure functions duration.
-    '''
+    """
+
     def timed(*args, **kw):
         ts = time()
         result = method(*args, **kw)
         te = time()
 
-        log.debug('Duration: %2.2f sec' % (te-ts))
+        log.debug('Duration: %2.2f sec' % (te - ts))
         return result
 
     return timed
 
 
 def safe(method):
-    '''
+    """
     Decorator to return safe in case of error.
-    '''
+    """
+
     def ret(*args, **kw):
         try:
             return method(*args, **kw)
@@ -73,26 +71,26 @@ def safe(method):
         except Exception as e:
             log.exception(e)
 
-        #return result
+        # return result
+
     return ret
 
 
 def dropnan(method):
-    '''
+    """
     Decorator to return drop NaN from DataFrames.
-    '''
+    """
+
     def ret(*args, **kw):
         return method(*args, **kw).dropna()
 
     return ret
 
-#####################################################################
-
 
 def connect_db():
-    '''
+    """
     Connects to Infludb.
-    '''
+    """
 
     # returning InfluxDBClient object.
     try:
@@ -110,7 +108,7 @@ def connect_db():
 
 
 def get_markets_list(base='BTC', exchange='bittrex'):
-    '''
+    """
     Gets all coins from a certain market.
 
     Args:
@@ -120,21 +118,21 @@ def get_markets_list(base='BTC', exchange='bittrex'):
     Returns:
     - list of markets.
     - False if unsupported exchange.
-    '''
+    """
 
     ret = False
 
-    if exchange=='bittrex':
+    if exchange == 'bittrex':
         try:
             bt = Bittrex('', '')
             log.debug("Connected to Bittrex.")
             ret = [i['MarketName'] for i in bt.get_markets()['result'] if i['MarketName'].startswith(base)]
         except Exception as e:
             log.exception(f"Unable to connect to Bittrex - {e}")
-    
-    elif exchange=='binance':
+
+    elif exchange == 'binance':
         try:
-            bnb = Binance('','')
+            bnb = Binance('', '')
             log.debug("Connected to Binance.")
             ret = [i['symbol'] for i in bnb.get_all_tickers() if i['symbol'].endswith(base)]
         except Exception as e:
@@ -143,7 +141,7 @@ def get_markets_list(base='BTC', exchange='bittrex'):
 
 
 def get_markets_on_files(interval, base='BTC'):
-    '''
+    """
     Gets all coins from a certain market, available on files.
 
     Args:
@@ -153,8 +151,8 @@ def get_markets_on_files(interval, base='BTC'):
 
     Returns:
     - list of markets.
-    '''
-    markets_list=[]
+    """
+    markets_list = []
 
     for file_ in listdir(f"{var.data_dir}/hist-{interval}"):
         if file_.startswith(base):
@@ -163,13 +161,13 @@ def get_markets_on_files(interval, base='BTC'):
     return markets_list
 
 
-#@dropnan
+# @dropnan
 def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
                         end_date=0,
                         exchange='bittrex'):
-    '''
+    """
     Gets all historical data stored on DB, from a certain market.
 
     Args:
@@ -183,7 +181,7 @@ def get_historical_data(market,
 
     Returns:
     - market data in pandas.DataFrame.
-    '''
+    """
     verified_market = check_market_name(market, exchange)
 
     if not init_date:
@@ -197,31 +195,31 @@ def get_historical_data(market,
         end_date = get_time_right(end_date)
         time += " AND time < \'" + end_date + "\'"
 
-    # Gets data from Bittex exchange.
+    # Gets data from Bittrex exchange.
     if exchange == 'bittrex':
-        command = "SELECT last(Last) AS Last," +\
-            " last(BaseVolume) AS BaseVolume," +\
-            " last(High) AS High," +\
-            " last(Low) AS Low," +\
-            " last(Ask) AS Ask," +\
-            " last(Bid) AS Bid," +\
-            " last(OpenBuyOrders) AS OpenBuy," +\
-            " last(OpenSellOrders) AS OpenSell " + \
-            "FROM bittrex WHERE " + time + \
-            " AND MarketName='" + verified_market + \
-            "' GROUP BY time(" + interval + ")"
-    
+        command = "SELECT last(Last) AS Last," + \
+                  " last(BaseVolume) AS BaseVolume," + \
+                  " last(High) AS High," + \
+                  " last(Low) AS Low," + \
+                  " last(Ask) AS Ask," + \
+                  " last(Bid) AS Bid," + \
+                  " last(OpenBuyOrders) AS OpenBuy," + \
+                  " last(OpenSellOrders) AS OpenSell " + \
+                  "FROM bittrex WHERE " + time + \
+                  " AND MarketName='" + verified_market + \
+                  "' GROUP BY time(" + interval + ")"
+
     # Gets data from Binance exchange.
     elif exchange == 'binance':
-        command = "SELECT last(Last) AS Last," +\
-            " last(BaseVolume) AS BaseVolume," +\
-            " last(High) AS High," +\
-            " last(Low) AS Low," +\
-            " last(Ask) AS Ask," +\
-            " last(Bid) AS Bid " +\
-            "FROM binance WHERE " + time + \
-            " AND MarketName='" + verified_market + \
-            "' GROUP BY time(" + interval + ")"
+        command = "SELECT last(Last) AS Last," + \
+                  " last(BaseVolume) AS BaseVolume," + \
+                  " last(High) AS High," + \
+                  " last(Low) AS Low," + \
+                  " last(Ask) AS Ask," + \
+                  " last(Bid) AS Bid " + \
+                  "FROM binance WHERE " + time + \
+                  " AND MarketName='" + verified_market + \
+                  "' GROUP BY time(" + interval + ")"
 
     db_client = connect_db()
 
@@ -238,7 +236,7 @@ def get_last_data(market,
                   interval=var.default_interval,
                   exchange='bittrex',
                   db_client=0):
-    '''
+    """
     Gets last data from DB.
 
     Args:
@@ -250,7 +248,7 @@ def get_last_data(market,
 
     Returns:
     - market data in pandas.DataFrame.
-    '''
+    """
 
     end_date = 'now()'
 
@@ -260,53 +258,54 @@ def get_last_data(market,
                         '%Y-%m-%d %H:%M:%S')
 
     return get_historical_data(market,
-                        interval=interval,
-                        init_date=start_date,
-                        end_date=end_date,
-                        exchange=exchange,
-                        db_client=db_client)
+                               interval=interval,
+                               init_date=start_date,
+                               end_date=end_date,
+                               exchange=exchange,
+                               db_client=db_client)
 
 
 def detect_init(data):
-    '''
+    """
     Remove data without info in case of market
     has started after the implementation of the BD.
-    '''
-    
-    #TODO try to implement this on DB query.
+    """
+
+    # TODO implement this on DB query.
     for i in range(len(data)):
-        #TODO remove numpy lib and use other method to detect NaN.
+        # TODO remove numpy lib and use other method to detect NaN.
         if not isnan(data.Last.iloc[i]):
             return data[i:len(data)]
 
 
 def plot_data(data,
               name='',
-              date=[0, 0],
+              date=None,
               smas=var.default_smas,
               emas=var.default_emas,
               entry_points=None,
               exit_points=None,
-              market_name='',
               to_file=False,
               show_smas=False,
               show_emas=False,
               show_bbands=False):
-    '''
+    """
     Plots selected data.
     entry_points is a tuple of lists: (entry_points_x,entry_points_y)
-    '''
-    #plt.clf()
+    """
+    # plt.clf()
 
     # For when it's called outside backtest.
+    if date is None:
+        date = [0, 0]
     if date != [0, 0]:
         if len(data) != date[1] - date[0]:
             data = data[date[0]:date[1]]
 
     f, (ax1, ax2, ax3) = plt.subplots(3,
-                                sharex=True,
-                                figsize=(9, 4),
-                                gridspec_kw={'height_ratios': [3, 1, 1]})
+                                      sharex='all',
+                                      figsize=(9, 4),
+                                      gridspec_kw={'height_ratios': [3, 1, 1]})
 
     ax1.grid(True)
     ax2.grid(True)
@@ -320,19 +319,18 @@ def plot_data(data,
 
     x = range(date[0], end_date)
     ax1.plot(x, data.Last, color='black', linewidth=1, alpha=0.65)
-    
+
     if show_bbands:
         bb_upper, bb_lower, bb_sma = bollinger_bands(data.Last, 10, 2)
-        #ax1.plot(x, bb_upper, color='red', linestyle='none', linewidth=1)
-        #ax1.plot(x, bb_lower, color='green', linestyle='none', linewidth=1)
+        # ax1.plot(x, bb_upper, color='red', linestyle='none', linewidth=1)
+        # ax1.plot(x, bb_lower, color='green', linestyle='none', linewidth=1)
 
         ax1.fill_between(x, bb_sma, bb_upper, color='green', alpha=0.3)
         ax1.fill_between(x, bb_lower, bb_sma, color='red', alpha=0.3)
-    
+
     if show_smas:
         for sma in smas:
             ax1.plot(x, data.Last.rolling(sma).mean())
-
 
     if show_emas:
         for ema in emas:
@@ -352,13 +350,13 @@ def plot_data(data,
                  linestyle='None',
                  color='red',
                  alpha=0.45)
-    ax2.set_ylim((data.BaseVolume.min()-1,
-                  data.BaseVolume.max()+1))
+    ax2.set_ylim((data.BaseVolume.min() - 1,
+                  data.BaseVolume.max() + 1))
     ax2.bar(x, data.BaseVolume.iloc[:], 1, color='black', alpha=0.55)
 
     try:
         ax3.plot(x, data.OpenSell.iloc[:])
-    except Exception as e:
+    except Exception:
         ax3.plot(x, data.High.iloc[:])
 
     plt.xlim(date[0], end_date)
@@ -369,18 +367,17 @@ def plot_data(data,
             name = 'fig_test' + str(time())
         f.savefig(f"{var.fig_dir}{name}-{str(time())}.pdf", bbox_inches='tight')
         plt.close(f)
-    #plt.show()
 
     return True
 
 
 def get_histdata_to_file(markets=None,
                          interval=var.default_interval,
-                         date_ =[0,0],
+                         date_=None,
                          base_market='BTC',
                          exchange='bittrex',
                          filetype='csv'):
-    '''
+    """
     Gets data from DB to file.
     Prevents excess of DB accesses.
     Saves files to 'hist-<interval>.csv'
@@ -400,9 +397,11 @@ def get_histdata_to_file(markets=None,
 
     Returns:
     - 'True'
-    '''
+    """
 
-    if isinstance(markets,str): markets = [markets]
+    if date_ is None:
+        date_ = [0, 0]
+    if isinstance(markets, str): markets = [markets]
 
     if not markets:
         markets = get_markets_list(base_market, exchange)
@@ -416,7 +415,7 @@ def get_histdata_to_file(markets=None,
                                     init_date=date_[0],
                                     end_date=date_[1],
                                     exchange=exchange)
-        
+
         filename_ = var.data_dir + '/hist-' + \
                     interval + '/' + \
                     verified_market + '.'
@@ -431,11 +430,12 @@ def get_histdata_to_file(markets=None,
             data_.to_hdf(f"{filename_}{filetype}", 'data',
                          mode='w', format='f',
                          complevel=9, complib='bzip2')
-        #TEST
+        # TEST
         del data_
         log.info(f"{filename_}{filetype} downloaded.")
-    
+
     return True
+
 
 # Use it if you got too much NaN in your data.
 # Will make your func slower!
@@ -444,7 +444,7 @@ def get_data_from_file(market,
                        interval=var.default_interval,
                        exchange='bittrex',
                        filetype='csv'):
-    '''
+    """
     Gets data from file.
 
     Args:
@@ -458,23 +458,24 @@ def get_data_from_file(market,
 
     Returns:
     - pd.DataFrame
-    '''
+    """
     verified_market = check_market_name(market, exchange=exchange)
 
-    filename_ = var.data_dir + '/hist-' + interval \
-                + '/' + verified_market + '.' + filetype
+    filename_ = var.data_dir + '/hist-' + interval + \
+                '/' + verified_market + '.' + filetype
 
     if filetype == 'csv':
-        return read_csv(filename_, sep=',', engine='c', index_col=0) # Optimized.
+        return read_csv(filename_, sep=',', engine='c', index_col=0)  # Optimized.
     elif filetype == 'hdf':
-        return read_hdf(filename_,'data')
-    else: return 0
+        return read_hdf(filename_, 'data')
+    else:
+        return 0
 
 
 def check_market_name(market, exchange='bittrex'):
-    '''
-    Avoids abbreviations and lowercases failures.
-    '''
+    """
+    Avoids abbreviations and lower cases failures.
+    """
     market = market.upper()
 
     if exchange == 'bittrex':
@@ -487,7 +488,7 @@ def check_market_name(market, exchange='bittrex'):
 
 
 def time_to_index(data, _datetime):
-    '''
+    """
     Converts input time to DB time.
     
     What time_to_index is expecting:
@@ -496,14 +497,12 @@ def time_to_index(data, _datetime):
     Returns:
         2017-09-09T06:25:00Z
     
-    TODO
-        Improve date presentation
-    '''
+    # TODO - Improve date presentation
+    """
 
-    #d[(d.time>'2017-09-09T06:25:00Z') & (d.time<'2017-09-09T07:25:00Z')]
+    # d[(d.time>'2017-09-09T06:25:00Z') & (d.time<'2017-09-09T07:25:00Z')]
 
-
-    #year, month, day = time.strftime("%Y,%m,%d").split(',')
+    # year, month, day = time.strftime("%Y,%m,%d").split(',')
     dtime = []
 
     for t in _datetime:
@@ -516,7 +515,7 @@ def time_to_index(data, _datetime):
 
         try:
             t_day, t_month, t_year = t_date.split('-')
-        except Exception as e:
+        except Exception:
             t_day, t_month = t_date.split('-')
             t_year = localtime(time())[0]
 
@@ -532,13 +531,12 @@ def time_to_index(data, _datetime):
         d = data[(data.time > dtime[0]) & (data.time < dtime[1])]
     except Exception as e:
         log.exception(f"{e}")
-        return (0,0)
+        return 0, 0
 
     return d.index[0], d.index[-1]
 
 
 def get_time_right(date_n_time):
-
     if ' ' in date_n_time:
         t_date, t_time = date_n_time.split()
     else:
@@ -561,15 +559,15 @@ def get_time_right(date_n_time):
 
     t_hour, t_minute = t_time.split(':')
 
-    return t_year + '-' +\
-        t_month + '-' +\
-        t_day + 'T' +\
-        t_hour + ':' +\
-        t_minute + ':00Z'
+    return t_year + '-' + \
+           t_month + '-' + \
+           t_day + 'T' + \
+           t_hour + ':' + \
+           t_minute + ':00Z'
 
 
 def trailing_stop_loss(last, higher, percentage=5):
-    '''
+    """
     Trailing stop loss function.
     
     Receives structure with:
@@ -577,34 +575,34 @@ def trailing_stop_loss(last, higher, percentage=5):
         - Entry point x.
         - Exit percentage [0.1-99.9]
     
-    Returns true when trigged.
-    '''
+    Returns true when triggered.
+    """
 
-    if last <= higher * (1 - (percentage*0.01)):
+    if last <= higher * (1 - (percentage * 0.01)):
         return True
 
     return False
 
 
 def stop_loss(last, entry_point_x, percentage=5):
-    '''
+    """
     Stop loss function.
         
     Receives structure with:
         - Last price.
         - Entry point x.
     
-    Returns true when trigged.
-    '''
+    Returns true when triggered.
+    """
 
-    if last <= entry_point_x * (1 - (percentage*0.01)):
+    if last <= entry_point_x * (1 - (percentage * 0.01)):
         return True
 
     return False
 
 
 def num_processors(level="medium"):
-    '''
+    """
     Decides how many cores will use.
 
     level options:
@@ -613,31 +611,30 @@ def num_processors(level="medium"):
         high            = left 1 free core.
         max|extreme     = uses all available cores.
         <cores number>  = uses the number of cores specified.
-    '''
+    """
 
     mp = cpu_count()
-    n_threads = 0
 
     if level == "low":
         n_threads = 1
     elif level == "high":
-        n_threads = mp-1
+        n_threads = mp - 1
     elif level == "extreme" or level == "max":
-         n_threads = mp
-    elif isinstance(level,int) and 0<level<=mp:
+        n_threads = mp
+    elif isinstance(level, int) and 0 < level <= mp:
         n_threads = level
     else:
-        n_threads = int(mp/2)
+        n_threads = int(mp / 2)
 
     log.info(f"Using {n_threads} threads.")
     return n_threads
 
 
 def beep(duration=0.5):
-    '''
+    """
     It beeps!
     Used to alert for possible manual entry or exit.
-    '''
+    """
     freq = 440  # Hz
     try:
         # Play need to be installed.
@@ -650,9 +647,9 @@ def beep(duration=0.5):
 
 
 def manage_files(markets, interval='1m'):
-    '''
+    """
     Manage market files in order to improve framework performance.
-    '''
+    """
     all_files = []
     markets_name = []
 
@@ -660,8 +657,8 @@ def manage_files(markets, interval='1m'):
         markets_name.append(check_market_name(market))
 
     if not path.isdir(f"{var.data_dir}/hist-{interval}"):
-    	log.error(f"{var.data_dir}/hist-{interval} doesn't exist.")
-    	sys.exit(1)
+        log.error(f"{var.data_dir}/hist-{interval} doesn't exist.")
+        sys.exit(1)
 
     for f in listdir(f"{var.data_dir}/hist-{interval}"):
         for market in markets_name:
@@ -673,14 +670,14 @@ def manage_files(markets, interval='1m'):
 
 
 def file_lines(filename):
-    '''
+    """
     Counts the number of lines in a file
-    '''
+    """
 
     f = open(filename)
     lines = 0
     buf_size = 1024 * 1024
-    read_f = f.read # loop optimization
+    read_f = f.read  # loop optimization
 
     buf = read_f(buf_size)
     while buf:
@@ -692,21 +689,19 @@ def file_lines(filename):
     return lines
 
 
-def binance2btrx (_data):
-    '''
-    Converts Binance data structure into Bittrex's model.
-    '''
+def binance2btrx(_data):
+    """
+    Converts Binance data structure into Bittrex model.
+    """
 
-    new_data={}
-
-    new_data['MarketName'] = str(_data['symbol'])
-    new_data['Ask'] = float(_data['askPrice'])
-    new_data['BaseVolume'] = float(_data['quoteVolume'])
-    new_data['Bid'] = float(_data['bidPrice'])
-    new_data['High'] = float(_data['highPrice'])
-    new_data['Last'] = float(_data['lastPrice'])
-    new_data['Low'] = float(_data['lowPrice'])
-    new_data['Volume'] = float(_data['volume'])
-    new_data['Count'] = float(_data['count'])
+    new_data = {'MarketName': str(_data['symbol']),
+                'Ask': float(_data['askPrice']),
+                'BaseVolume': float(_data['quoteVolume']),
+                'Bid': float(_data['bidPrice']),
+                'High': float(_data['highPrice']),
+                'Last': float(_data['lastPrice']),
+                'Low': float(_data['lowPrice']),
+                'Volume': float(_data['volume']),
+                'Count': float(_data['count'])}
 
     return new_data
