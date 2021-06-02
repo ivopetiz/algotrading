@@ -302,33 +302,33 @@ def realtime(exchanges,
 
     # Bittrex exchange
     if "bittrex" in exchanges:
+        log.debug(f"Starting Bot with Bittrex")
         if simulation:
             bt = Bittrex('', '')
-            log.debug(f"Starting Bot with Bittrex")
+            nr_exchanges -=1
         else:
             try:
                 bt = Bittrex(var.ky, var.sct)
             except Exception as e:
                 log.error(f"Unable to connect to Bittrex: {e}")
-                # nr_exchanges -=1
                 return 1
             
     # Binance exchange
     if "binance" in exchanges:
+        log.info("Starting Bot with Binance")
         if simulation:
+            log.info("[MODE] Simulation")
             try:
                 bnb = Binance('', '')
-                log.info("Starting Bot with Binance")
+                nr_exchanges -= 1
             except Exception as e:
                 log.error(f"Unable to connect to Binance: {e}")
         else:
-            # print(f"Can't use Binance exchange in real scenario, just simulation.")
-            # sys.exit(1)
+            log.info("[MODE] Real Money")
             try:
                 bnb = Bnb()
             except Exception as e:
                 log.error(f"Unable to connect to Binance - {e}")
-                # nr_exchanges -= 1
                 return 1
 
     if not nr_exchanges:
@@ -345,8 +345,6 @@ def realtime(exchanges,
 
         for market in markets:
 
-            # Needed to pass unicode to string.
-            # Binance
             if 'MarketName' in market:
                 market_name = 'BT_' + str(market['MarketName'])
             elif 'symbol' in market:
@@ -399,14 +397,18 @@ def realtime(exchanges,
                                        max_price=portfolio[market_name]['max_price'],
                                        count=portfolio[market_name]['count']):
 
-                        # implement binance
                         if not simulation:
-                            # REAL
-                            sell_res = bt.sell(market_name,
-                                               portfolio[market_name]['quantity'],
-                                               data.Bid.iloc[-1])
-
-                            # M U D A R
+                            # Binance market
+                            if market_name.startswith('BN_'):
+                                sell_res = bt.sell(market_name,
+                                                   portfolio[market_name]['quantity'],
+                                                   data.Bid.iloc[-1])
+                            # Bittrex market
+                            elif market_name.startswith('BT_'):
+                                sell_res = bt.sell(market_name,
+                                                   portfolio[market_name]['quantity'],
+                                                   data.Bid.iloc[-1])
+                            
                             sold_at = sell_res
 
                             log.info(f'[SELL]@ {sold_at} > {market_name}')
@@ -416,11 +418,8 @@ def realtime(exchanges,
 
                             log.info(f'[P&L] {market_name}> {res:.2f}%.')
 
-                        # implement binance
+                        # SIMULATION
                         else:
-                            # SIMULATION
-                            # log.info('> https://bittrex.com/Market/Index?MarketName=' + market_name)
-
                             log.info(f'[SELL]@ {data.Bid.iloc[-1]} > {market_name}')
 
                             res = ((data.Bid.iloc[-1] - portfolio[market_name]['bought_at'])/\
@@ -433,17 +432,22 @@ def realtime(exchanges,
                         del portfolio[market_name]
                         coins.pop(market_name)
 
-                    # if it's not time to exit, increment count.
+                    # If it's not time to exit, increment count.
                     else:
                         portfolio[market_name]['count'] += 1
 
-                # if the coin is not on portfolio, checks if it's time to buy.
+                # If the coin is not on portfolio, checks if it's time to buy.
                 else:
                     if is_time_to_buy(data, entry_funcs):
 
+                        # REAL
                         if not simulation:
-                            # REAL
-                            success, msg = bt.buy(market, data.Ask.iloc[-1]*1.01)
+                            
+                            if market_name.startswith('BN_'):
+                                success, msg = bnb.buy(market, data.Ask.iloc[-1]*1.01)
+                            
+                            elif market_name.startswith('BT_'):
+                                success, msg = bt.buy(market, data.Ask.iloc[-1]*1.01)
 
                             if success:
                                 portfolio[market_name] = {}
@@ -458,15 +462,13 @@ def realtime(exchanges,
                                 log.info(f"[XXXX] Could not buy @ {data.Ask.iloc[-1] * 1.01} \
                                     [MSG>] {msg}")
 
+                        # SIMULATION
                         else:
-                            # SIMULATION
                             portfolio[market_name] = {}
                             portfolio[market_name]['bought_at'] = data.Ask.iloc[-1]
                             portfolio[market_name]['max_price'] = data.Ask.iloc[-1]
                             portfolio[market_name]['quantity']  = 1
                             portfolio[market_name]['count']  = 0
-
-                            # log.info('> https://bittrex.com/Market/Index?MarketName='+market_name)
 
                             log.info(f'[BUY]@{data.Ask.iloc[-1]} > {market_name}')
 
