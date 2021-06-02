@@ -3,7 +3,6 @@
 
     Need to import this file in order to use this framework.
 """
-# TODO - implement Binance.
 # TODO - improve multiprocessing usage.
 # TODO - implement MPI.
 # TODO - improve DB connection.
@@ -103,15 +102,15 @@ def tick_by_tick(market,
                  emas=var.default_emas,
                  refresh_interval=1,
                  from_file=True,
-                 plot=False,
-                 log_level=2):
+                 # plot=False
+                 ):
     """
     Simulates a working bot, in realtime or in faster speed,
      using pre own data from DB or file,
      to test an autonomous bot on a specific market.
 
     Args:
-        markets(string): list with markets to backtest or
+        market(string): list with markets to backtest or
             empty to run all available markets.
         entry_funcs(list): list of entry functions to test.
         exit_funcs(list): list of entry functions to test.
@@ -121,15 +120,8 @@ def tick_by_tick(market,
         refresh_interval(int): Refresh rate.
         main_coins(list):
     """
-    #log_level:
-    #   0 - Only presents total.
-    #   1 - Writes logs to file.
-    #   2 - Writes logs to file and prints on screen.
-    #   Default is 2.
 
     #plt.ion()
-
-    var.global_log_level = log_level
 
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -137,7 +129,7 @@ def tick_by_tick(market,
 
     total = 0
 
-    #market = check_market_name(market)
+    # market = check_market_name(market)
 
     entry_points_x = []
     entry_points_y = []
@@ -160,13 +152,13 @@ def tick_by_tick(market,
 
         data_init = data
 
-        #if type(_date[0]) is str:
+        # if type(_date[0]) is str:
         #    date[0], date[1] = time_to_index(data, _date)
 
-        #if date[1] == 0:
+        # if date[1] == 0:
         #    data = data[date[0]:]
 
-        #else:
+        # else:
         #    data = data[date[0]:date[1]]
 
     else:
@@ -273,14 +265,6 @@ def realtime(exchanges,
         log_level: log level
     """
 
-    # log_level:
-    #   0 - Only presents total.
-    #   1 - Writes logs to file.
-    #   2 - Writes logs to file and prints on screen.
-    #   Default is 2.
-
-    # var.global_log_level = log_level
-
     if markets is None:
         markets = []
 
@@ -335,7 +319,6 @@ def realtime(exchanges,
         sys.exit(1)
 
     while True:
-
         start_time = time()
 
         if "bittrex" in exchanges:
@@ -513,12 +496,6 @@ def backtest(markets,
 
     Returns:
         bool: returns True in case of success.
-
-    log_level:
-       0 - Only presents total.
-       1 - Writes logs to file.
-       2 - Writes logs to file and prints on screen.
-       Default is 2.
     """
 
     if _date is None:
