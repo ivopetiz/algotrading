@@ -86,8 +86,10 @@ class Binance:
         self.conn = aux.Binance(var.bnc_ky, var.bnc_sct)
         # min_limit represents minimum value account needs, in order to remain working.
         self.min_limit = {'USDT': 100,
-                          'BTC': 0.0005
-                          }
+                          'BTC': 0.0005}
+        # Binance has limitations in float precision.
+        self.coin_precision = {'USDT': 2,
+                               'BTC': 8}
         # risk represents percentage of money bot could use each time it buy coins.
         self.risk = 0.20
         # available balances.
@@ -105,8 +107,8 @@ class Binance:
         Update balance for all pairs.
         """
         for coin in self.conn.get_account()["balances"]:
-            self.assets[coin['asset']] = {'available': coin['free'],
-                                          'pending': coin['locked']}
+            self.assets[coin['asset']] = {'available': float(coin['free']),
+                                          'pending': float(coin['locked'])}
 
     def get_balances(self, coins=None) -> dict:
         """
@@ -121,7 +123,7 @@ class Binance:
         elif isinstance(coins, list):
             tmp_dict = {}
             for coin in coins:
-                tmp_dict[coin] = self.assets['coin']
+                tmp_dict[coin] = self.assets[coin]
             return tmp_dict
         else:
             return self.assets['coins']
@@ -129,7 +131,7 @@ class Binance:
     def buy(self,
             coin: str,
             currency: str = 'USDT',
-            amount: float = 0,
+            # amount: float = 0,
             price: float = 0) -> (bool, dict):
         """
         Buy method to use in real mode operation.
@@ -137,7 +139,26 @@ class Binance:
         :param coin: pair to buy
         :param amount: quantity of asset to buy
         :param price: price to buy
-        :return: bool with operation
+        :return: tuple with bool representing the success of the operation
+        and a dict with the transaction info:
+            {'symbol': 'BNBUSDT',
+             'orderId': 2376102663,
+             'orderListId': -1,
+             'clientOrderId': 'XUIXVceks6YoUU2Hf4SR0a',
+             'transactTime': 1622712602908,
+              'price': '0.00000000',
+              'origQty': '0.29690000',
+              'executedQty': '0.29690000',
+              'cummulativeQuoteQty': '124.28234000',
+              'status': 'FILLED',
+              'timeInForce': 'GTC',
+              'type': 'MARKET',
+              'side': 'BUY',
+              'fills': [{'price': '418.60000000',
+                'qty': '0.29690000',
+                'commission': '0.00022267',
+                'commissionAsset': 'BNB',
+                'tradeId': 319757112}]}
         """
         # Verify if has sufficient funds.
         self.refresh_balance()
@@ -154,10 +175,33 @@ class Binance:
         if quantity_to_buy > self.assets[currency]['free']:
             return False, {'error': 'Portfolio has no space for new assets'}
 
-        buy_order = self.conn.order_market_buy(symbol=coin,
-                                               quoteOrderQty=quantity_to_buy)
+        # Market buy - not recommended.
+        # Can end up buying much higher than expect during a pump.
+        if not price:
+            try:
+                buy_order = self.conn.order_market_buy(symbol=coin,
+                                                       quoteOrderQty=round(quantity_to_buy,
+                                                                           self.coin_precision[currency]))
+            except Exception as e:
+                return False, {'error': e}
 
-        return True, buy_order
+        # Limit Order - Buys at an expected price.
+        else:
+            try:
+                buy_order = self.conn.order_limit_buy(symbol=coin,
+                                                      price=price,
+                                                      quantity=round(quantity_to_buy/price,
+                                                                     self.coin_precision[currency]))
+            except Exception as e:
+                return False, {'error': e}
+
+        # Tests buy
+        if buy_order['status'] == 'FILLED':
+            self.assets[coin]['info'] = self.asset_info(coin)
+            return True, buy_order
+        # else:
+        #    self.cancel_order(buy_order['number'])
+        return False, buy_order
 
     def sell(self,
              coin: str,
@@ -173,10 +217,35 @@ class Binance:
         # balance = client.get_asset_balance(asset=best_match[0])
         self.refresh_balance()
 
+        # Market Sell
         if not quantity:
-            quantity = round(float(self.assets[coin.replace(currency, '')]['free']) * 0.95, 2)
+            # Quantity available to sell during the precision constrains.
+            prec_quantity = self.assets[coin.replace(currency, '')]['free'] - \
+                            (self.assets[coin.replace(currency, '')]['free'] %
+                             self.assets[coin.replace(currency, '')]['info']['lot_size'])
 
-        sell_order = self.conn.order_market_sell(symbol=coin,
-                                                 quantity=quantity)
+        try:
+            sell_order = self.conn.order_market_sell(symbol=coin,
+                                                     quantity=prec_quantity)
+
+        except Exception as e:
+            return False, {'error': e}
 
         return True, sell_order
+
+    # TODO - cancel_order
+    def cancel_order(self,
+                     order_number):
+        return True
+
+    def asset_info(self, symbol) -> dict:
+        """
+        Gets specific info for buy and sell orders.
+        :param symbol: symbol
+        :return: dictionary with info about symbol
+        """
+        d = self.conn.get_symbol_info(symbol)
+
+        return {'symbol': d['symbol'],
+                'precision': d['quoteAssetPrecision'],
+                'lot_size': float([a['stepSize'] for a in d if a['filterType'] == 'LOT_SIZE'][0])}

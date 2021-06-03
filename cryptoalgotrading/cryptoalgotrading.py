@@ -383,16 +383,18 @@ def realtime(exchanges,
                         if not simulation:
                             # Binance market
                             if market_name.startswith('BN_'):
-                                sell_res = bt.sell(market_name,
-                                                   portfolio[market_name]['quantity'],
-                                                   data.Bid.iloc[-1])
+                                # Market Sell
+                                sell_res = bnb.sell(market_name.replace('BN_', ''))
+                                                   #portfolio[market_name]['quantity']
+                                                   #data.Bid.iloc[-1])
+                                sold_at = sell_res['fills'][0]['price']
+
                             # Bittrex market
                             elif market_name.startswith('BT_'):
-                                sell_res = bt.sell(market_name,
+                                sell_res = bt.sell(market_name.replace('BT_', ''),
                                                    portfolio[market_name]['quantity'],
                                                    data.Bid.iloc[-1])
-                            
-                            sold_at = sell_res
+                                sold_at = sell_res
 
                             log.info(f'[SELL]@ {sold_at} > {market_name}')
 
@@ -425,33 +427,38 @@ def realtime(exchanges,
 
                         # REAL
                         if not simulation:
-                            
+                            # Binance
                             if market_name.startswith('BN_'):
-                                success, msg = bnb.buy(market, data.Ask.iloc[-1]*1.01)
-                            
+                                # Limit buy
+                                # success, msg = bnb.buy(market, data.Ask.iloc[-1]*1.01)
+                                # Market buy
+                                success, ret = bnb.buy(market)
+
+                            # Bittrex
                             elif market_name.startswith('BT_'):
-                                success, msg = bt.buy(market, data.Ask.iloc[-1]*1.01)
+                                success, ret = bt.buy(market, data.Ask.iloc[-1]*1.01)
 
                             if success:
-                                portfolio[market_name] = {}
-                                portfolio[market_name]['bought_at'] = msg[0]
-                                portfolio[market_name]['max_price'] = msg[0]
-                                portfolio[market_name]['quantity']  = msg[1]
-                                portfolio[market_name]['count']  = 0
+                                # TODO - Implement portfolio for Bittrex
+                                portfolio[market_name] = {
+                                    'bought_at': ret['fills'][0]['price'],
+                                    'max_price': ret['fills'][0]['price'],
+                                    'quantity': ret['executedQty'],
+                                    'count': 0}
 
-                                log.info(f'[BUY]@ {msg[0]} > {market_name}')
+                                log.info(f"[BUY]@ {ret['fills'][0]['price']} > {market_name}")
 
-                            else:
-                                log.info(f"[XXXX] Could not buy @ {data.Ask.iloc[-1] * 1.01} \
-                                    [MSG>] {msg}")
+                            elif 'error' in ret:
+                                log.info(f"[ERROR] Could not buy {market_name} @ {data.Ask.iloc[-1]} \
+                                    [MSG>] {ret['error']}")
 
                         # SIMULATION
                         else:
                             portfolio[market_name] = {}
                             portfolio[market_name]['bought_at'] = data.Ask.iloc[-1]
                             portfolio[market_name]['max_price'] = data.Ask.iloc[-1]
-                            portfolio[market_name]['quantity']  = 1
-                            portfolio[market_name]['count']  = 0
+                            portfolio[market_name]['quantity'] = 1
+                            portfolio[market_name]['count'] = 0
 
                             log.info(f'[BUY]@{data.Ask.iloc[-1]} > {market_name}')
 
