@@ -86,8 +86,10 @@ class Binance:
         self.conn = aux.Binance(var.bnc_ky, var.bnc_sct)
         # min_limit represents minimum value account needs, in order to remain working.
         self.min_limit = {'USDT': 100,
-                          'BTC': 0.0005
-                          }
+                          'BTC': 0.0005}
+        # Binance has limitations in float precision.
+        self.coin_precision = {'USDT': 2,
+                               'BTC': 8}
         # risk represents percentage of money bot could use each time it buy coins.
         self.risk = 0.20
         # available balances.
@@ -129,7 +131,7 @@ class Binance:
     def buy(self,
             coin: str,
             currency: str = 'USDT',
-            amount: float = 0,
+            # amount: float = 0,
             price: float = 0) -> (bool, dict):
         """
         Buy method to use in real mode operation.
@@ -154,10 +156,32 @@ class Binance:
         if quantity_to_buy > self.assets[currency]['free']:
             return False, {'error': 'Portfolio has no space for new assets'}
 
-        buy_order = self.conn.order_market_buy(symbol=coin,
-                                               quoteOrderQty=quantity_to_buy)
+        # Market buy - not recommended.
+        # Can end up buying much higher than expect during a pump.
+        if not price:
+            try:
+                buy_order = self.conn.order_market_buy(symbol=coin,
+                                                       quoteOrderQty=round(quantity_to_buy,
+                                                                           self.coin_precision[currency]))
+            except Exception as e:
+                return False, {'error': e}
 
-        return True, buy_order
+        # Limit Order - Buys at an expected price.
+        else:
+            try:
+                buy_order = self.conn.order_limit_buy(symbol=coin,
+                                                      price=price,
+                                                      quantity=round(quantity_to_buy/price,
+                                                                     self.coin_precision[currency]))
+            except Exception as e:
+                return False, {'error': e}
+
+        # Tests buy
+        if buy_order['status'] == 'FILLED':
+            return True, buy_order
+        # else:
+        #    self.cancel_order(buy_order['number'])
+        return False, buy_order
 
     def sell(self,
              coin: str,
@@ -180,3 +204,8 @@ class Binance:
                                                  quantity=quantity)
 
         return True, sell_order
+
+    # TODO - cancel_order
+    def cancel_order(self,
+                     order_number):
+        return True
