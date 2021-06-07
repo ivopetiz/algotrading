@@ -66,16 +66,16 @@ def is_time_to_exit(data,
 
     if stop == 1:
         if stop_loss(data.Last.iloc[-1], bought_at, percentage=5):
-            print(f"[FUNC] Stop-loss")
+            log.debug(f"[FUNC] Stop-loss")
             return True
     elif stop == 2:
         if trailing_stop_loss(data.Last.iloc[-1], max_price, percentage=5):
-            print(f"[FUNC] Trailing stop-loss")
+            log.debug(f"[FUNC] Trailing stop-loss")
             return True
 
     for func in funcs:
         if func(data, smas=smas, emas=emas):
-            print(f"[FUNC] {func.__name__}")
+            log.debug(f"[FUNC] {func.__name__}")
             return True
 
     return False
@@ -92,6 +92,7 @@ def is_time_to_buy(data,
 
     for func in funcs:
         if func(data, smas=smas, emas=emas):
+            log.debug(f"[FUNC] {func.__name__}")
             return True
 
     return False
