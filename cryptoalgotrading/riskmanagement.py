@@ -95,20 +95,21 @@ class Binance:
         # available balances.
         self.assets = {}
 
-        self.refresh_balance()
-        # for i in self.get_all_balances:
-        #    self.available[i["asset"]] = i["free"]
+        self.init_balance()
 
-        # self.available["USDT"] = self.conn.get_balance("USDT")["result"]["Available"]
-        # self.available["BCT"] = self.conn.get_balance("BTC")["result"]["Available"]
+    def init_balance(self):
+        for coin in self.conn.get_account()["balances"]:
+            self.assets[coin['asset']] = {'available': float(coin['free']),
+                                          'pending':   float(coin['locked']),
+                                          'info':      {}}
 
     def refresh_balance(self) -> None:
         """
         Update balance for all pairs.
         """
         for coin in self.conn.get_account()["balances"]:
-            self.assets[coin['asset']] = {'available': float(coin['free']),
-                                          'pending': float(coin['locked'])}
+            self.assets[coin['asset']]['available'] = float(coin['free'])
+            self.assets[coin['asset']]['pending'] = float(coin['locked'])
 
     def get_balances(self, coins=None) -> dict:
         """
@@ -140,30 +141,12 @@ class Binance:
         :param amount: quantity of asset to buy
         :param price: price to buy
         :return: tuple with bool representing the success of the operation
-        and a dict with the transaction info:
-            {'symbol': 'BNBUSDT',
-             'orderId': 2376102663,
-             'orderListId': -1,
-             'clientOrderId': 'XUIXVceks6YoUU2Hf4SR0a',
-             'transactTime': 1622712602908,
-              'price': '0.00000000',
-              'origQty': '0.29690000',
-              'executedQty': '0.29690000',
-              'cummulativeQuoteQty': '124.28234000',
-              'status': 'FILLED',
-              'timeInForce': 'GTC',
-              'type': 'MARKET',
-              'side': 'BUY',
-              'fills': [{'price': '418.60000000',
-                'qty': '0.29690000',
-                'commission': '0.00022267',
-                'commissionAsset': 'BNB',
-                'tradeId': 319757112}]}
+        and a dict with the transaction info
         """
         # Verify if has sufficient funds.
         self.refresh_balance()
 
-        cur_balance = self.assets[currency]['free'] + \
+        cur_balance = self.assets[currency]['available'] + \
                       self.assets[currency]['pending']
 
         if cur_balance < self.min_limit[currency]:
@@ -172,11 +155,11 @@ class Binance:
         # Calculate quantity to buy based on preset risk
         quantity_to_buy = cur_balance * self.risk
 
-        if quantity_to_buy > self.assets[currency]['free']:
+        if quantity_to_buy > self.assets[currency]['available']:
             return False, {'error': 'Portfolio has no space for new assets'}
 
         # Market buy - not recommended.
-        # Can end up buying much higher than expect during a pump.
+        # Can end up buying much higher than expected during a pump.
         if not price:
             try:
                 buy_order = self.conn.order_market_buy(symbol=coin,
@@ -197,7 +180,7 @@ class Binance:
 
         # Tests buy
         if buy_order['status'] == 'FILLED':
-            self.assets[coin]['info'] = self.asset_info(coin)
+            self.assets[coin.replace(currency, '')]['info'] = self.asset_info(coin)
             return True, buy_order
         # else:
         #    self.cancel_order(buy_order['number'])
@@ -220,22 +203,22 @@ class Binance:
         # Market Sell
         if not quantity:
             # Quantity available to sell during the precision constrains.
-            prec_quantity = self.assets[coin.replace(currency, '')]['free'] - \
-                            (self.assets[coin.replace(currency, '')]['free'] %
-                             self.assets[coin.replace(currency, '')]['info']['lot_size'])
+            try:
+                prec_quantity = self.assets[coin.replace(currency, '')]['available'] - \
+                                (self.assets[coin.replace(currency, '')]['available'] %
+                                 self.assets[coin.replace(currency, '')]['info']['lot_size'])
+                sell_order = self.conn.order_market_sell(symbol=coin,
+                                                         quantity=str(round(prec_quantity,
+                                                                            self.coin_precision[currency])))
 
-        try:
-            sell_order = self.conn.order_market_sell(symbol=coin,
-                                                     quantity=prec_quantity)
-
-        except Exception as e:
-            return False, {'error': e}
+            except Exception as e:
+                return False, {'error': e}
 
         return True, sell_order
 
     # TODO - cancel_order
     def cancel_order(self,
-                     order_number):
+                     order_number): 
         return True
 
     def asset_info(self, symbol) -> dict:
@@ -248,4 +231,7 @@ class Binance:
 
         return {'symbol': d['symbol'],
                 'precision': d['quoteAssetPrecision'],
-                'lot_size': float([a['stepSize'] for a in d if a['filterType'] == 'LOT_SIZE'][0])}
+                'lot_size': float([a['stepSize'] for a in d['filters'] if a['filterType'] == 'LOT_SIZE'][0])}
+
+    def get_ticker(self):
+        return self.conn.get_ticker()
