@@ -421,7 +421,7 @@ def get_histdata_to_file(markets=None,
                     verified_market + '.'
 
         if not isinstance(data_, DataFrame):
-            log.error("Couldn't get data")
+            log.error("Unable to get data")
             return False
 
         if filetype == 'csv':
@@ -566,7 +566,7 @@ def get_time_right(date_n_time):
            t_minute + ':00Z'
 
 
-def trailing_stop_loss(last, higher, percentage=5):
+def trailing_stop_loss(last, higher, percentage=3):
     """
     Trailing stop loss function.
     
@@ -584,7 +584,7 @@ def trailing_stop_loss(last, higher, percentage=5):
     return False
 
 
-def stop_loss(last, entry_point_x, percentage=5):
+def stop_loss(last, entry_point_x, percentage=3):
     """
     Stop loss function.
         
@@ -626,7 +626,7 @@ def num_processors(level="medium"):
     else:
         n_threads = int(mp / 2)
 
-    log.info(f"Using {n_threads} threads.")
+    log.debug(f"Using {n_threads} threads.")
     return n_threads
 
 
