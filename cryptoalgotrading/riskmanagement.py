@@ -199,20 +199,25 @@ class Binance:
         """
         # balance = client.get_asset_balance(asset=best_match[0])
         self.refresh_balance()
-
         # Market Sell
         if not quantity:
             # Quantity available to sell during the precision constrains.
             try:
-                prec_quantity = self.assets[coin.replace(currency, '')]['available'] - \
+                prec_quantity = round(self.assets[coin.replace(currency, '')]['available'] - \
                                 (self.assets[coin.replace(currency, '')]['available'] %
-                                 self.assets[coin.replace(currency, '')]['info']['lot_size'])
+                                 self.assets[coin.replace(currency, '')]['info']['lot_size']),
+                                 self.assets[coin.replace(currency, '')]['info']['precision'])
+                #if coin.replace(currency, '') == 'BNB':
+                #    prec_quantity = prec_quantity
                 sell_order = self.conn.order_market_sell(symbol=coin,
-                                                         quantity=str(round(prec_quantity,
-                                                                            self.coin_precision[currency])))
-
+                                                         quantity=str(prec_quantity))
             except Exception as e:
-                return False, {'error': e}
+                return False, {'error': e,
+                               'coin': coin,
+                               'prec': prec_quantity,
+                               'available': self.assets[coin.replace(currency, '')]['available'],
+                               'more info': self.assets[coin.replace(currency, '')]['info']
+                               }
 
         return True, sell_order
 
@@ -231,7 +236,8 @@ class Binance:
 
         return {'symbol': d['symbol'],
                 'precision': d['quoteAssetPrecision'],
-                'lot_size': float([a['stepSize'] for a in d['filters'] if a['filterType'] == 'LOT_SIZE'][0])}
+                'lot_size': float([a['stepSize'] for a in d['filters'] if a['filterType'] == 'LOT_SIZE'][0]),
+                'more': d}
 
     def get_ticker(self):
         return self.conn.get_ticker()
