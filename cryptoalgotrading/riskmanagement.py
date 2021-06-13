@@ -6,6 +6,7 @@ import time
 import cryptoalgotrading.lib_bittrex as lib_bittrex
 import cryptoalgotrading.var as var
 import cryptoalgotrading.aux as aux
+import logging as log
 
 
 class Bittrex:
@@ -100,16 +101,22 @@ class Binance:
     def init_balance(self):
         for coin in self.conn.get_account()["balances"]:
             self.assets[coin['asset']] = {'available': float(coin['free']),
-                                          'pending':   float(coin['locked']),
-                                          'info':      {}}
+                                          'pending': float(coin['locked']),
+                                          'info': {}}
 
     def refresh_balance(self) -> None:
         """
         Update balance for all pairs.
         """
         for coin in self.conn.get_account()["balances"]:
-            self.assets[coin['asset']]['available'] = float(coin['free'])
-            self.assets[coin['asset']]['pending'] = float(coin['locked'])
+            try:
+                self.assets[coin['asset']]['available'] = float(coin['free'])
+                self.assets[coin['asset']]['pending'] = float(coin['locked'])
+            except Exception as e:
+                self.assets[coin['asset']] = {'available': float(coin['free']),
+                                              'pending': float(coin['locked']),
+                                              'info': {}}
+                log.debug(f"[ADD] New coin - {coin['asset']}")
 
     def get_balances(self, coins=None) -> dict:
         """
