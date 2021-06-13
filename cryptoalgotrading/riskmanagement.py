@@ -134,7 +134,7 @@ class Binance:
                 tmp_dict[coin] = self.assets[coin]
             return tmp_dict
         else:
-            return self.assets['coins']
+            return self.assets[coins]
 
     def buy(self,
             coin: str,
@@ -248,3 +248,14 @@ class Binance:
 
     def get_ticker(self):
         return self.conn.get_ticker()
+
+    def sell_all(self):
+        """
+        Sell all avalilable assets.
+        """
+        self.refresh_balance()
+
+        for coin in self.assets():
+            if self.assets[coin]['available'] > 0:
+                self.sell(coin)
+        return True
