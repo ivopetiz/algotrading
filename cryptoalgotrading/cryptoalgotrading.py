@@ -20,6 +20,7 @@ from time import time, ctime, sleep
 from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
+import cryptoalgotrading.var as var
 from cryptoalgotrading.riskmanagement import Bittrex
 from cryptoalgotrading.riskmanagement import Binance as Bnb
 from multiprocessing import Pool, Manager
@@ -65,11 +66,15 @@ def is_time_to_exit(data,
     #    return True
 
     if stop == 1:
-        if stop_loss(data.Last.iloc[-1], bought_at, percentage=5):
+        if stop_loss(data.Last.iloc[-1], 
+                     bought_at, 
+                     percentage=var.stop_loss_prcnt):
             log.debug(f"[FUNC] Stop-loss")
             return True
     elif stop == 2:
-        if trailing_stop_loss(data.Last.iloc[-1], max_price, percentage=5):
+        if trailing_stop_loss(data.Last.iloc[-1], 
+                              max_price, 
+                              percentage=var.trailing_loss_prcnt):
             log.debug(f"[FUNC] Trailing stop-loss")
             return True
 

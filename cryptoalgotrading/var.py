@@ -36,6 +36,9 @@ default_volume_smas = [3, 6]
 default_volume_emas = [3, 6]
 default_mom = 4
 
+stop_loss_prcnt = 2
+trailing_loss_prcnt = 0.1
+
 validade = 50
 refresh_interval = 60 # interval in seconds.
 
