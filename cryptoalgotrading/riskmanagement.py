@@ -3,6 +3,7 @@
 """
 
 import time
+from typing import Tuple
 import cryptoalgotrading.lib_bittrex as lib_bittrex
 import cryptoalgotrading.var as var
 import cryptoalgotrading.aux as aux
@@ -140,7 +141,7 @@ class Binance:
             coin: str,
             currency: str = 'USDT',
             # amount: float = 0,
-            price: float = 0) -> (bool, dict):
+            price: float = 0) -> Tuple[bool, dict]:
         """
         Buy method to use in real mode operation.
         :param currency:
@@ -196,7 +197,7 @@ class Binance:
     def sell(self,
              coin: str,
              currency: str = 'USDT',
-             quantity: float = 0) -> (bool, dict):
+             quantity: float = 0) -> Tuple[bool, dict]:
         """
         Market sell assets.
         :param coin: pair to sell
