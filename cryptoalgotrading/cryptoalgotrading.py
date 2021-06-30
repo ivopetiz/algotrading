@@ -427,8 +427,6 @@ def realtime(exchanges,
                             res = ((sold_at - portfolio[market_name]['bought_at']) /
                                    portfolio[market_name]['bought_at'])*100
 
-                            log.info(f'[P&L] {global_market_name}> {res:.2f}%.')
-
                         # SIMULATION
                         else:
                             log.info(f'[SELL] {global_market_name} @ {data.Bid.iloc[-1]}')
@@ -436,7 +434,10 @@ def realtime(exchanges,
                             res = ((data.Bid.iloc[-1] - portfolio[market_name]['bought_at'])/ \
                                    portfolio[market_name]['bought_at'])*100
 
-                            log.info(f'[P&L] {global_market_name} > {res:.2f}%.')
+                        if var.commission:
+                            res -= var.commission
+                            
+                        log.info(f'[P&L] {global_market_name} > {res:.2f}%.')
 
                         locals()[market_name].to_csv(f"df_{market_name}-{ctime(time())}.csv")
                         del locals()[market_name]

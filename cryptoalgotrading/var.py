@@ -37,7 +37,9 @@ default_volume_emas = [3, 6]
 default_mom = 4
 
 stop_loss_prcnt = 2
-trailing_loss_prcnt = 0.1
+trailing_loss_prcnt = 3
+
+smaller_qnt = 20
 
 validade = 50
 refresh_interval = 60 # interval in seconds.
@@ -52,3 +54,6 @@ sct = getenv('API_SECRET') or ""
 
 bnb_ky = getenv('BNC_API_KEY') or ""
 bnb_sct = getenv('BNC_API_SECRET') or ""
+
+bnb_commission = 0.075
+commission = True
