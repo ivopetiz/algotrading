@@ -754,6 +754,9 @@ def backtest_market(entry_funcs,
                                 buy_price) /
                                 buy_price)*100, 2)
 
+                if var.commission:
+                    total -= var.bnb_commission
+
                 full_log += str(data_init.time.iloc[i + 109 + date[0]]) + \
                     ' [SELL]@ ' + str(data_init.Bid.iloc[i + 109 + date[0]]) + '\n'
 
