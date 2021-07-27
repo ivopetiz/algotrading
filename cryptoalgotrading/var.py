@@ -57,3 +57,5 @@ bnb_sct = getenv('BNC_API_SECRET') or ""
 
 bnb_commission = 0.075
 commission = True
+
+desktop_info = True

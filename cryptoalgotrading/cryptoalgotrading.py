@@ -10,7 +10,6 @@
 # TODO - break big files into smaller ones.
 # TODO - backtest based on pandas.Dataframe.
 
-import cryptoalgotrading.var as var
 import sys
 import signal
 
@@ -29,7 +28,8 @@ from cryptoalgotrading.aux import get_markets_list, \
                 timeit, safe, connect_db, get_markets_on_files, \
                 manage_files, num_processors, plot_data, \
                 get_data_from_file, time_to_index, \
-                get_historical_data, binance2btrx
+                get_historical_data, binance2btrx, \
+                desktop_notification
 import logging as log
 
 manager = Manager()
@@ -50,8 +50,8 @@ def is_time_to_exit(data,
                     smas=var.default_smas,
                     emas=var.default_emas,
                     stop=2,
-                    bought_at=0,
-                    max_price=0,
+                    bought_at: float = 0,
+                    max_price: float = 0,
                     count=-1):
     """
     Detects when is time to exit trade.
@@ -423,6 +423,8 @@ def realtime(exchanges,
                                 continue
 
                             log.info(f'[SELL] {global_market_name} @ {sold_at}')
+                            if var.desktop_info:
+                                desktop_notification(global_market_name, f'Sold @ {sold_at}')
 
                             res = ((sold_at - portfolio[market_name]['bought_at']) /
                                    portfolio[market_name]['bought_at'])*100
@@ -473,6 +475,9 @@ def realtime(exchanges,
                                     'count': 0}
 
                                 log.info(f"[BUY] {global_market_name} @ {ret['fills'][0]['price']}")
+                                if var.desktop_info:
+                                    desktop_notification(global_market_name,
+                                                         f"Buy @ {ret['fills'][0]['price']}")
 
                             elif 'error' in ret:
                                 log.info(f"[ERROR] Unable to buy {global_market_name} @ {data.Ask.iloc[-1]}")
@@ -600,7 +605,9 @@ def backtest(markets,
     pool.close()
     pool.join()
 
-    log.info(f" Total > {str(sum(total))}")
+    log.info(f' Total > {sum(total)}')
+    if var.desktop_info:
+        desktop_notification("Backtest completed", f'Result: {sum(total)}')
 
     for k in cached.keys():
         if cached[k]['last'] < 1:

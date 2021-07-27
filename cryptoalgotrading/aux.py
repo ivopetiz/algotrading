@@ -3,7 +3,6 @@
 
     Aux functions needed to do some data manipulation, plot data, etc.
 """
-
 from os import system, listdir, path, environ
 import sys
 import matplotlib as mpl
@@ -644,6 +643,17 @@ def beep(duration=0.5):
         log.error(f"Couldn't play beep-> {e}")
 
     return 0
+
+
+def desktop_notification(title: str, message: str):
+    """
+    Presents a message on desktop.
+    :param title: notification title
+    :param message: notification body
+    """
+    # TODO - add images to desktop notifications
+    # TODO - add timer
+    system(f"notify-send '{title}' '{message}'")
 
 
 def manage_files(markets, interval='1m'):
