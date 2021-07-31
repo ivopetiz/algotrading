@@ -36,7 +36,8 @@ default_volume_smas = [3, 6]
 default_volume_emas = [3, 6]
 default_mom = 4
 
-stop_loss_prcnt = 2
+stop_type = 2
+stop_loss_prcnt = 0.5
 trailing_loss_prcnt = 3
 
 smaller_qnt = 20

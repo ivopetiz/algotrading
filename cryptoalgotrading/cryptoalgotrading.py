@@ -49,7 +49,7 @@ def is_time_to_exit(data,
                     funcs,
                     smas=var.default_smas,
                     emas=var.default_emas,
-                    stop=2,
+                    stop=1,
                     bought_at: float = 0,
                     max_price: float = 0,
                     count=-1):
@@ -217,7 +217,7 @@ def tick_by_tick(market,
                                exit_funcs,
                                smas,
                                emas,
-                               stop=2,
+                               stop=1,
                                bought_at=buy_price,
                                max_price=high_price):
 
@@ -397,7 +397,8 @@ def realtime(exchanges,
                                        exit_funcs,
                                        bought_at=float(portfolio[market_name]['bought_at']),
                                        max_price=float(portfolio[market_name]['max_price']),
-                                       count=portfolio[market_name]['count']):
+                                       count=portfolio[market_name]['count'],
+                                       stop=var.stop_type):
 
                         if not simulation:
                             # Binance market
@@ -433,12 +434,11 @@ def realtime(exchanges,
                         else:
                             log.info(f'[SELL] {global_market_name} @ {data.Bid.iloc[-1]}')
 
-                            res = ((data.Bid.iloc[-1] - portfolio[market_name]['bought_at'])/ \
+                            res = ((data.Bid.iloc[-1] - portfolio[market_name]['bought_at']) /
                                    portfolio[market_name]['bought_at'])*100
 
                         if var.commission:
-                            res -= var.commission
-                            
+                            res -= var.bnb_commission
                         log.info(f'[P&L] {global_market_name} > {res:.2f}%.')
 
                         locals()[market_name].to_csv(f"df_{market_name}-{ctime(time())}.csv")
@@ -748,7 +748,7 @@ def backtest_market(entry_funcs,
                                exit_funcs,
                                smas,
                                emas,
-                               stop=2,
+                               stop=1,
                                bought_at=buy_price,
                                max_price=high_price):
 
