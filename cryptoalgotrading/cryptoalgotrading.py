@@ -474,10 +474,10 @@ def realtime(exchanges,
                                     'quantity': float(ret['executedQty']),
                                     'count': 0}
 
-                                log.info(f"[BUY] {global_market_name} @ {ret['fills'][0]['price']}")
+                                log.info(f"[BUY] {global_market_name} @ {portfolio[market_name]['bought_at']}")
                                 if var.desktop_info:
                                     desktop_notification(global_market_name,
-                                                         f"Buy @ {ret['fills'][0]['price']}")
+                                                         f"Buy @ {portfolio[market_name]['bought_at']}")
 
                             elif 'error' in ret:
                                 log.info(f"[ERROR] Unable to buy {global_market_name} @ {data.Ask.iloc[-1]}")
