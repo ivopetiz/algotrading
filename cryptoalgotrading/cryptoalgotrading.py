@@ -49,7 +49,7 @@ def is_time_to_exit(data,
                     funcs,
                     smas=var.default_smas,
                     emas=var.default_emas,
-                    stop=1,
+                    stop=var.stop_type,
                     bought_at: float = 0,
                     max_price: float = 0,
                     count=-1):
@@ -62,16 +62,16 @@ def is_time_to_exit(data,
     2 -> trailing stop loss
     """
 
-    #if count == 0:
+    # if count == 0:
     #    return True
 
-    if stop == 1:
+    if stop in [1, 3]:
         if stop_loss(data.Last.iloc[-1], 
                      bought_at, 
                      percentage=var.stop_loss_prcnt):
             log.debug(f"[FUNC] Stop-loss")
             return True
-    elif stop == 2:
+    if stop in [2, 3]:
         if trailing_stop_loss(data.Last.iloc[-1], 
                               max_price, 
                               percentage=var.trailing_loss_prcnt):
@@ -217,7 +217,7 @@ def tick_by_tick(market,
                                exit_funcs,
                                smas,
                                emas,
-                               stop=1,
+                               stop=var.stop_type,
                                bought_at=buy_price,
                                max_price=high_price):
 
@@ -748,7 +748,7 @@ def backtest_market(entry_funcs,
                                exit_funcs,
                                smas,
                                emas,
-                               stop=1,
+                               stop=var.stop_type,
                                bought_at=buy_price,
                                max_price=high_price):
 

@@ -36,14 +36,19 @@ default_volume_smas = [3, 6]
 default_volume_emas = [3, 6]
 default_mom = 4
 
-stop_type = 2
+# Stop type:
+# - 0: No stop loss method
+# - 1: Stop loss
+# - 2: Trailing stop loss
+# - 3: Both stop loss methods
+stop_type = 3
 stop_loss_prcnt = 0.5
-trailing_loss_prcnt = 3
+trailing_loss_prcnt = 1.0
 
 smaller_qnt = 20
 
 validade = 50
-refresh_interval = 60 # interval in seconds.
+refresh_interval = 60  # interval in seconds.
 
 # pairs first market.
 main_coins = ["BTC", "USDT"]
