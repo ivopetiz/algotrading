@@ -127,10 +127,11 @@ def tick_by_tick(market,
         smas(list): list of SMA values to use.
         emas(list): list of EMA values to use.
         refresh_interval(int): Refresh rate.
-        main_coins(list):
+        from_file(bool): Select the origin of data.
+        # plot(bool: plots data.
     """
 
-    #plt.ion()
+    # plt.ion()
 
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -255,8 +256,7 @@ def realtime(exchanges,
              emas=var.default_volume_emas,
              refresh_interval=10,
              simulation=True,
-             main_coins=("BTC", "USDT"),
-             log_level=1):
+             main_coins=("BTC", "USDT")):
     """
     Bot using realtime data, doesn't need DB or csv files to work.
 
@@ -264,14 +264,14 @@ def realtime(exchanges,
         exchanges(list): list of exchanges.
         entry_funcs(list): list of entry functions to test.
         exit_funcs(list): list of entry functions to test.
-        markets(string): list with markets to backtest or empty to run all available markets.
+        trading_markets(string): list with markets to backtest or empty
+                                to run all available markets.
         interval(string): time between measures.
         smas(list): list of SMA values to use.
         emas(list): list of EMA values to use.
         refresh_interval(int): Data refresh rate.
         simulation(bool): Defines if it's running as a simulation or real money mode.
         main_coins(tuple): tuple of main coins.
-        log_level: log level
     """
     markets = []
 
@@ -293,6 +293,8 @@ def realtime(exchanges,
 
     portfolio = {}  # Owned coins list.
     coins = {}
+
+    res_abs = 0
 
     # Bittrex exchange
     if "bittrex" in exchanges:
@@ -405,8 +407,8 @@ def realtime(exchanges,
                             if market_name.startswith('BN_'):
                                 # Market Sell
                                 success, sell_res = bnb.sell(market_name.replace('BN_', ''))
-                                #portfolio[market_name]['quantity']
-                                #data.Bid.iloc[-1])
+                                # portfolio[market_name]['quantity']
+                                # data.Bid.iloc[-1])
 
                                 if success:
                                     sold_at = float(sell_res['fills'][0]['price'])
@@ -427,6 +429,8 @@ def realtime(exchanges,
                             if var.desktop_info:
                                 desktop_notification(global_market_name, f'Sold @ {sold_at}')
 
+                            res_abs = (float(sell_res['cummulativeQuoteQty'])/float(sell_res['executedQty']) -
+                                       portfolio[market_name]['bought_at']) * float(sell_res['executedQty'])
                             res = ((sold_at - portfolio[market_name]['bought_at']) /
                                    portfolio[market_name]['bought_at'])*100
 
@@ -439,7 +443,9 @@ def realtime(exchanges,
 
                         if var.commission:
                             res -= var.bnb_commission
-                        log.info(f'[P&L] {global_market_name} > {res:.2f}%.')
+                        log.info(f'[P&L] {global_market_name} > {res:.2f}%')
+                        # Hard coded to USDT
+                        log.debug(f"[ {'+' if res>0 else '-'} ] {res_abs:.2} {sell_res['fills'][-1]['commissionAsset']}")
 
                         locals()[market_name].to_csv(f"df_{market_name}-{ctime(time())}.csv")
                         del locals()[market_name]
@@ -513,7 +519,6 @@ def backtest(markets,
              from_file=False,
              exchange="bittrex",
              base_market='BTC',
-             log_level=1,
              mp_level="medium"):
     """
     Backtests strategies.
@@ -530,8 +535,8 @@ def backtest(markets,
         plot(bool): plot data.
         to_file(bool): plot to file.
         from_file(bool): get data from file.
+        exchange(string): Defines exchange.
         base_market(string): base market to use.
-        log_level(int): log level - 0-2.
         mp_level(string): multiprocessing level - [low, medium, high].
 
     Returns:
@@ -598,8 +603,7 @@ def backtest(markets,
                              to_file,
                              plot,
                              exchange,
-                             db_client,
-                             log_level),
+                             db_client),
                      markets)
 
     pool.close()
@@ -629,7 +633,6 @@ def backtest_market(entry_funcs,
                     plot,
                     exchange,
                     db_client,
-                    log_level,
                     market):
     """
     Backtests strategies for a specific market.
@@ -718,7 +721,6 @@ def backtest_market(entry_funcs,
 
     # Test for volume.
     # if data.BaseVolume.mean() < 20:
-    #    log(full_log, 1, log_level)
     #    del data
     #    del data_init
     #    return 0
