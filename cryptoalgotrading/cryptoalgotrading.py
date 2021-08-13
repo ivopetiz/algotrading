@@ -323,6 +323,12 @@ def realtime(exchanges,
                 log.error(f"Unable to connect to Binance: {e}")
         else:
             log.debug("[MODE] Real Money")
+            if var.desktop_info:
+                desktop_notification({
+                    'type':    'info',
+                    'title':   'Crypto Algo Trading',
+                    'message': '[MODE] Real Money'
+                })
             try:
                 bnb = Bnb()
             except Exception as e:
@@ -427,7 +433,11 @@ def realtime(exchanges,
 
                             log.info(f'[SELL] {global_market_name} @ {sold_at}')
                             if var.desktop_info:
-                                desktop_notification(global_market_name, f'Sold @ {sold_at}')
+                                desktop_notification({
+                                    'type':    'sell',
+                                    'title':   global_market_name,
+                                    'message': f'Sold @ {sold_at}'
+                                })
 
                             res_abs = (float(sell_res['cummulativeQuoteQty'])/float(sell_res['executedQty']) -
                                        portfolio[market_name]['bought_at']) * float(sell_res['executedQty'])
@@ -446,6 +456,15 @@ def realtime(exchanges,
                         log.info(f'[P&L] {global_market_name} > {res:.2f}%')
                         # Hard coded to USDT
                         log.debug(f"[ {'+' if res>0 else '-'} ] {res_abs:.2} {sell_res['fills'][-1]['commissionAsset']}")
+
+                        if var.desktop_info:
+                            desktop_notification({
+                                'type':    'P&L',
+                                'profit%': res,
+                                'profit':  res_abs,
+                                'title':   global_market_name,
+                                'message': f"P&L = {res:.2f}% | {res_abs} {sell_res['fills'][-1]['commissionAsset']}"
+                            })
 
                         locals()[market_name].to_csv(f"df_{market_name}-{ctime(time())}.csv")
                         del locals()[market_name]
@@ -482,8 +501,11 @@ def realtime(exchanges,
 
                                 log.info(f"[BUY] {global_market_name} @ {portfolio[market_name]['bought_at']}")
                                 if var.desktop_info:
-                                    desktop_notification(global_market_name,
-                                                         f"Buy @ {portfolio[market_name]['bought_at']}")
+                                    desktop_notification({
+                                        'type':    'buy',
+                                        'title':   global_market_name,
+                                        'message': f"Buy @ {portfolio[market_name]['bought_at']}"
+                                    })
 
                             elif 'error' in ret:
                                 log.info(f"[ERROR] Unable to buy {global_market_name} @ {data.Ask.iloc[-1]}")
@@ -611,7 +633,11 @@ def backtest(markets,
 
     log.info(f' Total > {sum(total)}')
     if var.desktop_info:
-        desktop_notification("Backtest completed", f'Result: {sum(total)}')
+        desktop_notification({
+                'type': 'backtest',
+                'title': "Backtest completed",
+                'message': f'Result: {sum(total)}'
+        })
 
     for k in cached.keys():
         if cached[k]['last'] < 1:

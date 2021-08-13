@@ -645,15 +645,23 @@ def beep(duration=0.5):
     return 0
 
 
-def desktop_notification(title: str, message: str):
+def desktop_notification(content: dict):
     """
     Presents a message on desktop.
-    :param title: notification title
-    :param message: notification body
+    :param content: dictionary with notification info
     """
-    # TODO - add images to desktop notifications
     # TODO - add timer
-    system(f"notify-send '{title}' '{message}'")
+
+    notify = f"notify-send '{content['title']}' '{content['message']}'"
+
+    if var.desktop_cool_mode:
+        if content['type'] == 'P&L':
+            if content['profit'] > 0:
+                notify += f" '{var.img_profit}'"
+            else:
+                notify += f" '{var.img_loss}'"
+
+    system(notify)
 
 
 def manage_files(markets, interval='1m'):

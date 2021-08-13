@@ -7,7 +7,7 @@
     framework, if user wants to use DB and Exchanges' credentials.
 """
 
-from os import getenv
+from os import getenv, getcwd
 
 
 # DATABASE VARIABLES
@@ -64,4 +64,10 @@ bnb_sct = getenv('BNC_API_SECRET') or ""
 bnb_commission = 0.075
 commission = True
 
+# Uses system notification to present relevant info
 desktop_info = True
+# Add special effects to notifications
+desktop_cool_mode = True
+
+img_profit = f'{getcwd()}/img/profit.png'
+img_loss = f'{getcwd()}/img/loss.png'
