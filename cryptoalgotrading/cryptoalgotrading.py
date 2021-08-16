@@ -403,6 +403,7 @@ def realtime(exchanges,
 
                     if is_time_to_exit(data,
                                        exit_funcs,
+                                       smas,
                                        bought_at=float(portfolio[market_name]['bought_at']),
                                        max_price=float(portfolio[market_name]['max_price']),
                                        count=portfolio[market_name]['count'],
@@ -477,7 +478,7 @@ def realtime(exchanges,
 
                 # If the coin is not on portfolio, checks if it's time to buy.
                 else:
-                    if is_time_to_buy(data, entry_funcs):
+                    if is_time_to_buy(data, entry_funcs, smas):
                         # REAL
                         if not simulation:
                             # Binance
