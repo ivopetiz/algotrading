@@ -260,3 +260,11 @@ class Binance:
             if self.assets[coin]['available'] > 0:
                 self.sell(coin)
         return True
+
+    def cancel_order(self,
+                     symbol: str,
+                     order_id: str) -> dict:
+        """
+        Cancels an pending order.
+        """
+        return self.conn.cancel_order(symbol=symbol, orderId=order_id)
