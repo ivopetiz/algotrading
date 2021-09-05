@@ -375,6 +375,7 @@ def get_histdata_to_file(markets=None,
                          date_=None,
                          base_market='BTC',
                          exchange='bittrex',
+                         file_name=None,
                          filetype='csv'):
     """
     Gets data from DB to file.
@@ -415,23 +416,25 @@ def get_histdata_to_file(markets=None,
                                     end_date=date_[1],
                                     exchange=exchange)
 
-        filename_ = var.data_dir + '/hist-' + \
-                    interval + '/' + \
-                    verified_market + '.'
+        if not file_name:
+            file_name = var.data_dir + '/hist-' + \
+                        interval + '/' + \
+                        verified_market
+        file_name += '.'
 
         if not isinstance(data_, DataFrame):
             log.error("Unable to get data")
             return False
 
         if filetype == 'csv':
-            data_.to_csv(f"{filename_}{filetype}")
+            data_.to_csv(f"{file_name}{filetype}")
         elif filetype == 'hdf':
-            data_.to_hdf(f"{filename_}{filetype}", 'data',
+            data_.to_hdf(f"{file_name}{filetype}", 'data',
                          mode='w', format='f',
                          complevel=9, complib='bzip2')
         # TEST
         del data_
-        log.info(f"{filename_}{filetype} downloaded.")
+        log.info(f"{file_name}{filetype} downloaded.")
 
     return True
 
