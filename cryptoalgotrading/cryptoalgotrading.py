@@ -456,7 +456,7 @@ def realtime(exchanges,
                             res -= var.bnb_commission
                         log.info(f'[P&L] {global_market_name} > {res:.2f}%')
                         # Hard coded to USDT
-                        log.debug(f"[ {'+' if res>0 else '-'} ] {res_abs:.2} {sell_res['fills'][-1]['commissionAsset']}")
+                        log.debug(f"[ {'+' if res>0 else '-'} ] {res_abs:.2f} {sell_res['fills'][-1]['commissionAsset']}")
 
                         if var.desktop_info:
                             desktop_notification({
