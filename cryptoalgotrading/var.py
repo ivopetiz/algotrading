@@ -53,7 +53,7 @@ refresh_interval = 60  # interval in seconds.
 # pairs first market.
 main_coins = ["BTC", "USDT"]
 
-exchange = 'bittrex'
+default_exchange = 'binance'
 
 ky = getenv('API_KEY') or ""
 sct = getenv('API_SECRET') or ""

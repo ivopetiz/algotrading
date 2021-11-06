@@ -106,7 +106,8 @@ def connect_db():
     return conn
 
 
-def get_markets_list(base='BTC', exchange='bittrex'):
+def get_markets_list(base='BTC', 
+                     exchange=var.default_exchange):
     """
     Gets all coins from a certain market.
 
@@ -165,7 +166,7 @@ def get_historical_data(market,
                         interval=var.default_interval,
                         init_date=0,
                         end_date=0,
-                        exchange='bittrex'):
+                        exchange=var.default_exchange):
     """
     Gets all historical data stored on DB, from a certain market.
 
@@ -233,7 +234,7 @@ def get_historical_data(market,
 def get_last_data(market,
                   last='24',
                   interval=var.default_interval,
-                  exchange='bittrex',
+                  exchange=var.default_exchange,
                   db_client=0):
     """
     Gets last data from DB.
@@ -374,7 +375,7 @@ def get_histdata_to_file(markets=None,
                          interval=var.default_interval,
                          date_=None,
                          base_market='BTC',
-                         exchange='bittrex',
+                         exchange=var.default_exchange,
                          file_name=None,
                          filetype='csv'):
     """
@@ -391,7 +392,7 @@ def get_histdata_to_file(markets=None,
     - base_market: str with base market.
         Default is BTC.
     - exchange: str with crypto exchange.
-        Default is Bittrex.
+        Default is var.default_exchange.
     - filetype: str with filetype to save.
         Default is csv
 
@@ -444,7 +445,7 @@ def get_histdata_to_file(markets=None,
 @dropnan
 def get_data_from_file(market,
                        interval=var.default_interval,
-                       exchange='bittrex',
+                       exchange=var.default_exchange,
                        filetype='csv'):
     """
     Gets data from file.
@@ -474,7 +475,8 @@ def get_data_from_file(market,
         return 0
 
 
-def check_market_name(market, exchange='bittrex'):
+def check_market_name(market, 
+                      exchange=var.default_exchange):
     """
     Avoids abbreviations and lower cases failures.
     """
