@@ -139,5 +139,27 @@ class TestAux(unittest.TestCase):
                                        'Low': 10.0,
                                        'Volume': 100.0})
 
+
+    def test_beep(self):
+        self.assertEqual(aux.beep(), 1)
+
+
+    def test_run_command(self):
+        self.assertEqual(aux.run_command('ls'), 0)
+
+
+    def test_desktop_notification(self):
+        self.assertEqual(aux.desktop_notification({
+                                                'type': 'buy',
+                                                'title': 'test',
+                                                'message': 'test message',
+                                                }), 0)
+        self.assertEqual(aux.desktop_notification({
+                                                'type': 'P&L',
+                                                'title': 'test',
+                                                'message': 'test message',
+                                                }), 0)
+
+
 if __name__ == '__main__':
     unittest.main()

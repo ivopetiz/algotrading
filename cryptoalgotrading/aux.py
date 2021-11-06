@@ -3,9 +3,10 @@
 
     Aux functions needed to do some data manipulation, plot data, etc.
 """
-from os import system, listdir, path, environ
 import sys
+from os import listdir, path, environ
 import matplotlib as mpl
+from subprocess import Popen, PIPE
 from numpy import isnan
 from pandas import read_csv, read_hdf, DataFrame
 from time import time, localtime
@@ -17,6 +18,7 @@ from influxdb import InfluxDBClient
 from binance.client import Client as Binance
 from multiprocessing import cpu_count
 import logging as log
+from plyer import notification
 
 if environ.get('DISPLAY', '') == '':
     print(f'No display found. Using non-interactive Agg backend')
@@ -644,14 +646,11 @@ def beep(duration=0.5):
     Used to alert for possible manual entry or exit.
     """
     freq = 440  # Hz
-    try:
-        # Play need to be installed.
-        system(f"play --no-show-progress --null --channels 1 synth {duration} sine {freq}")
+    
+    # Play need to be installed.
+    _, err = run_command(f"play --no-show-progress --null --channels 1 synth {duration} sine {freq}")
 
-    except Exception as e:
-        log.error(f"Couldn't play beep-> {e}")
-
-    return 0
+    return err
 
 
 def desktop_notification(content: dict):
@@ -661,16 +660,22 @@ def desktop_notification(content: dict):
     """
     # TODO - add timer
 
-    notify = f"notify-send '{content['title']}' '{content['message']}'"
+    icon = ''
 
     if var.desktop_cool_mode:
         if content['type'] == 'P&L':
             if content['profit'] > 0:
-                notify += f" '{var.img_profit}'"
+                icon = var.img_profit
             else:
-                notify += f" '{var.img_loss}'"
+                icon = var.img_loss
 
-    system(notify)
+    notification.notify(
+        title = content['title'],
+        message = content['message'],
+        app_name = 'CAT',
+        app_icon = icon
+    )
+    return 0
 
 
 def manage_files(markets, interval='1m'):
@@ -732,3 +737,17 @@ def binance2btrx(_data):
                 'Count': float(_data['count'])}
 
     return new_data
+
+
+def run_command(cmd):
+    """
+    Run a command in terminal through Python
+    """
+    process = Popen(cmd.split(),
+                    stdout=PIPE,
+                    stderr=PIPE)
+    stdout, _ = process.communicate()
+    out = stdout.decode("utf-8").replace('\t', '')\
+                                .replace(': ', ':')\
+                                .splitlines()
+    return out, process.returncode
