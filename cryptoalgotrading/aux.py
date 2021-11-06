@@ -570,7 +570,9 @@ def get_time_right(date_n_time):
            t_minute + ':00Z'
 
 
-def trailing_stop_loss(last, higher, percentage=3):
+def trailing_stop_loss(last, 
+                       higher, 
+                       percentage=var.trailing_loss_prcnt):
     """
     Trailing stop loss function.
     
@@ -588,7 +590,9 @@ def trailing_stop_loss(last, higher, percentage=3):
     return False
 
 
-def stop_loss(last, entry_point_x, percentage=3):
+def stop_loss(last, 
+              entry_point_x, 
+              percentage=var.stop_loss_prcnt):
     """
     Stop loss function.
         

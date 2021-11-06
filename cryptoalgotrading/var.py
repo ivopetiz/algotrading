@@ -42,12 +42,12 @@ default_mom = 4
 # - 2: Trailing stop loss
 # - 3: Both stop loss methods
 stop_type = 3
-stop_loss_prcnt = 0.5
-trailing_loss_prcnt = 1.0
+stop_loss_prcnt = 2.0
+trailing_loss_prcnt = 3.0
 
 smaller_qnt = 20
 
-validade = 50
+validity = 50
 refresh_interval = 60  # interval in seconds.
 
 # pairs first market.
@@ -55,11 +55,16 @@ main_coins = ["BTC", "USDT"]
 
 default_exchange = 'binance'
 
-ky = getenv('API_KEY') or ""
-sct = getenv('API_SECRET') or ""
+btr_ky = getenv('BTX_API_KEY') or ""
+btr_sct = getenv('BTX_API_SECRET') or ""
 
 bnb_ky = getenv('BNC_API_KEY') or ""
 bnb_sct = getenv('BNC_API_SECRET') or ""
+
+# define minimum balance to buy and risk.
+usdt_min = 50
+btc_min = 0.001
+risk = 0.20
 
 bnb_commission = 0.075
 commission = True

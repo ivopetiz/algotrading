@@ -16,9 +16,9 @@ class Bittrex:
         # connects to bittrex through Bittrex lib.
         self.conn = lib_bittrex.Bittrex(key, secret)
         # min_limit represents minimum value account needs, in order to remain working.
-        self.min_limit = 1000
+        self.min_limit = var.usdt_min
         # risk represents percentage of money bot could use each time it buy coins.
-        self.risk = 0.05
+        self.risk = var.risk
         # available balances.
         self.available = {}
         for i in self.conn.get_balances()["result"]:
@@ -87,13 +87,13 @@ class Binance:
         # connects to Binance through Binance lib.
         self.conn = aux.Binance(var.bnc_ky, var.bnc_sct)
         # min_limit represents minimum value account needs, in order to remain working.
-        self.min_limit = {'USDT': 100,
-                          'BTC': 0.0005}
+        self.min_limit = {'USDT': var.usdt_min,
+                          'BTC': var.btc_min}
         # Binance has limitations in float precision.
         self.coin_precision = {'USDT': 2,
                                'BTC': 8}
         # risk represents percentage of money bot could use each time it buy coins.
-        self.risk = 0.20
+        self.risk = var.risk
         # available balances.
         self.assets = {}
 
@@ -172,7 +172,8 @@ class Binance:
             try:
                 buy_order = self.conn.order_market_buy(symbol=coin,
                                                        quoteOrderQty=round(quantity_to_buy,
-                                                                           self.coin_precision[currency]))
+                                                                           self.coin_precision[currency])
+                                                       )
             except Exception as e:
                 return False, {'error': e}
 

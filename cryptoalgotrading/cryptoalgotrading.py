@@ -51,8 +51,7 @@ def is_time_to_exit(data,
                     emas=var.default_emas,
                     stop=var.stop_type,
                     bought_at: float = 0,
-                    max_price: float = 0,
-                    count=-1):
+                    max_price: float = 0):
     """
     Detects when is time to exit trade.
 
@@ -135,7 +134,7 @@ def tick_by_tick(market,
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    date = [0,0]
+    date = [0, 0]
 
     total = 0
 
@@ -147,8 +146,10 @@ def tick_by_tick(market,
     exit_points_x = []
     exit_points_y = []
 
-    if not isinstance(entry_funcs, list): entry_funcs=[entry_funcs]
-    if not isinstance(exit_funcs, list): exit_funcs=[exit_funcs]
+    if not isinstance(entry_funcs, list):
+        entry_funcs = [entry_funcs]
+    if not isinstance(exit_funcs, list):
+        exit_funcs = [exit_funcs]
 
     log.info(f"[Market analysis]: {market}")
 
@@ -302,11 +303,12 @@ def realtime(exchanges,
         if simulation:
             log.debug("[MODE] Simulation")
             bt = Bittrex('', '')
-            nr_exchanges -=1
+            nr_exchanges -= 1
         else:
             log.debug("[MODE] Simulation")
             try:
-                bt = Bittrex(var.ky, var.sct)
+                bt = Bittrex(var.btr_ky,
+                             var.btr_sct)
             except Exception as e:
                 log.error(f"Unable to connect to Bittrex: {e}")
                 return 1
@@ -456,7 +458,9 @@ def realtime(exchanges,
                             res -= var.bnb_commission
                         log.info(f'[P&L] {global_market_name} > {res:.2f}%')
                         # Hard coded to USDT
-                        log.debug(f"[ {'+' if res>0 else '-'} ] {res_abs:.2f} {sell_res['fills'][-1]['commissionAsset']}")
+                        log.debug(
+                                f"[ {'+' if res>0 else '-'} ] {res_abs:.2f} {sell_res['fills'][-1]['commissionAsset']}"
+                        )
 
                         if var.desktop_info:
                             desktop_notification({
@@ -674,6 +678,8 @@ def backtest_market(entry_funcs,
         to_file(bool): plot to file.
         from_file(bool): get data from file.
         plot(bool): plot data.
+        exchange(str): Crypto exchange.
+        db_client(str): DB.
         market(string): market to backtest.
 
     Returns:
