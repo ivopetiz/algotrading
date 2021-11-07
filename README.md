@@ -1,6 +1,6 @@
 # Crypto AlgoTrading Framework
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dfad2f1a06c744eeb4efcdef8ee9d6e0)](https://app.codacy.com/app/ivopetiz/algotrading?utm_source=github.com&utm_medium=referral&utm_content=ivopetiz/crypto-algotrading&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/dce868084d344fafa498bf3ff7bf2d81)](https://www.codacy.com/gh/ivopetiz/algotrading/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ivopetiz/algotrading&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.com/ivopetiz/algotrading.svg?branch=master)](https://travis-ci.com/ivopetiz/algotrading)
 [![Coverage Status](https://coveralls.io/repos/github/ivopetiz/algotrading/badge.svg?branch=master)](https://coveralls.io/github/ivopetiz/algotrading?branch=master)
 
@@ -130,9 +130,10 @@ Exit functions can be used with other exit functions, to cover more situations, 
 Stop loss and trailing stop loss are also implemented, to exit markets in case of an unexpected price drop. Functions should return *True*, if the available data represent an exit point for the user. If not, the return needs to be *False*.
 <exit.py> should aggregate all users' exit functions.
 
-### Example
+Example
+---
 
-#### cross SMA
+### cross SMA
 
 Function <cross_smas> will return *True* if first SMA cross the second one. If not will return *False*.
 
@@ -209,10 +210,9 @@ This Crypto AlgoTrading Framework can be used with Pypy, but the results will no
 
 ## TODO
 
-- [ ] Add ByBit API
-- [x] Python 3 implementation
-- [ ] Cython version
-- [ ] Pure Python for Pypy (without Pandas and Numpy dependency)
+  * [x] Python 3 implementation
+  * [ ] Cython version
+  * [ ] Pure Python for Pypy (without Pandas and Numpy dependency)
 
 ## Additional Info
 
