@@ -210,9 +210,9 @@ This Crypto AlgoTrading Framework can be used with Pypy, but the results will no
 
 ## TODO
 
-  * [x] Python 3 implementation
-  * [ ] Cython version
-  * [ ] Pure Python for Pypy (without Pandas and Numpy dependency)
+* [x] Python 3 implementation
+* [ ] Cython version
+* [ ] Pure Python for Pypy (without Pandas and Numpy dependency)
 
 ## Additional Info
 

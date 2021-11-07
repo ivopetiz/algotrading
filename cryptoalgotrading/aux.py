@@ -1,7 +1,7 @@
 """
-    aux.py
+aux.py
 
-    Aux functions needed to do some data manipulation, plot data, etc.
+Aux functions needed to do some data manipulation, plot data, etc.
 """
 import sys
 from os import listdir, path, environ
@@ -21,7 +21,7 @@ import logging as log
 from plyer import notification
 
 if environ.get('DISPLAY', '') == '':
-    print(f'No display found. Using non-interactive Agg backend')
+    print("No display found. Using non-interactive Agg backend")
     mpl.use('Agg')
 
 mpl.rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
@@ -108,7 +108,7 @@ def connect_db():
     return conn
 
 
-def get_markets_list(base='BTC', 
+def get_markets_list(base='BTC',
                      exchange=var.default_exchange):
     """
     Gets all coins from a certain market.
@@ -263,8 +263,7 @@ def get_last_data(market,
                                interval=interval,
                                init_date=start_date,
                                end_date=end_date,
-                               exchange=exchange,
-                               db_client=db_client)
+                               exchange=exchange)
 
 
 def detect_init(data):
@@ -477,7 +476,7 @@ def get_data_from_file(market,
         return 0
 
 
-def check_market_name(market, 
+def check_market_name(market,
                       exchange=var.default_exchange):
     """
     Avoids abbreviations and lower cases failures.
@@ -496,13 +495,13 @@ def check_market_name(market,
 def time_to_index(data, _datetime):
     """
     Converts input time to DB time.
-    
+
     What time_to_index is expecting:
         '01-01-2017 11:10'
 
     Returns:
         2017-09-09T06:25:00Z
-    
+
     # TODO - Improve date presentation
     """
 
@@ -559,7 +558,7 @@ def get_time_right(date_n_time):
     elif '/' in date_n_time:
         try:
             t_day, t_month, t_year = t_date.split('/')
-        except Exception as e:
+        except Exception:
             t_day, t_month = t_date.split('/')
             t_year = str(localtime()[0])
 
@@ -572,8 +571,8 @@ def get_time_right(date_n_time):
            t_minute + ':00Z'
 
 
-def trailing_stop_loss(last, 
-                       higher, 
+def trailing_stop_loss(last,
+                       higher,
                        percentage=var.trailing_loss_prcnt):
     """
     Trailing stop loss function.
@@ -592,8 +591,8 @@ def trailing_stop_loss(last,
     return False
 
 
-def stop_loss(last, 
-              entry_point_x, 
+def stop_loss(last,
+              entry_point_x,
               percentage=var.stop_loss_prcnt):
     """
     Stop loss function.

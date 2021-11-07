@@ -1,7 +1,7 @@
 """
-    cryptoalgotrading.py
+cryptoalgotrading.py
 
-    Need to import this file in order to use this framework.
+Need to import this file in order to use this framework.
 """
 # TODO - improve multiprocessing usage.
 # TODO - implement MPI.
@@ -19,18 +19,20 @@ from time import time, ctime, sleep
 from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
-import cryptoalgotrading.var as var
-from cryptoalgotrading.riskmanagement import Bittrex
-from cryptoalgotrading.riskmanagement import Binance as Bnb
 from multiprocessing import Pool, Manager
+import cryptoalgotrading.var as var
+from cryptoalgotrading.lib_bittrex import Bittrex
+from cryptoalgotrading.riskmanagement import Bittrex as Btr,\
+                Binance as Bnb 
 from cryptoalgotrading.aux import get_markets_list, \
-                Bittrex, stop_loss, trailing_stop_loss, \
-                timeit, safe, connect_db, get_markets_on_files, \
+                stop_loss, trailing_stop_loss, timeit, \
+                safe, connect_db, get_markets_on_files, \
                 manage_files, num_processors, plot_data, \
                 get_data_from_file, time_to_index, \
                 get_historical_data, binance2btrx, \
                 desktop_notification
 import logging as log
+
 
 manager = Manager()
 cached = manager.dict()
@@ -40,7 +42,7 @@ simplefilter(action='ignore', category=FutureWarning)
 
 
 def signal_handler():
-    log.info(f"You pressed Ctrl+C!")
+    log.info("You pressed Ctrl+C!")
     sys.exit(0)
 
 
@@ -65,16 +67,16 @@ def is_time_to_exit(data,
     #    return True
 
     if stop in [1, 3]:
-        if stop_loss(data.Last.iloc[-1], 
-                     bought_at, 
+        if stop_loss(data.Last.iloc[-1],
+                     bought_at,
                      percentage=var.stop_loss_prcnt):
-            log.debug(f"[FUNC] Stop-loss")
+            log.debug("[FUNC] Stop-loss")
             return True
     if stop in [2, 3]:
-        if trailing_stop_loss(data.Last.iloc[-1], 
-                              max_price, 
+        if trailing_stop_loss(data.Last.iloc[-1],
+                              max_price,
                               percentage=var.trailing_loss_prcnt):
-            log.debug(f"[FUNC] Trailing stop-loss")
+            log.debug("[FUNC] Trailing stop-loss")
             return True
 
     for func in funcs:
@@ -179,7 +181,7 @@ def tick_by_tick(market,
                                     interval=interval)
             date[0], date[1] = 0, len(data)
             data_init = data
-            
+
         except Exception as e:
             log.error(f"Unable to get data from file: {e}")
             log.error(f"Unable to find {market} in DB.")
@@ -299,7 +301,7 @@ def realtime(exchanges,
 
     # Bittrex exchange
     if "bittrex" in exchanges:
-        log.debug(f"Starting Bot with Bittrex")
+        log.debug("Starting Bot with Bittrex")
         if simulation:
             log.debug("[MODE] Simulation")
             bt = Bittrex('', '')
@@ -307,8 +309,8 @@ def realtime(exchanges,
         else:
             log.debug("[MODE] Simulation")
             try:
-                bt = Bittrex(var.btr_ky,
-                             var.btr_sct)
+                bt = Btr(var.btr_ky,
+                         var.btr_sct)
             except Exception as e:
                 log.error(f"Unable to connect to Bittrex: {e}")
                 return 1
@@ -338,7 +340,7 @@ def realtime(exchanges,
                 return 1
 
     if not nr_exchanges:
-        log.error('sin exchanges jose')
+        log.error('sin exchanges Jose')
         sys.exit(1)
 
     while True:
@@ -599,7 +601,7 @@ def backtest(markets,
             else:
                 markets = get_markets_list(base_market, exchange)
         else:
-            log.error(f"Without files to analyse.")
+            log.error("Without files to analyse.")
 
     # Prevents errors from markets and funcs as str.
     if not isinstance(markets, list):
@@ -610,7 +612,7 @@ def backtest(markets,
         exit_funcs = [exit_funcs]
 
     # For selected markets.
-    if from_file: 
+    if from_file:
         markets = manage_files(markets, interval=interval)
 
     log.debug(f"{str(len(markets))} files/chunks to analyse...")
@@ -663,7 +665,6 @@ def backtest_market(entry_funcs,
                     to_file,
                     plot,
                     exchange,
-                    db_client,
                     market):
     """
     Backtests strategies for a specific market.
@@ -679,7 +680,6 @@ def backtest_market(entry_funcs,
         from_file(bool): get data from file.
         plot(bool): plot data.
         exchange(str): Crypto exchange.
-        db_client(str): DB.
         market(string): market to backtest.
 
     Returns:
@@ -692,7 +692,7 @@ def backtest_market(entry_funcs,
 
     # market = check_market_name(market)
     # global cached
-    is_cached = False 
+    is_cached = False
 
     entry_points_x = []
     entry_points_y = []
@@ -824,7 +824,7 @@ def backtest_market(entry_funcs,
 
     except Exception as e:
         log.exception(e)
-        log.error(f"Unable to plot data.")
+        log.error("Unable to plot data.")
 
     if not is_cached:
         cached[market] = {'interval': interval,

@@ -139,11 +139,6 @@ class TestAux(unittest.TestCase):
                                        'Low': 10.0,
                                        'Volume': 100.0})
 
-
-    def test_beep(self):
-        self.assertEqual(aux.beep(), 1)
-
-
     def test_run_command(self):
         self.assertEqual(aux.run_command('ls'), 0)
 

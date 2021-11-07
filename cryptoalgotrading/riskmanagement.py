@@ -1,10 +1,9 @@
-"""
-    Risk Management module.
-"""
+"""Risk Management module."""
 
 import time
 from typing import Tuple
 import cryptoalgotrading.lib_bittrex as lib_bittrex
+from binance.client import Client as Bnb
 import cryptoalgotrading.var as var
 import cryptoalgotrading.aux as aux
 import logging as log
@@ -106,14 +105,13 @@ class Binance:
                                           'info': {}}
 
     def refresh_balance(self) -> None:
-        """
-        Update balance for all pairs.
-        """
+        """Update balance for all pairs."""
+
         for coin in self.conn.get_account()["balances"]:
             try:
                 self.assets[coin['asset']]['available'] = float(coin['free'])
                 self.assets[coin['asset']]['pending'] = float(coin['locked'])
-            except Exception as e:
+            except Exception:
                 self.assets[coin['asset']] = {'available': float(coin['free']),
                                               'pending': float(coin['locked']),
                                               'info': {}}
@@ -252,9 +250,8 @@ class Binance:
         return self.conn.get_ticker()
 
     def sell_all(self):
-        """
-        Sell all avalilable assets.
-        """
+        """Sell all avalilable assets."""
+
         self.refresh_balance()
 
         for coin in self.assets():
@@ -265,7 +262,6 @@ class Binance:
     def cancel_order(self,
                      symbol: str,
                      order_id: str) -> dict:
-        """
-        Cancels an pending order.
-        """
+        """Cancels an pending order."""
+
         return self.conn.cancel_order(symbol=symbol, orderId=order_id)

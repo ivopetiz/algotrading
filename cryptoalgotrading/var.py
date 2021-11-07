@@ -1,10 +1,10 @@
 """
-    var.py
+var.py
 
-    Framework predefined variables.
+Framework predefined variables.
 
-    It is important to define some environment variables before use this
-    framework, if user wants to use DB and Exchanges' credentials.
+It is important to define some environment variables before use this
+framework, if user wants to use DB and Exchanges' credentials.
 """
 
 from os import getenv, getcwd

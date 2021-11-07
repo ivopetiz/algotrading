@@ -1,7 +1,7 @@
 """
-    entry.py
+entry.py
 
-    Example entry functions.
+Example entry functions.
 """
 
 

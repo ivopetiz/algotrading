@@ -1,7 +1,7 @@
 """
-    exit.py
+exit.py
 
-    Example exit functions.
+Example exit functions.
 """
 
 
