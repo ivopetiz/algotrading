@@ -576,12 +576,12 @@ def trailing_stop_loss(last,
                        percentage=var.trailing_loss_prcnt):
     """
     Trailing stop loss function.
-    
+
     Receives structure with:
         - Last price.
         - Entry point x.
         - Exit percentage [0.1-99.9]
-    
+
     Returns true when triggered.
     """
 

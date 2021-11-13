@@ -23,7 +23,7 @@ from multiprocessing import Pool, Manager
 import cryptoalgotrading.var as var
 from cryptoalgotrading.lib_bittrex import Bittrex
 from cryptoalgotrading.riskmanagement import Bittrex as Btr,\
-                Binance as Bnb 
+                Binance as Bnb
 from cryptoalgotrading.aux import get_markets_list, \
                 stop_loss, trailing_stop_loss, timeit, \
                 safe, connect_db, get_markets_on_files, \
@@ -314,7 +314,7 @@ def realtime(exchanges,
             except Exception as e:
                 log.error(f"Unable to connect to Bittrex: {e}")
                 return 1
-            
+
     # Binance exchange
     if "binance" in exchanges:
         log.debug("Starting Bot with Binance")
@@ -580,17 +580,15 @@ def backtest(markets,
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    # global cached
-
     if not from_file:
-        # Connects to DB.
+        # Tries connection to DB.
         try:
             db_client = connect_db()
         except Exception as e:
             log.exception(e)
             sys.exit(1)
-    else:
-        db_client = 0
+        finally:
+            db_client.close()
 
     # For all markets.
     if not len(markets):
@@ -631,8 +629,7 @@ def backtest(markets,
                              from_file,
                              to_file,
                              plot,
-                             exchange,
-                             db_client),
+                             exchange),
                      markets)
 
     pool.close()
