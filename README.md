@@ -220,6 +220,8 @@ API Key is just needed in case of buy/sell operations. For backtest, tick-by-tic
 
 Buy and sell options are commented and should only be used if you know what you are doing.
 
+If you are interested in using this bot and don't have an account on Binance Exchange yet, please help me, creating  an account through my referral code here: https://accounts.binance.com/en/register?ref=17181609 
+
 ___
 
 <p align="center">USE THIS AT YOUR OWN RISK.</p>
