@@ -3,6 +3,8 @@ backports.shutil-get-terminal-size==1.0.0
 binance~=0.3
 certifi==2018.4.16
 chardet==3.0.4
+coverage
+coveralls
 cycler==0.10.0
 decorator==4.3.0
 enum34==1.1.6
