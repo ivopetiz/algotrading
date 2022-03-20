@@ -1,6 +1,7 @@
 # Crypto AlgoTrading Framework
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/dce868084d344fafa498bf3ff7bf2d81)](https://www.codacy.com/gh/ivopetiz/algotrading/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ivopetiz/algotrading&amp;utm_campaign=Badge_Grade)
+[![Codacy Security Scan](https://github.com/ivopetiz/algotrading/actions/workflows/codacy.yml/badge.svg)](https://github.com/ivopetiz/algotrading/actions/workflows/codacy.yml)
 [![Build Status](https://travis-ci.com/ivopetiz/algotrading.svg?branch=master)](https://travis-ci.com/ivopetiz/algotrading)
 [![Coverage Status](https://coveralls.io/repos/github/ivopetiz/algotrading/badge.svg?branch=master)](https://coveralls.io/github/ivopetiz/algotrading?branch=master)
 
