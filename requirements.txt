@@ -17,7 +17,7 @@ pandas==1.2.0
 pathlib2==2.3.2
 pexpect==4.6.0
 pickleshare==0.7.4
-prompt-toolkit==1.0.15
+prompt-toolkit
 ptyprocess==0.6.0
 Pygments==2.7.4
 pyparsing==2.2.0
