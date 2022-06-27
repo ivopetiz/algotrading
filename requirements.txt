@@ -14,7 +14,7 @@ ipython==7.16.3
 ipython-genutils==0.2.0
 kiwisolver==1.0.1
 matplotlib==3.3.4
-numpy~=1.19.4
+numpy==1.22.0
 pandas==1.2.0
 pathlib2==2.3.2
 pexpect==4.6.0
