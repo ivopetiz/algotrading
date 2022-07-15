@@ -9,48 +9,59 @@
 
 Algotrading Framework is a repository with tools to build and run working trading bots, backtest strategies, assist on trading, define simple stop losses and trailing stop losses, etc. This framework work with data directly from Crypto exchanges API, from a DB or CSV files. Can be used for data-driven and event-driven systems. Made exclusively for crypto markets for now and written in Python.
 
+---
+
+## Follow this [Quickstart Guide](quickstart_guide.md) if you want to start right away
+
+---
+
 [A Medium story dedicated to this project](https://ivopetiz.medium.com/my-algorithmic-trading-project-f5d2eb2dbb5a)
 
-*   [Operating modes](#operating-modes)
-    *   [Realtime](#realtime)
-    *   [Tick-by-tick](#tick-by-tick)
-    *   [Backtest](#backtest)
+---
 
-*   [How to start](#how-to-start)
-    *   [Pre Requesites](#pre-requesites)
+## Index
 
-    *   [Collecting data](#collecting-data)
-        *   [Database](#batabase)
-        *   [Script](#script)
+* [Operating modes](#operating-modes)
+  * [Realtime](#realtime)
+  * [Tick-by-tick](#tick-by-tick)
+  * [Backtest](#backtest)
 
-*   [Entry functions](#entry-functions)
-    *   [cross SMA](#cross-sma)
+* [How to start](#how-to-start)
+  * [Pre Requesites](#pre-requesites)
 
-*   [Exit functions](#exit-functions)
-    *   [cross SMA](#cross-sma)
+  * [Collecting data](#collecting-data)
+    * [Database](#batabase)
+    * [Script](#script)
 
-*   [Plot data](#plot-data)
+* [Entry functions](#entry-functions)
+  * [cross SMA](#cross-sma)
 
-*   [Logs](#logs)
+* [Exit functions](#exit-functions)
+  * [cross SMA](#cross-sma)
 
-*   [Examples](#examples)
-    *   [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
-    *   [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
+* [Plot data](#plot-data)
 
-*   [Pypy](#pypy)
+* [Logs](#logs)
 
-*   [TODO](#todo)
+* [Examples](#examples)
+  * [Realtime alert for volume increasing](#realtime-alert-for-volume-increasing)
+  * [Backtest a strategy on BTC-DGB pair using SMA](#backtest-a-strategy-on-BTC-DGB-pair-using-sma)
 
-*   [Additional info](#additional-info)
+* [Pypy](#pypy)
 
-___
+* [TODO](#todo)
+
+* [Additional info](#additional-info)
+
+---
+
 ## Operating modes
 
 Framework has three operating modes:
 
-*   Realtime -- Trades with real data in real time, with real money or in simulation mode.
-*   Tick-by-tick -- Testing strategies in real time frames, so user can follow its entries and exits strategies.
-*   Backtest -- Backtesting strategies and presenting the results.
+* Realtime -- Trades with real data in real time, with real money or in simulation mode.
+* Tick-by-tick -- Testing strategies in real time frames, so user can follow its entries and exits strategies.
+* Backtest -- Backtesting strategies and presenting the results.
 
 ### Realtime
 
@@ -80,8 +91,8 @@ pip install -r requirements.txt
 The first step is to collect data. To get markets data is necessary to run a DB, to get and manage all data or save the data to CSV files. 
 There are two options:
 
-*   Install and configure a database.
-*   Run a script to collect data and save it to CSV files.
+* Install and configure a database.
+* Run a script to collect data and save it to CSV files.
 
 #### Database
 
@@ -223,6 +234,6 @@ Buy and sell options are commented and should only be used if you know what you 
 
 If you are interested in using this bot and don't have an account on Binance Exchange yet, please help me, creating  an account through my referral code here: https://accounts.binance.com/en/register?ref=17181609 
 
-___
+---
 
 <p align="center">USE THIS AT YOUR OWN RISK.</p>
