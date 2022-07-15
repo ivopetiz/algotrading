@@ -53,7 +53,8 @@ def is_time_to_exit(data,
                     emas=var.default_emas,
                     stop=var.stop_type,
                     bought_at: float = 0,
-                    max_price: float = 0):
+                    max_price: float = 0,
+                    count: int = 0):
     """
     Detects when is time to exit trade.
 
