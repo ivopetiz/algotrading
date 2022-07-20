@@ -40,7 +40,7 @@ import matplotlib.pylab as plt
 log.basicConfig(filename=var.LOG_FILENAME,
                 format='%(asctime)s - %(message)s',
                 datefmt='%d/%m/%Y %H:%M:%S',
-                level=log.DEBUG)
+                level=log.INFO)
 
 
 # Decorators

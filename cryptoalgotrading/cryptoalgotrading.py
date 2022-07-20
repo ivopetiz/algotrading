@@ -16,6 +16,7 @@ import signal
 import pandas as pd
 from numpy import isnan
 from time import time, ctime, sleep
+from datetime import datetime
 from binance.client import Client as Binance
 from warnings import simplefilter
 from functools import partial
@@ -340,8 +341,13 @@ def realtime(exchanges,
                 return 1
 
     if not nr_exchanges:
-        log.error('sin exchanges Jose')
+        log.error('Sin exchanges Jose')
         sys.exit(1)
+
+    # Start report
+    if var.report:
+        report = open(var.report_file, 'w')
+        report.write('date, simulation, pair, side, price, quantity\n')
 
     while True:
         start_time = time()
@@ -459,6 +465,7 @@ def realtime(exchanges,
                         if var.commission:
                             res -= var.bnb_commission
                         log.info(f'[P&L] {global_market_name} > {res:.2f}%')
+
                         # Hard coded to USDT
                         log.debug(
                                 f"[ {'+' if res>0 else '-'} ] {res_abs:.2f} {sell_res['fills'][-1]['commissionAsset']}"
@@ -473,6 +480,8 @@ def realtime(exchanges,
                                 'message': f"P&L = {res:.2f}% | {res_abs} {sell_res['fills'][-1]['commissionAsset']}"
                             })
 
+                        report.write(f"{datetime.now()}, '{simulation}', '{market_name}', 'sell', {data.Ask.iloc[-1]}\n")
+                        
                         locals()[market_name].to_csv(f"df_{market_name}-{ctime(time())}.csv")
                         del locals()[market_name]
                         del portfolio[market_name]
@@ -527,13 +536,14 @@ def realtime(exchanges,
                                 'count': 0
                             }
                             log.info(f'[BUY] {global_market_name} @ {data.Ask.iloc[-1]}')
+                        
+                        report.write(f"{datetime.now()}, '{simulation}', '{market_name}', 'buy', {data.Ask.iloc[-1]}\n")
 
         del markets
         markets = []
         # In case of processing time is bigger than *refresh_interval* doesn't sleep.
         if refresh_interval - (time()-start_time) >= 0:
             sleep(refresh_interval - (time()-start_time))
-
 
 @timeit
 def backtest(markets,

@@ -8,7 +8,7 @@ framework, if user wants to use DB and Exchanges' credentials.
 """
 
 from os import getenv, getcwd
-
+from datetime import datetime
 
 # DATABASE VARIABLES
 # Best option should be define vars on system
@@ -76,3 +76,8 @@ desktop_cool_mode = True
 
 img_profit = f'{getcwd()}/img/profit.png'
 img_loss = f'{getcwd()}/img/loss.png'
+
+# Reports vars
+report = True
+report_dir = "reports/"
+report_file = f"{report_dir}report{datetime.now().strftime('%Y%m%d-%H%M%S')}.csv"
