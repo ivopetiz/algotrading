@@ -18,6 +18,9 @@ hist-10m
 !hist-10s/BTC-DGB.csv
 scripts
 data
+reports
+trades
+
 .ipynb_checkpoints
 cryptoalgotrading.egg-info
 .eggs
