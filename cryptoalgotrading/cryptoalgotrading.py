@@ -347,9 +347,9 @@ def realtime(exchanges,
 
     # Start report
     if var.report:
-        report = open(var.report_file, 'w')
-        report.write('date, simulation, pair, side, price, quantity\n')
-
+        report = open(var.report_file, 'a')
+        report.write(f"date, simulation, pair, side, price, quantity\n")
+        report.flush()
     while True:
         start_time = time()
 
@@ -444,6 +444,7 @@ def realtime(exchanges,
                                 continue
 
                             log.info(f'[SELL] {global_market_name} @ {sold_at}')
+                            
                             if var.desktop_info:
                                 desktop_notification({
                                     'type':    'sell',
@@ -456,34 +457,41 @@ def realtime(exchanges,
                             res = ((sold_at - portfolio[market_name]['bought_at']) /
                                    portfolio[market_name]['bought_at'])*100
 
+                            log.debug(
+                                f"[ {'+' if res>0 else '-'} ] {res_abs:.2f} {sell_res['fills'][-1]['commissionAsset']}"
+                            )
+                            message = f"P&L = {res:.2f}% | {res_abs} {sell_res['fills'][-1]['commissionAsset']}"
+
                         # SIMULATION
                         else:
-                            log.info(f'[SELL] {global_market_name} @ {data.Bid.iloc[-1]}')
+                            sold_at = data.Bid.iloc[-1]
 
-                            res = ((data.Bid.iloc[-1] - portfolio[market_name]['bought_at']) /
+                            log.info(f'[SELL] {global_market_name} @ {sold_at}')
+
+                            res = ((sold_at - portfolio[market_name]['bought_at']) /
                                    portfolio[market_name]['bought_at'])*100
 
-                        if var.commission:
-                            res -= var.bnb_commission
+                            if var.commission:
+                                res -= var.bnb_commission
+
                         log.info(f'[P&L] {global_market_name} > {res:.2f}%')
 
-                        # Hard coded to USDT
-                        log.debug(
-                                f"[ {'+' if res>0 else '-'} ] {res_abs:.2f} {sell_res['fills'][-1]['commissionAsset']}"
-                        )
+                        if var.report:
+                            report.write(f"{datetime.now()}, {simulation}, '{market_name}', 'sell', "
+                                         f"{sold_at}, {portfolio[market_name]['quantity']}\n")
+                            report.flush()
 
                         if var.desktop_info:
+                            message = f"P&L = {res:.2f}%"
                             desktop_notification({
                                 'type':    'P&L',
                                 'profit%': res,
                                 'profit':  res_abs,
                                 'title':   global_market_name,
-                                'message': f"P&L = {res:.2f}% | {res_abs} {sell_res['fills'][-1]['commissionAsset']}"
+                                'message': message 
                             })
 
-                        report.write(f"{datetime.now()}, '{simulation}', '{market_name}', 'sell', {data.Ask.iloc[-1]}\n")
-                        
-                        locals()[market_name].to_csv(f"df_{market_name}-{ctime(time())}.csv")
+                        locals()[market_name].to_csv(f"trades/df_{market_name}-{ctime(time())}.csv")
                         del locals()[market_name]
                         del portfolio[market_name]
                         coins.pop(market_name)
@@ -517,6 +525,15 @@ def realtime(exchanges,
                                     'count': 0}
 
                                 log.info(f"[BUY] {global_market_name} @ {portfolio[market_name]['bought_at']}")
+                                
+                                if report:
+                                    report.write(
+                                        f"{datetime.now()}, {simulation}, '{market_name}', 'buy', " +
+                                        f"{portfolio[market_name]['brought_at']}, " +
+                                        f"{portfolio[market_name]['quantity']}\n"
+                                        )
+                                    report.flush()
+
                                 if var.desktop_info:
                                     desktop_notification({
                                         'type':    'buy',
@@ -537,8 +554,10 @@ def realtime(exchanges,
                                 'count': 0
                             }
                             log.info(f'[BUY] {global_market_name} @ {data.Ask.iloc[-1]}')
-                        
-                        report.write(f"{datetime.now()}, '{simulation}', '{market_name}', 'buy', {data.Ask.iloc[-1]}\n")
+
+                            if report:
+                                report.write(f"{datetime.now()}, {simulation}, '{market_name}', 'buy', {data.Ask.iloc[-1]}, 1\n")
+                                report.flush()
 
         del markets
         markets = []
