@@ -1,7 +1,7 @@
 backports.functools-lru-cache==1.5
 backports.shutil-get-terminal-size==1.0.0
 binance~=0.3
-certifi==2018.4.16
+certifi==2022.12.7
 chardet==3.0.4
 coverage
 coveralls
